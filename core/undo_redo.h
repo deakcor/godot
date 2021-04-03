@@ -74,9 +74,11 @@ private:
 		List<Operation> do_ops;
 		List<Operation> undo_ops;
 		uint64_t last_tick;
+		Variant metadata;
 	};
 
 	Vector<Action> actions;
+	int max_actions;
 	int current_action;
 	int action_level;
 	MergeMode merge_mode;
@@ -103,20 +105,30 @@ protected:
 public:
 	void create_action(const String &p_name = "", MergeMode p_mode = MERGE_DISABLE);
 
+	void set_max_actions(int p_amount);
+	int get_max_actions() const;
+
 	void add_do_method(Object *p_object, const String &p_method, VARIANT_ARG_LIST);
 	void add_undo_method(Object *p_object, const String &p_method, VARIANT_ARG_LIST);
 	void add_do_property(Object *p_object, const String &p_property, const Variant &p_value);
 	void add_undo_property(Object *p_object, const String &p_property, const Variant &p_value);
 	void add_do_reference(Object *p_object);
 	void add_undo_reference(Object *p_object);
+	void set_metadata(const Variant &p_metadata);
 
 	bool is_committing_action() const;
 	void commit_action();
 
 	bool redo();
 	bool undo();
+
+	int get_action_count() const;
 	String get_current_action_name() const;
-	void clear_history(bool p_increase_version = true);
+	Variant get_current_action_metadata() const;
+	String get_action_name(int p_idx) const;
+	Variant get_action_metadata(int p_idx) const;
+	Variant get_current_action_metadata() const;
+	void clear_history(bool p_increase_version = true, int p_keep_actions = 0);
 
 	bool has_undo();
 	bool has_redo();

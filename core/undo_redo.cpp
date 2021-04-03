@@ -101,8 +101,21 @@ void UndoRedo::create_action(const String &p_name, MergeMode p_mode) {
 			merge_mode = MERGE_DISABLE;
 		}
 	}
-
 	action_level++;
+}
+
+void UndoRedo::set_max_actions(int p_amount) {
+
+	ERR_FAIL_COND(p_amount < 0);
+	max_actions = p_amount;
+	if (max_actions > 0) {
+		clear_history(max_actions, false);
+	}
+}
+
+int UndoRedo::get_max_actions() const {
+
+	return max_actions;
 }
 
 void UndoRedo::add_do_method(Object *p_object, const String &p_method, VARIANT_ARG_DECLARE) {
@@ -216,6 +229,14 @@ void UndoRedo::add_undo_reference(Object *p_object) {
 	actions.write[current_action + 1].undo_ops.push_back(undo_op);
 }
 
+void UndoRedo::set_metadata(const Variant &p_metadata) {
+
+	ERR_FAIL_COND(action_level <= 0);
+	ERR_FAIL_COND((current_action + 1) >= actions.size());
+
+	actions.write[current_action + 1].metadata = p_metadata;
+}
+
 void UndoRedo::_pop_history_tail() {
 
 	_discard_redo();
@@ -260,6 +281,9 @@ void UndoRedo::commit_action() {
 	committing--;
 	if (callback && actions.size() > 0) {
 		callback(callback_ud, actions[actions.size() - 1].name);
+	}
+	if (max_actions > 0) {
+		clear_history(max_actions, false);
 	}
 }
 
@@ -354,12 +378,12 @@ bool UndoRedo::undo() {
 	return true;
 }
 
-void UndoRedo::clear_history(bool p_increase_version) {
+void UndoRedo::clear_history(bool p_increase_version, int p_keep_actions) {
 
 	ERR_FAIL_COND(action_level > 0);
 	_discard_redo();
 
-	while (actions.size())
+	while (actions.size() > p_keep_actions)
 		_pop_history_tail();
 
 	if (p_increase_version) {
@@ -368,12 +392,37 @@ void UndoRedo::clear_history(bool p_increase_version) {
 	}
 }
 
+int UndoRedo::get_action_count() const {
+
+	return actions.size();
+}
+
 String UndoRedo::get_current_action_name() const {
 
 	ERR_FAIL_COND_V(action_level > 0, "");
 	if (current_action < 0)
 		return "";
 	return actions[current_action].name;
+}
+
+Variant UndoRedo::get_current_action_metadata() const {
+
+	ERR_FAIL_COND_V(action_level > 0, Variant());
+	if (current_action < 0)
+		return Variant();
+	return actions[current_action].metadata;
+}
+
+String UndoRedo::get_action_name(int p_idx) const {
+
+	ERR_FAIL_INDEX(p_idx, actions.size());
+	return actions[p_idx].name;
+}
+
+Variant UndoRedo::get_action_metadata(int p_idx) const {
+
+	ERR_FAIL_INDEX(p_idx, actions.size());
+	return actions[p_idx].metadata;
 }
 
 bool UndoRedo::has_undo() {
@@ -407,28 +456,6 @@ void UndoRedo::set_property_notify_callback(PropertyNotifyCallback p_property_ca
 
 	property_callback = p_property_callback;
 	prop_callback_ud = p_ud;
-}
-
-UndoRedo::UndoRedo() {
-
-	committing = 0;
-	version = 1;
-	action_level = 0;
-	current_action = -1;
-	merge_mode = MERGE_DISABLE;
-	merging = false;
-	callback = NULL;
-	callback_ud = NULL;
-
-	method_callbck_ud = NULL;
-	prop_callback_ud = NULL;
-	method_callback = NULL;
-	property_callback = NULL;
-}
-
-UndoRedo::~UndoRedo() {
-
-	clear_history();
 }
 
 Variant UndoRedo::_add_do_method(const Variant **p_args, int p_argcount, Variant::CallError &r_error) {
@@ -510,6 +537,8 @@ Variant UndoRedo::_add_undo_method(const Variant **p_args, int p_argcount, Varia
 void UndoRedo::_bind_methods() {
 
 	ClassDB::bind_method(D_METHOD("create_action", "name", "merge_mode"), &UndoRedo::create_action, DEFVAL(MERGE_DISABLE));
+	ClassDB::bind_method(D_METHOD("set_max_actions", "amount"), &UndoRedo::set_max_actions);
+	ClassDB::bind_method(D_METHOD("get_max_actions"), &UndoRedo::get_max_actions);
 	ClassDB::bind_method(D_METHOD("commit_action"), &UndoRedo::commit_action);
 	// FIXME: Typo in "commiting", fix in 4.0 when breaking compat.
 	ClassDB::bind_method(D_METHOD("is_commiting_action"), &UndoRedo::is_committing_action);
@@ -536,17 +565,50 @@ void UndoRedo::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("add_undo_property", "object", "property", "value"), &UndoRedo::add_undo_property);
 	ClassDB::bind_method(D_METHOD("add_do_reference", "object"), &UndoRedo::add_do_reference);
 	ClassDB::bind_method(D_METHOD("add_undo_reference", "object"), &UndoRedo::add_undo_reference);
-	ClassDB::bind_method(D_METHOD("clear_history", "increase_version"), &UndoRedo::clear_history, DEFVAL(true));
+	ClassDB::bind_method(D_METHOD("set_metadata", "metadata"), &UndoRedo::set_metadata);
+
+	ClassDB::bind_method(D_METHOD("clear_history", "increase_version", "keep_actions"), &UndoRedo::clear_history, DEFVAL(true));
+	ClassDB::bind_method(D_METHOD("get_action_count"), &UndoRedo::get_action_count);
 	ClassDB::bind_method(D_METHOD("get_current_action_name"), &UndoRedo::get_current_action_name);
+	ClassDB::bind_method(D_METHOD("get_current_action_metadata"), &UndoRedo::get_current_action_metadata);
+	ClassDB::bind_method(D_METHOD("get_action_name", "idx"), &UndoRedo::get_action_name);
+	ClassDB::bind_method(D_METHOD("get_action_metadata", "idx"), &UndoRedo::get_action_metadata);
+
 	ClassDB::bind_method(D_METHOD("has_undo"), &UndoRedo::has_undo);
 	ClassDB::bind_method(D_METHOD("has_redo"), &UndoRedo::has_redo);
+
 	ClassDB::bind_method(D_METHOD("get_version"), &UndoRedo::get_version);
 	ClassDB::bind_method(D_METHOD("redo"), &UndoRedo::redo);
 	ClassDB::bind_method(D_METHOD("undo"), &UndoRedo::undo);
+
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "max_actions", PROPERTY_HINT_RANGE , "0,10,1,or_greater"), "set_max_actions", "get_max_actions");
 
 	ADD_SIGNAL(MethodInfo("version_changed"));
 
 	BIND_ENUM_CONSTANT(MERGE_DISABLE);
 	BIND_ENUM_CONSTANT(MERGE_ENDS);
 	BIND_ENUM_CONSTANT(MERGE_ALL);
+}
+
+UndoRedo::UndoRedo() {
+
+	committing = 0;
+	max_actions = 0;
+	version = 1;
+	action_level = 0;
+	current_action = -1;
+	merge_mode = MERGE_DISABLE;
+	merging = false;
+	callback = NULL;
+	callback_ud = NULL;
+
+	method_callbck_ud = NULL;
+	prop_callback_ud = NULL;
+	method_callback = NULL;
+	property_callback = NULL;
+}
+
+UndoRedo::~UndoRedo() {
+
+	clear_history();
 }
