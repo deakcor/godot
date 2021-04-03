@@ -387,6 +387,7 @@ bool UndoRedo::undo() {
 void UndoRedo::clear_history(bool p_increase_version, int p_keep_actions) {
 
 	ERR_FAIL_COND(action_level > 0);
+	ERR_FAIL_COND(p_keep_actions < 0);
 	_discard_redo();
 
 	while (actions.size() > p_keep_actions)
