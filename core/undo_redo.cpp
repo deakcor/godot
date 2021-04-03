@@ -264,7 +264,7 @@ bool UndoRedo::is_committing_action() const {
 	return committing > 0;
 }
 
-void UndoRedo::commit_action() {
+void UndoRedo::commit_action(bool p_apply_redo) {
 
 	ERR_FAIL_COND(action_level <= 0);
 	action_level--;
@@ -277,7 +277,13 @@ void UndoRedo::commit_action() {
 	}
 
 	committing++;
-	redo(); // perform action
+	if (p_apply_redo) {
+		redo(); // perform action
+	} else {
+		current_action++;
+		version++;
+		emit_signal("version_changed");
+	}
 	committing--;
 	if (callback && actions.size() > 0) {
 		callback(callback_ud, actions[actions.size() - 1].name);
@@ -539,7 +545,7 @@ void UndoRedo::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("create_action", "name", "merge_mode"), &UndoRedo::create_action, DEFVAL(MERGE_DISABLE));
 	ClassDB::bind_method(D_METHOD("set_max_actions", "amount"), &UndoRedo::set_max_actions);
 	ClassDB::bind_method(D_METHOD("get_max_actions"), &UndoRedo::get_max_actions);
-	ClassDB::bind_method(D_METHOD("commit_action"), &UndoRedo::commit_action);
+	ClassDB::bind_method(D_METHOD("commit_action", "apply_redo"), &UndoRedo::commit_action, DEFVAL(true));
 	// FIXME: Typo in "commiting", fix in 4.0 when breaking compat.
 	ClassDB::bind_method(D_METHOD("is_commiting_action"), &UndoRedo::is_committing_action);
 
@@ -567,7 +573,7 @@ void UndoRedo::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("add_undo_reference", "object"), &UndoRedo::add_undo_reference);
 	ClassDB::bind_method(D_METHOD("set_metadata", "metadata"), &UndoRedo::set_metadata);
 
-	ClassDB::bind_method(D_METHOD("clear_history", "increase_version", "keep_actions"), &UndoRedo::clear_history, DEFVAL(true));
+	ClassDB::bind_method(D_METHOD("clear_history", "increase_version", "keep_actions"), &UndoRedo::clear_history, DEFVAL(true, 0));
 	ClassDB::bind_method(D_METHOD("get_action_count"), &UndoRedo::get_action_count);
 	ClassDB::bind_method(D_METHOD("get_current_action_name"), &UndoRedo::get_current_action_name);
 	ClassDB::bind_method(D_METHOD("get_current_action_metadata"), &UndoRedo::get_current_action_metadata);

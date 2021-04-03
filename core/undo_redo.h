@@ -117,7 +117,7 @@ public:
 	void set_metadata(const Variant &p_metadata);
 
 	bool is_committing_action() const;
-	void commit_action();
+	void commit_action(bool p_apply_redo = true);
 
 	bool redo();
 	bool undo();
