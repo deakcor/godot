@@ -127,7 +127,6 @@ public:
 	Variant get_current_action_metadata() const;
 	String get_action_name(int p_idx) const;
 	Variant get_action_metadata(int p_idx) const;
-	Variant get_current_action_metadata() const;
 	void clear_history(bool p_increase_version = true, int p_keep_actions = 0);
 
 	bool has_undo();

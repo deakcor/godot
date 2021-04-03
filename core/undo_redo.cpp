@@ -109,7 +109,7 @@ void UndoRedo::set_max_actions(int p_amount) {
 	ERR_FAIL_COND(p_amount < 0);
 	max_actions = p_amount;
 	if (max_actions > 0) {
-		clear_history(max_actions, false);
+		clear_history(false, max_actions);
 	}
 }
 
@@ -283,7 +283,7 @@ void UndoRedo::commit_action() {
 		callback(callback_ud, actions[actions.size() - 1].name);
 	}
 	if (max_actions > 0) {
-		clear_history(max_actions, false);
+		clear_history(false, max_actions);
 	}
 }
 
@@ -394,7 +394,7 @@ void UndoRedo::clear_history(bool p_increase_version, int p_keep_actions) {
 
 int UndoRedo::get_action_count() const {
 
-	return actions.size();
+	return current_action + 1;
 }
 
 String UndoRedo::get_current_action_name() const {
@@ -415,13 +415,13 @@ Variant UndoRedo::get_current_action_metadata() const {
 
 String UndoRedo::get_action_name(int p_idx) const {
 
-	ERR_FAIL_INDEX(p_idx, actions.size());
+	ERR_FAIL_COND_V(p_idx > current_action, "");
 	return actions[p_idx].name;
 }
 
 Variant UndoRedo::get_action_metadata(int p_idx) const {
 
-	ERR_FAIL_INDEX(p_idx, actions.size());
+	ERR_FAIL_COND_V(p_idx > current_action, Variant());
 	return actions[p_idx].metadata;
 }
 
