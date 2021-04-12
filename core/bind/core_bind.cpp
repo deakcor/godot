@@ -224,6 +224,8 @@ String _OS::get_clipboard() const {
 
 bool _OS::has_clipboard() const {
 	return OS::get_singleton()->has_clipboard();
+Ref<Image> _OS::get_image_clipboard() const {
+	return OS::get_singleton()->get_image_clipboard();
 }
 
 int _OS::get_video_driver_count() const {
@@ -1252,6 +1254,7 @@ void _OS::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_clipboard", "clipboard"), &_OS::set_clipboard);
 	ClassDB::bind_method(D_METHOD("get_clipboard"), &_OS::get_clipboard);
 	ClassDB::bind_method(D_METHOD("has_clipboard"), &_OS::has_clipboard);
+	ClassDB::bind_method(D_METHOD("get_image_clipboard"), &_OS::get_image_clipboard);
 
 	//will not delete for now, just unexpose
 	//ClassDB::bind_method(D_METHOD("set_video_mode","size","fullscreen","resizable","screen"),&_OS::set_video_mode,DEFVAL(0));

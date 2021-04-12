@@ -179,6 +179,9 @@ void OS::set_clipboard_primary(const String &p_text) {
 
 String OS::get_clipboard_primary() const {
 	return _primary_clipboard;
+Ref<Image> OS::get_image_clipboard() const {
+
+	return _local_image_clipboard;
 }
 
 String OS::get_executable_path() const {
