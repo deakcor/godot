@@ -595,8 +595,9 @@ void Animation::_get_property_list(List<PropertyInfo> *p_list) const {
 	}
 }
 
-int Animation::add_track(TrackType p_type, int p_at_pos) {
-	if (p_at_pos < 0 || p_at_pos >= tracks.size()) {
+int Animation::add_track(TrackType p_type, int p_at_pos, int p_id) {
+
+	if (p_at_pos < 0 || p_at_pos >= tracks.size())
 		p_at_pos = tracks.size();
 	}
 
@@ -1422,6 +1423,124 @@ void Animation::track_set_key_transition(int p_track, int p_key_idx, float p_tra
 	}
 
 	emit_changed();
+}
+
+int Animation::track_get_key_index_by_id(int p_track, int p_key_id) const {
+
+	ERR_FAIL_INDEX_V(p_track, tracks.size(), -1);
+	for (int i = 0; i < track_get_key_count(p_track); i++) {
+		if (track_get_key_id(p_track, i) == p_key_id) {
+			return i;
+		}
+	}
+	return -1;
+}
+
+int Animation::track_get_key_id(int p_track, int p_key_idx) const {
+
+	ERR_FAIL_INDEX_V(p_track, tracks.size(), -1);
+	Track *t = tracks[p_track];
+
+	switch (t->type) {
+
+		case TYPE_TRANSFORM: {
+
+			TransformTrack *tt = static_cast<TransformTrack *>(t);
+			ERR_FAIL_INDEX_V(p_key_idx, tt->transforms.size(), -1);
+			return tt->transforms[p_key_idx].id;
+		} break;
+		case TYPE_VALUE: {
+
+			ValueTrack *vt = static_cast<ValueTrack *>(t);
+			ERR_FAIL_INDEX_V(p_key_idx, vt->values.size(), -1);
+			return vt->values[p_key_idx].id;
+
+		} break;
+		case TYPE_METHOD: {
+
+			MethodTrack *mt = static_cast<MethodTrack *>(t);
+			ERR_FAIL_INDEX_V(p_key_idx, mt->methods.size(), -1);
+			return mt->methods[p_key_idx].id;
+
+		} break;
+		case TYPE_BEZIER: {
+
+			BezierTrack *bt = static_cast<BezierTrack *>(t);
+			ERR_FAIL_INDEX_V(p_key_idx, bt->values.size(), -1);
+			return bt->values[p_key_idx].id;
+
+		} break;
+		case TYPE_AUDIO: {
+
+			AudioTrack *at = static_cast<AudioTrack *>(t);
+			ERR_FAIL_INDEX_V(p_key_idx, at->values.size(), -1);
+			return at->values[p_key_idx].id;
+
+		} break;
+		case TYPE_ANIMATION: {
+
+			AnimationTrack *at = static_cast<AnimationTrack *>(t);
+			ERR_FAIL_INDEX_V(p_key_idx, at->values.size(), -1);
+			return at->values[p_key_idx].id;
+
+		} break;
+	}
+
+	ERR_FAIL_V(-1);
+}
+
+void Animation::track_set_key_id(int p_track, int p_key_idx, int p_key_id) {
+
+	ERR_FAIL_INDEX(p_track, tracks.size());
+	Track *t = tracks[p_track];
+
+	switch (t->type) {
+
+		case TYPE_TRANSFORM: {
+
+			TransformTrack *tt = static_cast<TransformTrack *>(t);
+			ERR_FAIL_INDEX(p_key_idx, tt->transforms.size());
+			tt->transforms.write[p_key_idx].id = p_key_id;
+			return;
+		}
+		case TYPE_VALUE: {
+
+			ValueTrack *vt = static_cast<ValueTrack *>(t);
+			ERR_FAIL_INDEX(p_key_idx, vt->values.size());
+			vt->values.write[p_key_idx].id = p_key_id;
+			return;
+		}
+		case TYPE_METHOD: {
+
+			MethodTrack *mt = static_cast<MethodTrack *>(t);
+			ERR_FAIL_INDEX(p_key_idx, mt->methods.size());
+			mt->methods.write[p_key_idx].id = p_key_id;
+			return;
+		}
+		case TYPE_BEZIER: {
+
+			BezierTrack *bt = static_cast<BezierTrack *>(t);
+			ERR_FAIL_INDEX(p_key_idx, bt->values.size());
+			bt->values.write[p_key_idx].id = p_key_id;
+			return;
+		}
+		case TYPE_AUDIO: {
+
+			AudioTrack *at = static_cast<AudioTrack *>(t);
+			ERR_FAIL_INDEX(p_key_idx, at->values.size());
+			at->values.write[p_key_idx].id = p_key_id;
+			return;
+		}
+		case TYPE_ANIMATION: {
+
+			AnimationTrack *at = static_cast<AnimationTrack *>(t);
+			ERR_FAIL_INDEX(p_key_idx, at->values.size());
+			at->values.write[p_key_idx].id = p_key_id;
+			return;
+		}
+	}
+
+	ERR_FAIL();
 }
 
 template <class K>
@@ -2518,6 +2637,28 @@ bool Animation::track_is_enabled(int p_track) const {
 	return tracks[p_track]->enabled;
 }
 
+int Animation::track_get_index_by_id(int p_track_id) const {
+
+	for (int i = 0; i < tracks.size(); i++) {
+		if (tracks[i]->id == p_track_id) {
+			return i;
+		}
+	}
+	return -1;
+}
+
+int Animation::track_get_id(int p_track) const {
+
+	ERR_FAIL_INDEX_V(p_track, tracks.size(), -1);
+	return tracks[p_track]->id;
+}
+
+void Animation::track_set_id(int p_track, int p_track_id) {
+
+	ERR_FAIL_INDEX(p_track, tracks.size());
+	tracks[p_track]->id = p_track_id;
+}
+
 void Animation::track_move_up(int p_track) {
 	if (p_track >= 0 && p_track < (tracks.size() - 1)) {
 		SWAP(tracks.write[p_track], tracks.write[p_track + 1]);
@@ -2593,8 +2734,10 @@ void Animation::copy_track(int p_track, Ref<Animation> p_to_animation) {
 	}
 }
 
+	
 void Animation::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("add_track", "type", "at_position"), &Animation::add_track, DEFVAL(-1));
+
+	ClassDB::bind_method(D_METHOD("add_track", "type", "at_position", "track_id"), &Animation::add_track, DEFVAL(-1,-1));
 	ClassDB::bind_method(D_METHOD("remove_track", "track_idx"), &Animation::remove_track);
 	ClassDB::bind_method(D_METHOD("get_track_count"), &Animation::get_track_count);
 	ClassDB::bind_method(D_METHOD("track_get_type", "track_idx"), &Animation::track_get_type);
@@ -2613,6 +2756,10 @@ void Animation::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("track_set_enabled", "track_idx", "enabled"), &Animation::track_set_enabled);
 	ClassDB::bind_method(D_METHOD("track_is_enabled", "track_idx"), &Animation::track_is_enabled);
 
+	ClassDB::bind_method(D_METHOD("track_get_index_by_id", "track_id"), &Animation::track_get_index_by_id);
+	ClassDB::bind_method(D_METHOD("track_get_id", "track_idx"), &Animation::track_get_id);
+	ClassDB::bind_method(D_METHOD("track_set_id", "track_idx", "track_id"), &Animation::track_set_id);
+
 	ClassDB::bind_method(D_METHOD("transform_track_insert_key", "track_idx", "time", "location", "rotation", "scale"), &Animation::transform_track_insert_key);
 	ClassDB::bind_method(D_METHOD("track_insert_key", "track_idx", "time", "key", "transition"), &Animation::track_insert_key, DEFVAL(1));
 	ClassDB::bind_method(D_METHOD("track_remove_key", "track_idx", "key_idx"), &Animation::track_remove_key);
@@ -2621,6 +2768,10 @@ void Animation::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("track_set_key_transition", "track_idx", "key_idx", "transition"), &Animation::track_set_key_transition);
 	ClassDB::bind_method(D_METHOD("track_set_key_time", "track_idx", "key_idx", "time"), &Animation::track_set_key_time);
 	ClassDB::bind_method(D_METHOD("track_get_key_transition", "track_idx", "key_idx"), &Animation::track_get_key_transition);
+
+	ClassDB::bind_method(D_METHOD("track_get_key_index_by_id", "track_idx", "key_id"), &Animation::track_get_key_index_by_id);
+	ClassDB::bind_method(D_METHOD("track_get_key_id", "track_idx", "key_idx"), &Animation::track_get_key_id);
+	ClassDB::bind_method(D_METHOD("track_set_key_id", "track_idx", "key_idx", "key_id"), &Animation::track_set_key_id);
 
 	ClassDB::bind_method(D_METHOD("track_get_key_count", "track_idx"), &Animation::track_get_key_count);
 	ClassDB::bind_method(D_METHOD("track_get_key_value", "track_idx", "key_idx"), &Animation::track_get_key_value);
