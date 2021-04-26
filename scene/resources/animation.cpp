@@ -630,6 +630,7 @@ int Animation::add_track(TrackType p_type, int p_at_pos, int p_id) {
 			ERR_PRINT("Unknown track type");
 		}
 	}
+	track_set_id(p_at_pos, p_id);
 	emit_changed();
 	emit_signal(SceneStringNames::get_singleton()->tracks_changed);
 	return p_at_pos;
@@ -1425,7 +1426,7 @@ void Animation::track_set_key_transition(int p_track, int p_key_idx, float p_tra
 	emit_changed();
 }
 
-int Animation::track_get_key_index_by_id(int p_track, int p_key_id) const {
+int Animation::track_get_first_key_idx_by_id(int p_track, int p_key_id) const {
 
 	ERR_FAIL_INDEX_V(p_track, tracks.size(), -1);
 	for (int i = 0; i < track_get_key_count(p_track); i++) {
@@ -2637,7 +2638,7 @@ bool Animation::track_is_enabled(int p_track) const {
 	return tracks[p_track]->enabled;
 }
 
-int Animation::track_get_index_by_id(int p_track_id) const {
+int Animation::get_first_track_idx_by_id(int p_track_id) const {
 
 	for (int i = 0; i < tracks.size(); i++) {
 		if (tracks[i]->id == p_track_id) {
@@ -2737,7 +2738,7 @@ void Animation::copy_track(int p_track, Ref<Animation> p_to_animation) {
 	
 void Animation::_bind_methods() {
 
-	ClassDB::bind_method(D_METHOD("add_track", "type", "at_position", "track_id"), &Animation::add_track, DEFVAL(-1,-1));
+	ClassDB::bind_method(D_METHOD("add_track", "type", "at_position", "track_id"), &Animation::add_track, DEFVAL(-1), DEFVAL(0));
 	ClassDB::bind_method(D_METHOD("remove_track", "track_idx"), &Animation::remove_track);
 	ClassDB::bind_method(D_METHOD("get_track_count"), &Animation::get_track_count);
 	ClassDB::bind_method(D_METHOD("track_get_type", "track_idx"), &Animation::track_get_type);
@@ -2756,7 +2757,7 @@ void Animation::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("track_set_enabled", "track_idx", "enabled"), &Animation::track_set_enabled);
 	ClassDB::bind_method(D_METHOD("track_is_enabled", "track_idx"), &Animation::track_is_enabled);
 
-	ClassDB::bind_method(D_METHOD("track_get_index_by_id", "track_id"), &Animation::track_get_index_by_id);
+	ClassDB::bind_method(D_METHOD("get_first_track_idx_by_id", "track_id"), &Animation::get_first_track_idx_by_id);
 	ClassDB::bind_method(D_METHOD("track_get_id", "track_idx"), &Animation::track_get_id);
 	ClassDB::bind_method(D_METHOD("track_set_id", "track_idx", "track_id"), &Animation::track_set_id);
 
@@ -2769,7 +2770,7 @@ void Animation::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("track_set_key_time", "track_idx", "key_idx", "time"), &Animation::track_set_key_time);
 	ClassDB::bind_method(D_METHOD("track_get_key_transition", "track_idx", "key_idx"), &Animation::track_get_key_transition);
 
-	ClassDB::bind_method(D_METHOD("track_get_key_index_by_id", "track_idx", "key_id"), &Animation::track_get_key_index_by_id);
+	ClassDB::bind_method(D_METHOD("track_get_first_key_idx_by_id", "track_idx", "key_id"), &Animation::track_get_first_key_idx_by_id);
 	ClassDB::bind_method(D_METHOD("track_get_key_id", "track_idx", "key_idx"), &Animation::track_get_key_id);
 	ClassDB::bind_method(D_METHOD("track_set_key_id", "track_idx", "key_idx", "key_id"), &Animation::track_set_key_id);
 
