@@ -1544,6 +1544,113 @@ void Animation::track_set_key_id(int p_track, int p_key_idx, int p_key_id) {
 	ERR_FAIL();
 }
 
+Variant Animation::track_get_key_metadata(int p_track, int p_key_idx) const {
+
+	ERR_FAIL_INDEX_V(p_track, tracks.size(), -1);
+	Track *t = tracks[p_track];
+
+	switch (t->type) {
+
+		case TYPE_TRANSFORM: {
+
+			TransformTrack *tt = static_cast<TransformTrack *>(t);
+			ERR_FAIL_INDEX_V(p_key_idx, tt->transforms.size(), -1);
+			return tt->transforms[p_key_idx].metadata;
+		} break;
+		case TYPE_VALUE: {
+
+			ValueTrack *vt = static_cast<ValueTrack *>(t);
+			ERR_FAIL_INDEX_V(p_key_idx, vt->values.size(), -1);
+			return vt->values[p_key_idx].metadata;
+
+		} break;
+		case TYPE_METHOD: {
+
+			MethodTrack *mt = static_cast<MethodTrack *>(t);
+			ERR_FAIL_INDEX_V(p_key_idx, mt->methods.size(), -1);
+			return mt->methods[p_key_idx].metadata;
+
+		} break;
+		case TYPE_BEZIER: {
+
+			BezierTrack *bt = static_cast<BezierTrack *>(t);
+			ERR_FAIL_INDEX_V(p_key_idx, bt->values.size(), -1);
+			return bt->values[p_key_idx].metadata;
+
+		} break;
+		case TYPE_AUDIO: {
+
+			AudioTrack *at = static_cast<AudioTrack *>(t);
+			ERR_FAIL_INDEX_V(p_key_idx, at->values.size(), -1);
+			return at->values[p_key_idx].metadata;
+
+		} break;
+		case TYPE_ANIMATION: {
+
+			AnimationTrack *at = static_cast<AnimationTrack *>(t);
+			ERR_FAIL_INDEX_V(p_key_idx, at->values.size(), -1);
+			return at->values[p_key_idx].metadata;
+
+		} break;
+	}
+
+	ERR_FAIL_V(-1);
+}
+
+void Animation::track_set_key_metadata(int p_track, int p_key_idx, const Variant &p_key_metadata) {
+
+	ERR_FAIL_INDEX(p_track, tracks.size());
+	Track *t = tracks[p_track];
+
+	switch (t->type) {
+
+		case TYPE_TRANSFORM: {
+
+			TransformTrack *tt = static_cast<TransformTrack *>(t);
+			ERR_FAIL_INDEX(p_key_idx, tt->transforms.size());
+			tt->transforms.write[p_key_idx].metadata = p_key_metadata;
+			return;
+		}
+		case TYPE_VALUE: {
+
+			ValueTrack *vt = static_cast<ValueTrack *>(t);
+			ERR_FAIL_INDEX(p_key_idx, vt->values.size());
+			vt->values.write[p_key_idx].metadata = p_key_metadata;
+			return;
+		}
+		case TYPE_METHOD: {
+
+			MethodTrack *mt = static_cast<MethodTrack *>(t);
+			ERR_FAIL_INDEX(p_key_idx, mt->methods.size());
+			mt->methods.write[p_key_idx].metadata = p_key_metadata;
+			return;
+		}
+		case TYPE_BEZIER: {
+
+			BezierTrack *bt = static_cast<BezierTrack *>(t);
+			ERR_FAIL_INDEX(p_key_idx, bt->values.size());
+			bt->values.write[p_key_idx].metadata = p_key_metadata;
+			return;
+		}
+		case TYPE_AUDIO: {
+
+			AudioTrack *at = static_cast<AudioTrack *>(t);
+			ERR_FAIL_INDEX(p_key_idx, at->values.size());
+			at->values.write[p_key_idx].metadata = p_key_metadata;
+			return;
+		}
+		case TYPE_ANIMATION: {
+
+			AnimationTrack *at = static_cast<AnimationTrack *>(t);
+			ERR_FAIL_INDEX(p_key_idx, at->values.size());
+			at->values.write[p_key_idx].metadata = p_key_metadata;
+			return;
+		}
+	}
+
+	ERR_FAIL();
+}
+
 template <class K>
 int Animation::_find(const Vector<K> &p_keys, float p_time) const {
 	int len = p_keys.size();
@@ -2773,6 +2880,9 @@ void Animation::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("track_get_first_key_idx_by_id", "track_idx", "key_id"), &Animation::track_get_first_key_idx_by_id);
 	ClassDB::bind_method(D_METHOD("track_get_key_id", "track_idx", "key_idx"), &Animation::track_get_key_id);
 	ClassDB::bind_method(D_METHOD("track_set_key_id", "track_idx", "key_idx", "key_id"), &Animation::track_set_key_id);
+
+	ClassDB::bind_method(D_METHOD("track_get_key_metadata", "track_idx", "key_idx"), &Animation::track_get_key_metadata);
+	ClassDB::bind_method(D_METHOD("track_set_key_metadata", "track_idx", "key_idx", "key_metadata"), &Animation::track_set_key_metadata);
 
 	ClassDB::bind_method(D_METHOD("track_get_key_count", "track_idx"), &Animation::track_get_key_count);
 	ClassDB::bind_method(D_METHOD("track_get_key_value", "track_idx", "key_idx"), &Animation::track_get_key_value);
