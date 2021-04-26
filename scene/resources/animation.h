@@ -71,19 +71,24 @@ private:
 		NodePath path; // path to something
 		bool imported;
 		bool enabled;
+		int id;
 		Track() {
 			interpolation = INTERPOLATION_LINEAR;
 			imported = false;
 			loop_wrap = true;
 			enabled = true;
 		}
-		virtual ~Track() {}
+		virtual ~Track() { id = -1; }
 	};
 
 	struct Key {
 		float transition;
 		float time; // time in secs
-		Key() { transition = 1; }
+		int id;
+		Key() {
+			transition = 1;
+			id = -1;
+		}
 	};
 
 	// transform key holds either Vector3 or Quaternion
@@ -264,7 +269,7 @@ protected:
 	static void _bind_methods();
 
 public:
-	int add_track(TrackType p_type, int p_at_pos = -1);
+	int add_track(TrackType p_type, int p_at_pos = -1, int p_id = -1);
 	void remove_track(int p_track);
 
 	int get_track_count() const;
@@ -286,6 +291,10 @@ public:
 	void track_set_enabled(int p_track, bool p_enabled);
 	bool track_is_enabled(int p_track) const;
 
+	int track_get_index_by_id(int p_track_id) const;
+	int track_get_id(int p_track) const;
+	void track_set_id(int p_track, int p_track_id);
+
 	void track_insert_key(int p_track, float p_time, const Variant &p_key, float p_transition = 1);
 	void track_set_key_transition(int p_track, int p_key_idx, float p_transition);
 	void track_set_key_value(int p_track, int p_key_idx, const Variant &p_value);
@@ -297,6 +306,10 @@ public:
 	Variant track_get_key_value(int p_track, int p_key_idx) const;
 	float track_get_key_time(int p_track, int p_key_idx) const;
 	float track_get_key_transition(int p_track, int p_key_idx) const;
+
+	int track_get_key_index_by_id(int p_track, int p_key_id) const;
+	int track_get_key_id(int p_track, int p_key_idx) const;
+	void track_set_key_id(int p_track, int p_key_idx , int p_key_id);
 
 	int transform_track_insert_key(int p_track, float p_time, const Vector3 &p_loc, const Quat &p_rot = Quat(), const Vector3 &p_scale = Vector3());
 	Error transform_track_get_key(int p_track, int p_key, Vector3 *r_loc, Quat *r_rot, Vector3 *r_scale) const;
