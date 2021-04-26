@@ -269,7 +269,7 @@ protected:
 	static void _bind_methods();
 
 public:
-	int add_track(TrackType p_type, int p_at_pos = -1, int p_id = -1);
+	int add_track(TrackType p_type, int p_at_pos = -1, int p_id = 0);
 	void remove_track(int p_track);
 
 	int get_track_count() const;
@@ -291,7 +291,7 @@ public:
 	void track_set_enabled(int p_track, bool p_enabled);
 	bool track_is_enabled(int p_track) const;
 
-	int track_get_index_by_id(int p_track_id) const;
+	int get_first_track_idx_by_id(int p_track_id) const;
 	int track_get_id(int p_track) const;
 	void track_set_id(int p_track, int p_track_id);
 
@@ -307,7 +307,7 @@ public:
 	float track_get_key_time(int p_track, int p_key_idx) const;
 	float track_get_key_transition(int p_track, int p_key_idx) const;
 
-	int track_get_key_index_by_id(int p_track, int p_key_id) const;
+	int track_get_first_key_idx_by_id(int p_track, int p_key_id) const;
 	int track_get_key_id(int p_track, int p_key_idx) const;
 	void track_set_key_id(int p_track, int p_key_idx , int p_key_id);
 
