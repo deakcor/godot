@@ -85,6 +85,7 @@ private:
 		float transition;
 		float time; // time in secs
 		int id;
+		Variant metadata;
 		Key() {
 			transition = 1;
 			id = -1;
@@ -310,6 +311,9 @@ public:
 	int track_get_first_key_idx_by_id(int p_track, int p_key_id) const;
 	int track_get_key_id(int p_track, int p_key_idx) const;
 	void track_set_key_id(int p_track, int p_key_idx , int p_key_id);
+
+	Variant track_get_key_metadata(int p_track, int p_key_idx) const;
+	void track_set_key_metadata(int p_track, int p_key_idx, const Variant &p_key_metadata);
 
 	int transform_track_insert_key(int p_track, float p_time, const Vector3 &p_loc, const Quat &p_rot = Quat(), const Vector3 &p_scale = Vector3());
 	Error transform_track_get_key(int p_track, int p_key, Vector3 *r_loc, Quat *r_rot, Vector3 *r_scale) const;
