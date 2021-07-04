@@ -146,10 +146,12 @@ private:
 	};
 
 	struct BezierTrack : public Track {
-		Vector<TKey<BezierKey>> values;
 
+		Vector<TKey<BezierKey>> values;
+		float modulo_interpolation;
 		BezierTrack() {
 			type = TYPE_BEZIER;
+			modulo_interpolation = 0.0;
 		}
 	};
 
