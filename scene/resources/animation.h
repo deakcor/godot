@@ -146,10 +146,12 @@ private:
 	};
 
 	struct BezierTrack : public Track {
-		Vector<TKey<BezierKey>> values;
 
+		Vector<TKey<BezierKey>> values;
+		float modulo;
 		BezierTrack() {
 			type = TYPE_BEZIER;
+			modulo = 0.0;
 		}
 	};
 
@@ -320,6 +322,8 @@ public:
 	void track_set_interpolation_type(int p_track, InterpolationType p_interp);
 	InterpolationType track_get_interpolation_type(int p_track) const;
 
+	float bezier_track_get_modulo(int p_track) const;
+	void bezier_track_set_modulo(int p_track, float p_modulo);
 	int bezier_track_insert_key(int p_track, float p_time, float p_value, const Vector2 &p_in_handle, const Vector2 &p_out_handle);
 	void bezier_track_set_key_value(int p_track, int p_index, float p_value);
 	void bezier_track_set_key_in_handle(int p_track, int p_index, const Vector2 &p_handle);

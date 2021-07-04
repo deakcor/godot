@@ -597,7 +597,7 @@ void Animation::_get_property_list(List<PropertyInfo> *p_list) const {
 
 int Animation::add_track(TrackType p_type, int p_at_pos, int p_id) {
 
-	if (p_at_pos < 0 || p_at_pos >= tracks.size())
+	if (p_at_pos < 0 || p_at_pos >= tracks.size()){
 		p_at_pos = tracks.size();
 	}
 
@@ -2368,6 +2368,23 @@ StringName Animation::method_track_get_name(int p_track, int p_key_idx) const {
 
 	return pm->methods[p_key_idx].method;
 }
+float Animation::bezier_track_get_modulo(int p_track) const {
+	ERR_FAIL_INDEX_V(p_track, tracks.size(), 0);
+	Track *t = tracks[p_track];
+	ERR_FAIL_COND_V(t->type != TYPE_BEZIER, 0);
+
+	BezierTrack *bt = static_cast<BezierTrack *>(t);
+	return bt->modulo;
+}
+void Animation::bezier_track_set_modulo(int p_track, float p_modulo) {
+
+	ERR_FAIL_INDEX(p_track, tracks.size());
+	Track *t = tracks[p_track];
+	ERR_FAIL_COND(t->type != TYPE_BEZIER);
+
+	BezierTrack *bt = static_cast<BezierTrack *>(t);
+	bt->modulo = p_modulo;
+}
 
 int Animation::bezier_track_insert_key(int p_track, float p_time, float p_value, const Vector2 &p_in_handle, const Vector2 &p_out_handle) {
 	ERR_FAIL_INDEX_V(p_track, tracks.size(), -1);
@@ -2506,27 +2523,87 @@ float Animation::bezier_track_interpolate(int p_track, float p_time) const {
 
 	//there really is no looping interpolation on bezier
 
-	if (idx < 0) {
+	/*if (idx < 0) {
 		return bt->values[0].value.value;
-	}
+	}*/
 
-	if (idx >= bt->values.size() - 1) {
+	/*if (idx >= bt->values.size() - 1) {
 		return bt->values[bt->values.size() - 1].value.value;
-	}
+	}*/
 
-	float t = p_time - bt->values[idx].time;
+	
 
 	int iterations = 10;
+	int next_idx = idx + 1;
+	float duration = 0.0; // time duration between our two keyframes
+	if (loop && bt->loop_wrap) {
+		// loop
+		if (idx >= 0) {
 
-	float duration = bt->values[idx + 1].time - bt->values[idx].time; // time duration between our two keyframes
+			if (next_idx >= len) {
+				next_idx = 0;
+				duration = (length - bt->values[idx].time) + bt->values[next_idx].time;
+			} else {
+				duration = bt->values[next_idx].time - bt->values[idx].time;
+			}
+		} else {
+			idx = len - 1;
+			next_idx = 0;
+			duration = length - bt->values[idx].time;
+			if (duration < 0) // may be keys past the end
+				duration = 0;
+			duration += bt->values[next_idx].time;
+		}
+	} else {
+		if (idx >= 0) {
+
+			if (next_idx >= len) {
+
+				next_idx = idx;
+				duration = 0;
+			} else {
+				duration = bt->values[next_idx].time - bt->values[idx].time;
+			}
+		} else {
+			if (loop) {
+				return bt->values[0].value.value;
+			}
+		}
+	}
+	if (duration == 0.0) {
+		return bt->values[idx].value.value;
+	}
+	float t = p_time - bt->values[idx].time;
+	
 	float low = 0; // 0% of the current animation segment
 	float high = 1; // 100% of the current animation segment
 	float middle;
 
-	Vector2 start(0, bt->values[idx].value.value);
-	Vector2 start_out = start + bt->values[idx].value.out_handle;
-	Vector2 end(duration, bt->values[idx + 1].value.value);
-	Vector2 end_in = end + bt->values[idx + 1].value.in_handle;
+	float value = bt->values[idx].value.value;
+	float new_value = bt->values[next_idx].value.value;
+	float out_handle_normalizedy = (new_value - value) == 0.0 ? 0.0 : bt->values[idx].value.out_handle.y / (new_value - value);
+	float in_handle_normalizedy = (new_value - value) == 0.0 ? 0.0 : bt->values[next_idx].value.in_handle.y / (new_value - value);
+	if (bt->modulo > 0.0) {
+		value = Math::fposmod(value, bt->modulo);
+		new_value = Math::fposmod(new_value, bt->modulo);
+		if (Math::abs(value - new_value) > (bt->modulo) / 2.0) {
+			if (value < new_value) {
+				value += bt->modulo;
+			} else {
+				new_value += bt->modulo;
+			}
+
+		}
+		
+	}
+	Vector2 start(0, value);
+	Vector2 out_handle = bt->values[idx].value.out_handle;
+	out_handle.y = out_handle_normalizedy * (new_value - value);
+	Vector2 start_out = start + out_handle;
+	Vector2 end(duration, new_value);
+	Vector2 in_handle = bt->values[next_idx].value.in_handle;
+	in_handle.y = in_handle_normalizedy * (new_value - value);
+	Vector2 end_in = end + in_handle;
 
 	//narrow high and low as much as possible
 	for (int i = 0; i < iterations; i++) {
@@ -2836,7 +2913,9 @@ void Animation::copy_track(int p_track, Ref<Animation> p_to_animation) {
 	if (track_get_type(p_track) == TYPE_VALUE) {
 		p_to_animation->value_track_set_update_mode(dst_track, value_track_get_update_mode(p_track));
 	}
-
+	if (track_get_type(p_track) == TYPE_BEZIER) {
+		p_to_animation->bezier_track_set_modulo(dst_track, bezier_track_get_modulo(p_track));
+	}
 	for (int i = 0; i < track_get_key_count(p_track); i++) {
 		p_to_animation->track_insert_key(dst_track, track_get_key_time(p_track, i), track_get_key_value(p_track, i), track_get_key_transition(p_track, i));
 		p_to_animation->track_set_key_id(dst_track, i, track_get_key_id(p_track,i));
@@ -2907,6 +2986,9 @@ void Animation::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("method_track_get_key_indices", "track_idx", "time_sec", "delta"), &Animation::_method_track_get_key_indices);
 	ClassDB::bind_method(D_METHOD("method_track_get_name", "track_idx", "key_idx"), &Animation::method_track_get_name);
 	ClassDB::bind_method(D_METHOD("method_track_get_params", "track_idx", "key_idx"), &Animation::method_track_get_params);
+
+	ClassDB::bind_method(D_METHOD("bezier_track_get_modulo", "track_idx"), &Animation::bezier_track_get_modulo);
+	ClassDB::bind_method(D_METHOD("bezier_track_set_modulo", "track_idx", "modulo"), &Animation::bezier_track_set_modulo);
 
 	ClassDB::bind_method(D_METHOD("bezier_track_insert_key", "track_idx", "time", "value", "in_handle", "out_handle"), &Animation::bezier_track_insert_key, DEFVAL(Vector2()), DEFVAL(Vector2()));
 
