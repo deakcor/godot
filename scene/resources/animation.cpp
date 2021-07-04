@@ -2496,27 +2496,68 @@ float Animation::bezier_track_interpolate(int p_track, float p_time) const {
 
 	//there really is no looping interpolation on bezier
 
-	if (idx < 0) {
+	/*if (idx < 0) {
 		return bt->values[0].value.value;
-	}
+	}*/
 
-	if (idx >= bt->values.size() - 1) {
+	/*if (idx >= bt->values.size() - 1) {
 		return bt->values[bt->values.size() - 1].value.value;
-	}
+	}*/
 
-	float t = p_time - bt->values[idx].time;
+	
 
 	int iterations = 10;
+	int next_idx = idx + 1;
+	float duration = 0.0; // time duration between our two keyframes
+	if (loop && bt->loop_wrap) {
+		// loop
+		if (idx >= 0) {
 
-	float duration = bt->values[idx + 1].time - bt->values[idx].time; // time duration between our two keyframes
+			if (next_idx >= len) {
+				next_idx = 0;
+				duration = (length - bt->values[idx].time) + bt->values[next_idx].time;
+			} else {
+				duration = bt->values[next_idx].time - bt->values[idx].time;
+			}
+		} else {
+			idx = len - 1;
+			next_idx = 0;
+			duration = length - bt->values[idx].time;
+			if (duration < 0) // may be keys past the end
+				duration = 0;
+			duration += bt->values[next_idx].time;
+		}
+	} else {
+		if (idx >= 0) {
+
+			if (next_idx >= len) {
+
+				next_idx = idx;
+				duration = 0;
+			} else {
+				duration = bt->values[next_idx].time - bt->values[idx].time;
+			}
+		} else {
+			if (loop) {
+				idx = next_idx = 0;
+				duration = 0;
+			} else {
+				return bt->values[0].value.value;
+			}
+		}
+	}
+	float t = p_time - bt->values[idx].time;
+	
 	float low = 0; // 0% of the current animation segment
 	float high = 1; // 100% of the current animation segment
 	float middle;
 
+	
+
 	Vector2 start(0, bt->values[idx].value.value);
 	Vector2 start_out = start + bt->values[idx].value.out_handle;
-	Vector2 end(duration, bt->values[idx + 1].value.value);
-	Vector2 end_in = end + bt->values[idx + 1].value.in_handle;
+	Vector2 end(duration, bt->values[next_idx].value.value);
+	Vector2 end_in = end + bt->values[next_idx].value.in_handle;
 
 	//narrow high and low as much as possible
 	for (int i = 0; i < iterations; i++) {
