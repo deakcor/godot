@@ -2359,9 +2359,9 @@ StringName Animation::method_track_get_name(int p_track, int p_key_idx) const {
 	return pm->methods[p_key_idx].method;
 }
 float Animation::bezier_track_get_modulo(int p_track) const {
-	ERR_FAIL_INDEX(p_track, tracks.size());
+	ERR_FAIL_INDEX_V(p_track, tracks.size(), 0);
 	Track *t = tracks[p_track];
-	ERR_FAIL_COND(t->type != TYPE_BEZIER);
+	ERR_FAIL_COND_V(t->type != TYPE_BEZIER, 0);
 
 	BezierTrack *bt = static_cast<BezierTrack *>(t);
 	return bt->modulo;
@@ -2556,12 +2556,12 @@ float Animation::bezier_track_interpolate(int p_track, float p_time) const {
 			}
 		} else {
 			if (loop) {
-				idx = next_idx = 0;
-				duration = 0;
-			} else {
 				return bt->values[0].value.value;
 			}
 		}
+	}
+	if (duration == 0.0) {
+		return bt->values[idx].value.value;
 	}
 	float t = p_time - bt->values[idx].time;
 	
