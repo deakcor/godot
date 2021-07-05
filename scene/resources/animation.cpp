@@ -2571,6 +2571,8 @@ float Animation::bezier_track_interpolate(int p_track, float p_time) const {
 
 	float value = bt->values[idx].value.value;
 	float new_value = bt->values[next_idx].value.value;
+	float out_handle_normalizedy = bt->values[idx].value.out_handle.y/(new_value-value);
+	float in_handle_normalizedy = bt->values[next_idx].value.in_handle.y / (new_value - value);
 	if (bt->modulo > 0.0) {
 		value = Math::fposmod(value, bt->modulo);
 		new_value = Math::fposmod(new_value, bt->modulo);
@@ -2585,9 +2587,13 @@ float Animation::bezier_track_interpolate(int p_track, float p_time) const {
 		
 	}
 	Vector2 start(0, value);
-	Vector2 start_out = start + bt->values[idx].value.out_handle;
+	Vector2 out_handle = bt->values[idx].value.out_handle;
+	out_handle.y = out_handle_normalizedy * (new_value - value);
+	Vector2 start_out = start + out_handle;
 	Vector2 end(duration, new_value);
-	Vector2 end_in = end + bt->values[next_idx].value.in_handle;
+	Vector2 in_handle = bt->values[next_idx].value.in_handle;
+	in_handle.y = in_handle_normalizedy * (new_value - value);
+	Vector2 end_in = end + in_handle;
 
 	//narrow high and low as much as possible
 	for (int i = 0; i < iterations; i++) {
