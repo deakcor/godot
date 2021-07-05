@@ -2571,8 +2571,8 @@ float Animation::bezier_track_interpolate(int p_track, float p_time) const {
 
 	float value = bt->values[idx].value.value;
 	float new_value = bt->values[next_idx].value.value;
-	float out_handle_normalizedy = bt->values[idx].value.out_handle.y/(new_value-value);
-	float in_handle_normalizedy = bt->values[next_idx].value.in_handle.y / (new_value - value);
+	float out_handle_normalizedy = (new_value - value) == 0.0 ? 0.0 : bt->values[idx].value.out_handle.y / (new_value - value);
+	float in_handle_normalizedy = (new_value - value) == 0.0 ? 0.0 : bt->values[next_idx].value.in_handle.y / (new_value - value);
 	if (bt->modulo > 0.0) {
 		value = Math::fposmod(value, bt->modulo);
 		new_value = Math::fposmod(new_value, bt->modulo);
