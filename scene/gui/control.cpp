@@ -51,6 +51,7 @@
 Dictionary Control::_edit_get_state() const {
 	Dictionary s;
 	s["rotation"] = get_rotation();
+	s["skew"] = get_skew();
 	s["scale"] = get_scale();
 	s["pivot"] = get_pivot_offset();
 	Array anchors;
@@ -70,11 +71,12 @@ Dictionary Control::_edit_get_state() const {
 
 void Control::_edit_set_state(const Dictionary &p_state) {
 	ERR_FAIL_COND((p_state.size() <= 0) ||
-			!p_state.has("rotation") || !p_state.has("scale") ||
-			!p_state.has("pivot") || !p_state.has("anchors") || !p_state.has("margins"));
+				  !p_state.has("rotation") || !p_state.has("scale") || !p_state.has("skew") ||
+				  !p_state.has("pivot") || !p_state.has("anchors") || !p_state.has("margins"));
 	Dictionary state = p_state;
 
 	set_rotation(state["rotation"]);
+	set_skew(state["skew"]);
 	set_scale(state["scale"]);
 	set_pivot_offset(state["pivot"]);
 	Array anchors = state["anchors"];
@@ -207,7 +209,7 @@ Size2 Control::get_combined_minimum_size() const {
 
 Transform2D Control::_get_internal_transform() const {
 	Transform2D rot_scale;
-	rot_scale.set_rotation_and_scale(data.rotation, data.scale);
+	rot_scale.set_rotation_scale_and_skew(data.rotation, data.scale,data.skew);
 	Transform2D offset;
 	offset.set_origin(-data.pivot_offset);
 
@@ -2471,8 +2473,27 @@ float Control::get_rotation() const {
 	return data.rotation;
 }
 
+float Control::get_skew() const {
+	return data.skew;
+}
+
+float Control::get_skew_degrees() const {
+	return Math::rad2deg(get_skew());
+}
+
 void Control::set_rotation_degrees(float p_degrees) {
 	set_rotation(Math::deg2rad(p_degrees));
+}
+
+void Control::set_skew(float p_radians) {
+	data.skew = p_radians;
+	update();
+	_notify_transform();
+	_change_notify("rect_skew");
+}
+
+void Control::set_skew_degrees(float p_degrees) {
+	set_skew(Math::deg2rad(p_degrees));
 }
 
 float Control::get_rotation_degrees() const {
@@ -2650,6 +2671,8 @@ void Control::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("_set_global_position", "position"), &Control::_set_global_position);
 	ClassDB::bind_method(D_METHOD("set_rotation", "radians"), &Control::set_rotation);
 	ClassDB::bind_method(D_METHOD("set_rotation_degrees", "degrees"), &Control::set_rotation_degrees);
+	ClassDB::bind_method(D_METHOD("set_skew", "radians"), &Control::set_skew);
+	ClassDB::bind_method(D_METHOD("set_skew_degrees", "degrees"), &Control::set_skew_degrees);
 	ClassDB::bind_method(D_METHOD("set_scale", "scale"), &Control::set_scale);
 	ClassDB::bind_method(D_METHOD("set_pivot_offset", "pivot_offset"), &Control::set_pivot_offset);
 	ClassDB::bind_method(D_METHOD("get_margin", "margin"), &Control::get_margin);
@@ -2659,6 +2682,8 @@ void Control::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_size"), &Control::get_size);
 	ClassDB::bind_method(D_METHOD("get_rotation"), &Control::get_rotation);
 	ClassDB::bind_method(D_METHOD("get_rotation_degrees"), &Control::get_rotation_degrees);
+	ClassDB::bind_method(D_METHOD("get_skew"), &Control::get_skew);
+	ClassDB::bind_method(D_METHOD("get_skew_degrees"), &Control::get_skew_degrees);
 	ClassDB::bind_method(D_METHOD("get_scale"), &Control::get_scale);
 	ClassDB::bind_method(D_METHOD("get_pivot_offset"), &Control::get_pivot_offset);
 	ClassDB::bind_method(D_METHOD("get_custom_minimum_size"), &Control::get_custom_minimum_size);
@@ -2812,6 +2837,7 @@ void Control::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "rect_size", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR), "_set_size", "get_size");
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "rect_min_size"), "set_custom_minimum_size", "get_custom_minimum_size");
 	ADD_PROPERTY(PropertyInfo(Variant::REAL, "rect_rotation", PROPERTY_HINT_RANGE, "-360,360,0.1,or_lesser,or_greater"), "set_rotation_degrees", "get_rotation_degrees");
+	ADD_PROPERTY(PropertyInfo(Variant::REAL, "rect_skew", PROPERTY_HINT_RANGE, "-89.9,89.9,0.1"), "set_skew_degrees", "get_skew_degrees");
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "rect_scale"), "set_scale", "get_scale");
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "rect_pivot_offset"), "set_pivot_offset", "get_pivot_offset");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "rect_clip_content"), "set_clip_contents", "is_clipping_contents");
@@ -2943,6 +2969,7 @@ Control::Control() {
 	data.v_size_flags = SIZE_FILL;
 	data.expand = 1;
 	data.rotation = 0;
+	data.skew = 0;
 	data.parent_canvas_item = nullptr;
 	data.scale = Vector2(1, 1);
 	data.drag_owner = 0;
