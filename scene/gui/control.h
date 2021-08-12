@@ -156,6 +156,7 @@ private:
 		GrowDirection v_grow;
 
 		float rotation;
+		float skew;
 		Vector2 scale;
 		Vector2 pivot_offset;
 
@@ -362,8 +363,12 @@ public:
 
 	void set_rotation(float p_radians);
 	void set_rotation_degrees(float p_degrees);
+	void set_skew(float p_radians);
+	void set_skew_degrees(float p_degrees);
 	float get_rotation() const;
 	float get_rotation_degrees() const;
+	float get_skew() const;
+	float get_skew_degrees() const;
 
 	void set_h_grow_direction(GrowDirection p_direction);
 	GrowDirection get_h_grow_direction() const;
