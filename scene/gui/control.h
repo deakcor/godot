@@ -365,10 +365,14 @@ public:
 	void set_rotation_degrees(float p_degrees);
 	void set_skew(float p_radians);
 	void set_skew_degrees(float p_degrees);
+	void set_global_skew(float p_radians);
+	void set_global_skew_degrees(float p_degrees);
 	float get_rotation() const;
 	float get_rotation_degrees() const;
 	float get_skew() const;
 	float get_skew_degrees() const;
+	float get_global_skew() const;
+	float get_global_skew_degrees() const;
 
 	void set_h_grow_direction(GrowDirection p_direction);
 	GrowDirection get_h_grow_direction() const;
@@ -380,7 +384,9 @@ public:
 	Vector2 get_pivot_offset() const;
 
 	void set_scale(const Vector2 &p_scale);
+	void set_global_scale(const Vector2 &p_scale);
 	Vector2 get_scale() const;
+	Vector2 get_global_scale() const;
 
 	void show_modal(bool p_exclusive = false);
 

@@ -2496,6 +2496,31 @@ void Control::set_skew_degrees(float p_degrees) {
 	set_skew(Math::deg2rad(p_degrees));
 }
 
+float Control::get_global_skew() const {
+	return get_global_transform().get_skew();
+}
+
+
+void Control::set_global_skew(float p_radians) {
+	CanvasItem *pi = get_parent_item();
+	if (pi) {
+		Transform2D new_transform = get_global_transform();
+		new_transform.set_skew(p_radians);
+		new_transform = pi->get_global_transform().affine_inverse() * new_transform;
+		set_skew(new_transform.get_skew());
+	} else {
+		set_skew(p_radians);
+	}
+}
+
+void Control::set_global_skew_degrees(float p_degrees) {
+	set_global_skew(Math::deg2rad(p_degrees));
+}
+
+float Control::get_global_skew_degrees() const {
+	return Math::rad2deg(get_global_skew());
+}
+
 float Control::get_rotation_degrees() const {
 	return Math::rad2deg(get_rotation());
 }
@@ -2530,8 +2555,24 @@ void Control::set_scale(const Vector2 &p_scale) {
 	_change_notify("rect_scale");
 }
 
+void Control::set_global_scale(const Size2 &p_scale) {
+	CanvasItem *pi = get_parent_item();
+	if (pi) {
+		Transform2D new_transform = get_global_transform();
+		new_transform.set_scale(p_scale);
+		new_transform = pi->get_global_transform().affine_inverse() * new_transform;
+		set_scale(new_transform.get_scale());
+	} else {
+		set_scale(p_scale);
+	}
+}
+
 Vector2 Control::get_scale() const {
 	return data.scale;
+}
+
+Size2 Control::get_global_scale() const {
+	return get_global_transform().get_scale();
 }
 
 Control *Control::get_root_parent_control() const {
@@ -2673,6 +2714,8 @@ void Control::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_rotation_degrees", "degrees"), &Control::set_rotation_degrees);
 	ClassDB::bind_method(D_METHOD("set_skew", "radians"), &Control::set_skew);
 	ClassDB::bind_method(D_METHOD("set_skew_degrees", "degrees"), &Control::set_skew_degrees);
+	ClassDB::bind_method(D_METHOD("set_global_skew", "radians"), &Control::set_global_skew);
+	ClassDB::bind_method(D_METHOD("set_global_skew_degrees", "degrees"), &Control::set_global_skew_degrees);
 	ClassDB::bind_method(D_METHOD("set_scale", "scale"), &Control::set_scale);
 	ClassDB::bind_method(D_METHOD("set_pivot_offset", "pivot_offset"), &Control::set_pivot_offset);
 	ClassDB::bind_method(D_METHOD("get_margin", "margin"), &Control::get_margin);
@@ -2684,7 +2727,11 @@ void Control::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_rotation_degrees"), &Control::get_rotation_degrees);
 	ClassDB::bind_method(D_METHOD("get_skew"), &Control::get_skew);
 	ClassDB::bind_method(D_METHOD("get_skew_degrees"), &Control::get_skew_degrees);
+	ClassDB::bind_method(D_METHOD("get_global_skew"), &Control::get_global_skew);
+	ClassDB::bind_method(D_METHOD("get_global_skew_degrees"), &Control::get_global_skew_degrees);
 	ClassDB::bind_method(D_METHOD("get_scale"), &Control::get_scale);
+	ClassDB::bind_method(D_METHOD("set_global_scale", "scale"), &Control::set_global_scale);
+	ClassDB::bind_method(D_METHOD("get_global_scale"), &Control::get_global_scale);
 	ClassDB::bind_method(D_METHOD("get_pivot_offset"), &Control::get_pivot_offset);
 	ClassDB::bind_method(D_METHOD("get_custom_minimum_size"), &Control::get_custom_minimum_size);
 	ClassDB::bind_method(D_METHOD("get_parent_area_size"), &Control::get_parent_area_size);
@@ -2838,7 +2885,9 @@ void Control::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "rect_min_size"), "set_custom_minimum_size", "get_custom_minimum_size");
 	ADD_PROPERTY(PropertyInfo(Variant::REAL, "rect_rotation", PROPERTY_HINT_RANGE, "-360,360,0.1,or_lesser,or_greater"), "set_rotation_degrees", "get_rotation_degrees");
 	ADD_PROPERTY(PropertyInfo(Variant::REAL, "rect_skew", PROPERTY_HINT_RANGE, "-89.9,89.9,0.1"), "set_skew_degrees", "get_skew_degrees");
+	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "rect_global_skew", PROPERTY_HINT_NONE, "", 0), "set_global_skew_degrees", "get_global_skew_degrees");
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "rect_scale"), "set_scale", "get_scale");
+	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "rect_global_scale", PROPERTY_HINT_NONE, "", 0), "set_global_scale", "get_global_scale");
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "rect_pivot_offset"), "set_pivot_offset", "get_pivot_offset");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "rect_clip_content"), "set_clip_contents", "is_clipping_contents");
 
