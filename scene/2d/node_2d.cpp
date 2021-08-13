@@ -317,8 +317,10 @@ void Node2D::set_global_rotation(float p_radians) {
 void Node2D::set_global_skew(float p_radians) {
 	CanvasItem *pi = get_parent_item();
 	if (pi) {
-		const float parent_global_skew = pi->get_global_transform().get_skew();
-		set_skew((p_radians - parent_global_skew) * Math_PI/(Math_PI - 2.0 * parent_global_skew));
+		Transform2D new_transform = get_global_transform();
+		new_transform.set_skew(p_radians);
+		new_transform = pi->get_global_transform().affine_inverse() * new_transform;
+		set_skew(new_transform.get_skew());
 	} else {
 		set_skew(p_radians);
 	}
