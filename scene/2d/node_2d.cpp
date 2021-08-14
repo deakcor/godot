@@ -349,8 +349,10 @@ Size2 Node2D::get_global_scale() const {
 void Node2D::set_global_scale(const Size2 &p_scale) {
 	CanvasItem *pi = get_parent_item();
 	if (pi) {
-		const Size2 parent_global_scale = pi->get_global_transform().get_scale();
-		set_scale(p_scale / parent_global_scale);
+		Transform2D new_transform = get_global_transform();
+		new_transform.set_scale(p_scale);
+		new_transform = pi->get_global_transform().affine_inverse() * new_transform;
+		set_scale(new_transform.get_scale());
 	} else {
 		set_scale(p_scale);
 	}
