@@ -347,10 +347,9 @@ public:
 		SCREEN_ORIENTATION_SENSOR,
 	};
 
-	String get_system_dir(SystemDir p_dir) const;
+	String get_system_dir(SystemDir p_dir, bool p_shared_storage = true) const;
 
 	String get_user_data_dir() const;
-	String get_external_data_dir() const;
 	String get_config_dir() const;
 	String get_data_dir() const;
 	String get_cache_dir() const;
@@ -373,6 +372,9 @@ public:
 
 	void set_vsync_via_compositor(bool p_enable);
 	bool is_vsync_via_compositor_enabled() const;
+
+	void set_delta_smoothing(bool p_enabled);
+	bool is_delta_smoothing_enabled() const;
 
 	PowerState get_power_state();
 	int get_power_seconds_left();

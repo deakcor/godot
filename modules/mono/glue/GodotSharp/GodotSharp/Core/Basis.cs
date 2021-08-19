@@ -1,10 +1,10 @@
-using System;
-using System.Runtime.InteropServices;
 #if REAL_T_IS_DOUBLE
 using real_t = System.Double;
 #else
 using real_t = System.Single;
 #endif
+using System;
+using System.Runtime.InteropServices;
 
 namespace Godot
 {
@@ -20,7 +20,7 @@ namespace Godot
     /// orthogonal to each other, but are not necessarily normalized (due to scaling).
     ///
     /// For more information, read this documentation article:
-    /// https://docs.godotengine.org/en/3.3/tutorials/math/matrices_and_transforms.html
+    /// https://docs.godotengine.org/en/3.4/tutorials/math/matrices_and_transforms.html
     /// </summary>
     [Serializable]
     [StructLayout(LayoutKind.Sequential)]

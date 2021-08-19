@@ -122,6 +122,7 @@ static String locale;
 static bool show_help = false;
 static bool auto_quit = false;
 static OS::ProcessID allow_focus_steal_pid = 0;
+static bool delta_sync_after_draw = false;
 #ifdef TOOLS_ENABLED
 static bool auto_build_solutions = false;
 #endif
@@ -270,6 +271,8 @@ void Main::print_help(const char *p_binary) {
 	OS::get_singleton()->print("  --no-window                      Run with invisible window. Useful together with --script.\n");
 	OS::get_singleton()->print("  --enable-vsync-via-compositor    When vsync is enabled, vsync via the OS' window compositor (Windows only).\n");
 	OS::get_singleton()->print("  --disable-vsync-via-compositor   Disable vsync via the OS' window compositor (Windows only).\n");
+	OS::get_singleton()->print("  --enable-delta-smoothing         When vsync is enabled, enabled frame delta smoothing.\n");
+	OS::get_singleton()->print("  --disable-delta-smoothing        Disable frame delta smoothing.\n");
 	OS::get_singleton()->print("  --tablet-driver                  Tablet input driver (");
 	for (int i = 0; i < OS::get_singleton()->get_tablet_driver_count(); i++) {
 		if (i != 0) {
@@ -420,6 +423,7 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 	bool use_custom_res = true;
 	bool force_res = false;
 	bool saw_vsync_via_compositor_override = false;
+	bool delta_smoothing_override = false;
 #ifdef TOOLS_ENABLED
 	bool found_project = false;
 #endif
@@ -640,6 +644,12 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 		} else if (I->get() == "--disable-vsync-via-compositor") {
 			video_mode.vsync_via_compositor = false;
 			saw_vsync_via_compositor_override = true;
+		} else if (I->get() == "--enable-delta-smoothing") {
+			OS::get_singleton()->set_delta_smoothing(true);
+			delta_smoothing_override = true;
+		} else if (I->get() == "--disable-delta-smoothing") {
+			OS::get_singleton()->set_delta_smoothing(false);
+			delta_smoothing_override = true;
 #endif
 		} else if (I->get() == "--profiling") { // enable profiling
 
@@ -1111,6 +1121,7 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 	if (rtm == -1) {
 		rtm = GLOBAL_DEF("rendering/threads/thread_model", OS::RENDER_THREAD_SAFE);
 	}
+	GLOBAL_DEF("rendering/threads/thread_safe_bvh", false);
 
 	if (rtm >= 0 && rtm < 3) {
 #ifdef NO_THREADS
@@ -1194,6 +1205,12 @@ Error Main::setup(const char *execpath, int argc, char *argv[], bool p_second_ph
 	OS::get_singleton()->set_low_processor_usage_mode_sleep_usec(GLOBAL_DEF("application/run/low_processor_mode_sleep_usec", 6900)); // Roughly 144 FPS
 	ProjectSettings::get_singleton()->set_custom_property_info("application/run/low_processor_mode_sleep_usec", PropertyInfo(Variant::INT, "application/run/low_processor_mode_sleep_usec", PROPERTY_HINT_RANGE, "0,33200,1,or_greater")); // No negative numbers
 
+	delta_sync_after_draw = GLOBAL_DEF("application/run/delta_sync_after_draw", false);
+	GLOBAL_DEF("application/run/delta_smoothing", true);
+	if (!delta_smoothing_override) {
+		OS::get_singleton()->set_delta_smoothing(GLOBAL_GET("application/run/delta_smoothing"));
+	}
+
 	GLOBAL_DEF("display/window/ios/hide_home_indicator", true);
 	GLOBAL_DEF("input_devices/pointing/ios/touch_delay", 0.150);
 
@@ -1267,6 +1284,13 @@ Error Main::setup2(Thread::ID p_main_tid_override) {
 #if !defined(NO_THREADS)
 	if (p_main_tid_override) {
 		Thread::main_thread_id = p_main_tid_override;
+	}
+#endif
+
+#ifdef UNIX_ENABLED
+	// Print warning before initializing audio.
+	if (OS::get_singleton()->get_environment("USER") == "root" && !OS::get_singleton()->has_environment("GODOT_SILENCE_ROOT_WARNING")) {
+		WARN_PRINT("Started the engine as `root`/superuser. This is a security risk, and subsystems like audio may not work correctly.\nSet the environment variable `GODOT_SILENCE_ROOT_WARNING` to 1 to silence this warning.");
 	}
 #endif
 
@@ -1389,6 +1413,8 @@ Error Main::setup2(Thread::ID p_main_tid_override) {
 
 	InputDefault *id = Object::cast_to<InputDefault>(Input::get_singleton());
 	if (id) {
+		agile_input_event_flushing = GLOBAL_DEF("input_devices/buffering/agile_event_flushing", false);
+
 		if (bool(GLOBAL_DEF("input_devices/pointing/emulate_touch_from_mouse", false)) && !(editor || project_manager)) {
 			if (!OS::get_singleton()->has_touchscreen_ui_hint()) {
 				//only if no touchscreen ui hint, set emulation
@@ -2021,6 +2047,8 @@ uint32_t Main::frames = 0;
 uint32_t Main::frame = 0;
 bool Main::force_redraw_requested = false;
 int Main::iterating = 0;
+bool Main::agile_input_event_flushing = false;
+
 bool Main::is_iterating() {
 	return iterating > 0;
 }
@@ -2029,13 +2057,34 @@ bool Main::is_iterating() {
 static uint64_t physics_process_max = 0;
 static uint64_t idle_process_max = 0;
 
+#ifndef TOOLS_ENABLED
+static uint64_t frame_delta_sync_time = 0;
+#endif
+
 bool Main::iteration() {
 	//for now do not error on this
 	//ERR_FAIL_COND_V(iterating, false);
 
 	iterating++;
 
-	uint64_t ticks = OS::get_singleton()->get_ticks_usec();
+	// ticks may become modified later on, and we want to store the raw measured
+	// value for profiling.
+	uint64_t raw_ticks_at_start = OS::get_singleton()->get_ticks_usec();
+
+#ifdef TOOLS_ENABLED
+	uint64_t ticks = raw_ticks_at_start;
+#else
+	// we can either sync the delta from here, or later in the iteration
+	uint64_t ticks_difference = raw_ticks_at_start - frame_delta_sync_time;
+
+	// if we are syncing at start or if frame_delta_sync_time is being initialized
+	// or a large gap has happened between the last delta_sync_time and now
+	if (!delta_sync_after_draw || (ticks_difference > 100000)) {
+		frame_delta_sync_time = raw_ticks_at_start;
+	}
+	uint64_t ticks = frame_delta_sync_time;
+#endif
+
 	Engine::get_singleton()->_frame_ticks = ticks;
 	main_timer_sync.set_cpu_ticks_usec(ticks);
 	main_timer_sync.set_fixed_fps(fixed_fps);
@@ -2069,9 +2118,13 @@ bool Main::iteration() {
 
 	bool exit = false;
 
-	Engine::get_singleton()->_in_physics = true;
-
 	for (int iters = 0; iters < advance.physics_steps; ++iters) {
+		if (InputDefault::get_singleton()->is_using_input_buffering() && agile_input_event_flushing) {
+			InputDefault::get_singleton()->flush_buffered_events();
+		}
+
+		Engine::get_singleton()->_in_physics = true;
+
 		uint64_t physics_begin = OS::get_singleton()->get_ticks_usec();
 
 		PhysicsServer::get_singleton()->flush_queries();
@@ -2096,9 +2149,13 @@ bool Main::iteration() {
 		physics_process_ticks = MAX(physics_process_ticks, OS::get_singleton()->get_ticks_usec() - physics_begin); // keep the largest one for reference
 		physics_process_max = MAX(OS::get_singleton()->get_ticks_usec() - physics_begin, physics_process_max);
 		Engine::get_singleton()->_physics_frames++;
+
+		Engine::get_singleton()->_in_physics = false;
 	}
 
-	Engine::get_singleton()->_in_physics = false;
+	if (InputDefault::get_singleton()->is_using_input_buffering() && agile_input_event_flushing) {
+		InputDefault::get_singleton()->flush_buffered_events();
+	}
 
 	uint64_t idle_begin = OS::get_singleton()->get_ticks_usec();
 
@@ -2123,9 +2180,17 @@ bool Main::iteration() {
 		}
 	}
 
+#ifndef TOOLS_ENABLED
+	// we can choose to sync delta from here, just after the draw
+	if (delta_sync_after_draw) {
+		frame_delta_sync_time = OS::get_singleton()->get_ticks_usec();
+	}
+#endif
+
+	// profiler timing information
 	idle_process_ticks = OS::get_singleton()->get_ticks_usec() - idle_begin;
 	idle_process_max = MAX(idle_process_ticks, idle_process_max);
-	uint64_t frame_time = OS::get_singleton()->get_ticks_usec() - ticks;
+	uint64_t frame_time = OS::get_singleton()->get_ticks_usec() - raw_ticks_at_start;
 
 	for (int i = 0; i < ScriptServer::get_language_count(); i++) {
 		ScriptServer::get_language(i)->frame();
@@ -2163,6 +2228,11 @@ bool Main::iteration() {
 	}
 
 	iterating--;
+
+	// Needed for OSs using input buffering regardless accumulation (like Android)
+	if (InputDefault::get_singleton()->is_using_input_buffering() && !agile_input_event_flushing) {
+		InputDefault::get_singleton()->flush_buffered_events();
+	}
 
 	if (fixed_fps != -1) {
 		return exit;

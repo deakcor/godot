@@ -41,8 +41,7 @@ class MeshInstance;
 class GeometryInstance;
 class VisualInstance;
 
-#define GODOT_PORTAL_DELINEATOR String("_")
-#define GODOT_PORTAL_WILDCARD String("*")
+#define GODOT_PORTAL_WILDCARD ('*')
 
 class RoomManager : public Spatial {
 	GDCLASS(RoomManager, Spatial);
@@ -68,9 +67,6 @@ public:
 	void rooms_set_active(bool p_active);
 	bool rooms_get_active() const;
 
-	void set_show_debug(bool p_show);
-	bool get_show_debug() const;
-
 	void set_show_margins(bool p_show);
 	bool get_show_margins() const;
 
@@ -79,9 +75,6 @@ public:
 
 	void set_merge_meshes(bool p_enable);
 	bool get_merge_meshes() const;
-
-	void set_remove_danglers(bool p_enable);
-	bool get_remove_danglers() const;
 
 	void set_room_simplify(real_t p_value);
 	real_t get_room_simplify() const;
@@ -95,9 +88,6 @@ public:
 	void set_portal_depth_limit(int p_limit);
 	int get_portal_depth_limit() const { return _settings_portal_depth_limit; }
 
-	void set_flip_portal_meshes(bool p_flip);
-	bool get_flip_portal_meshes() const;
-
 	void set_pvs_mode(PVSMode p_mode);
 	PVSMode get_pvs_mode() const;
 
@@ -106,9 +96,6 @@ public:
 
 	void set_use_secondary_pvs(bool p_enable) { _settings_use_secondary_pvs = p_enable; }
 	bool get_use_secondary_pvs() const { return _settings_use_secondary_pvs; }
-
-	void set_use_signals(bool p_enable) { _settings_use_signals = p_enable; }
-	bool get_use_signals() const { return _settings_use_signals; }
 
 	void set_gameplay_monitor_enabled(bool p_enable) { _settings_gameplay_monitor_enabled = p_enable; }
 	bool get_gameplay_monitor_enabled() const { return _settings_gameplay_monitor_enabled; }
@@ -135,6 +122,12 @@ public:
 	// an easy way of grabbing the active room manager for tools purposes
 #ifdef TOOLS_ENABLED
 	static RoomManager *active_room_manager;
+
+	// static versions of functions for use from editor toolbars
+	static void static_rooms_set_active(bool p_active);
+	static bool static_rooms_get_active();
+	static bool static_rooms_get_active_and_loaded();
+	static void static_rooms_convert();
 #endif
 
 private:
@@ -179,7 +172,7 @@ private:
 
 	// misc
 	bool _add_plane_if_unique(const Room *p_room, LocalVector<Plane, int32_t> &r_planes, const Plane &p);
-	void _update_portal_margins(Spatial *p_node, real_t p_margin);
+	void _update_portal_gizmos(Spatial *p_node);
 	bool _check_roomlist_validity(Node *p_node);
 	void _cleanup_after_conversion();
 	Error _build_room_convex_hull(const Room *p_room, const Vector<Vector3> &p_points, Geometry::MeshData &r_mesh);
@@ -194,8 +187,7 @@ private:
 	bool _remove_redundant_dangling_nodes(Spatial *p_node);
 
 	// helper funcs
-	bool _name_starts_with(const Node *p_node, String p_search_string, bool p_allow_no_delineator = false);
-	void _check_for_misnamed_node(const Node *p_node, String p_start_string);
+	bool _name_ends_with(const Node *p_node, String p_postfix) const;
 	template <class NODE_TYPE>
 	NODE_TYPE *_resolve_path(NodePath p_path) const;
 	template <class NODE_TYPE>
@@ -215,8 +207,9 @@ private:
 	void debug_print_line(String p_string, int p_priority = 0);
 
 public:
-	static String _find_name_after(Node *p_node, String p_string_start);
+	static String _find_name_before(Node *p_node, String p_postfix, bool p_allow_no_postfix = false);
 	static void show_warning(const String &p_string, const String &p_extra_string = "", bool p_alert = true);
+	static real_t _get_default_portal_margin() { return _default_portal_margin; }
 
 private:
 	// accessible from UI
@@ -246,6 +239,9 @@ private:
 	PVSMode _pvs_mode = PVS_MODE_PARTIAL;
 	String _pvs_filename;
 	bool _settings_use_secondary_pvs = false;
+	bool _settings_use_simple_pvs = false;
+	bool _settings_log_pvs_generation = false;
+
 	bool _settings_use_signals = true;
 	bool _settings_gameplay_monitor_enabled = false;
 
@@ -256,7 +252,7 @@ private:
 	LocalVector<Room *, int32_t> _rooms;
 
 	// advanced params
-	real_t _default_portal_margin = 1.0;
+	static real_t _default_portal_margin;
 	real_t _overlap_warning_threshold = 1.0;
 	Room::SimplifyInfo _room_simplify_info;
 	int _settings_portal_depth_limit = 16;
@@ -272,6 +268,7 @@ private:
 protected:
 	static void _bind_methods();
 	void _notification(int p_what);
+	void _refresh_from_project_settings();
 };
 
 VARIANT_ENUM_CAST(RoomManager::PVSMode);

@@ -199,7 +199,7 @@ static void _OS_printres(Object *p_obj) {
 		return;
 	}
 
-	String str = itos(res->get_instance_id()) + String(res->get_class()) + ":" + String(res->get_name()) + " - " + res->get_path();
+	String str = vformat("%s - %s - %s", res->to_string(), res->get_name(), res->get_path());
 	if (_OSPRF) {
 		_OSPRF->store_line(str);
 	} else {
@@ -334,18 +334,13 @@ String OS::get_user_data_dir() const {
 	return ".";
 };
 
-// Android OS path to app's external data storage
-String OS::get_external_data_dir() const {
-	return get_user_data_dir();
-};
-
 // Absolute path to res://
 String OS::get_resource_dir() const {
 	return ProjectSettings::get_singleton()->get_resource_path();
 }
 
 // Access system-specific dirs like Documents, Downloads, etc.
-String OS::get_system_dir(SystemDir p_dir) const {
+String OS::get_system_dir(SystemDir p_dir, bool p_shared_storage) const {
 	return ".";
 }
 
@@ -587,6 +582,14 @@ bool OS::is_vsync_via_compositor_enabled() const {
 	return _vsync_via_compositor;
 }
 
+void OS::set_delta_smoothing(bool p_enabled) {
+	_delta_smoothing_enabled = p_enabled;
+}
+
+bool OS::is_delta_smoothing_enabled() const {
+	return _delta_smoothing_enabled;
+}
+
 OS::PowerState OS::get_power_state() {
 	return POWERSTATE_UNKNOWN;
 }
@@ -798,6 +801,7 @@ OS::OS() {
 	_no_window = false;
 	_exit_code = 0;
 	_orientation = SCREEN_LANDSCAPE;
+	_delta_smoothing_enabled = false;
 
 	_render_thread_mode = RENDER_THREAD_SAFE;
 

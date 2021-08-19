@@ -845,7 +845,12 @@ class EditorExportPlatformAndroid : public EditorExportPlatform {
 		Vector<String> perms;
 		_get_permissions(p_preset, p_give_internet, perms);
 		for (int i = 0; i < perms.size(); i++) {
-			manifest_text += vformat("    <uses-permission android:name=\"%s\" />\n", perms.get(i));
+			String permission = perms.get(i);
+			if (permission == "android.permission.WRITE_EXTERNAL_STORAGE" || permission == "android.permission.READ_EXTERNAL_STORAGE") {
+				manifest_text += vformat("    <uses-permission android:name=\"%s\" android:maxSdkVersion=\"29\" />\n", permission);
+			} else {
+				manifest_text += vformat("    <uses-permission android:name=\"%s\" />\n", permission);
+			}
 		}
 
 		manifest_text += _get_xr_features_tag(p_preset);
@@ -904,6 +909,7 @@ class EditorExportPlatformAndroid : public EditorExportPlatform {
 
 		bool backup_allowed = p_preset->get("user_data_backup/allow");
 		bool classify_as_game = p_preset->get("package/classify_as_game");
+		bool retain_data_on_uninstall = p_preset->get("package/retain_data_on_uninstall");
 
 		Vector<String> perms;
 		// Write permissions into the perms variable.
@@ -1009,6 +1015,10 @@ class EditorExportPlatformAndroid : public EditorExportPlatform {
 
 						if (tname == "application" && attrname == "isGame") {
 							encode_uint32(classify_as_game, &p_manifest.write[iofs + 16]);
+						}
+
+						if (tname == "application" && attrname == "hasFragileUserData") {
+							encode_uint32(retain_data_on_uninstall, &p_manifest.write[iofs + 16]);
 						}
 
 						if (tname == "instrumentation" && attrname == "targetPackage") {
@@ -1764,6 +1774,7 @@ public:
 		r_options->push_back(ExportOption(PropertyInfo(Variant::STRING, "package/name", PROPERTY_HINT_PLACEHOLDER_TEXT, "Game Name [default if blank]"), ""));
 		r_options->push_back(ExportOption(PropertyInfo(Variant::BOOL, "package/signed"), true));
 		r_options->push_back(ExportOption(PropertyInfo(Variant::BOOL, "package/classify_as_game"), true));
+		r_options->push_back(ExportOption(PropertyInfo(Variant::BOOL, "package/retain_data_on_uninstall"), false));
 
 		r_options->push_back(ExportOption(PropertyInfo(Variant::STRING, launcher_icon_option, PROPERTY_HINT_FILE, "*.png"), ""));
 		r_options->push_back(ExportOption(PropertyInfo(Variant::STRING, launcher_adaptive_icon_foreground_option, PROPERTY_HINT_FILE, "*.png"), ""));
@@ -1876,12 +1887,12 @@ public:
 
 		device_lock.lock();
 
-		EditorProgress ep("run", "Running on " + devices[p_device].name, 3);
+		EditorProgress ep("run", vformat(TTR("Running on %s"), devices[p_device].name), 3);
 
 		String adb = get_adb_path();
 
 		// Export_temp APK.
-		if (ep.step("Exporting APK...", 0)) {
+		if (ep.step(TTR("Exporting APK..."), 0)) {
 			device_lock.unlock();
 			return ERR_SKIP;
 		}
@@ -1918,7 +1929,7 @@ public:
 		String package_name = p_preset->get("package/unique_name");
 
 		if (remove_prev) {
-			if (ep.step("Uninstalling...", 1)) {
+			if (ep.step(TTR("Uninstalling..."), 1)) {
 				CLEANUP_AND_RETURN(ERR_SKIP);
 			}
 
@@ -1935,7 +1946,7 @@ public:
 		}
 
 		print_line("Installing to device (please wait...): " + devices[p_device].name);
-		if (ep.step("Installing to device, please wait...", 2)) {
+		if (ep.step(TTR("Installing to device, please wait..."), 2)) {
 			CLEANUP_AND_RETURN(ERR_SKIP);
 		}
 
@@ -1950,7 +1961,7 @@ public:
 		err = OS::get_singleton()->execute(adb, args, true, nullptr, &output, &rv, true);
 		print_verbose(output);
 		if (err || rv != 0) {
-			EditorNode::add_io_error("Could not install to device: " + output);
+			EditorNode::add_io_error(vformat(TTR("Could not install to device: %s"), output));
 			CLEANUP_AND_RETURN(ERR_CANT_CREATE);
 		}
 
@@ -2006,7 +2017,7 @@ public:
 			}
 		}
 
-		if (ep.step("Running on device...", 3)) {
+		if (ep.step(TTR("Running on device..."), 3)) {
 			CLEANUP_AND_RETURN(ERR_SKIP);
 		}
 		args.clear();
@@ -2028,7 +2039,7 @@ public:
 		err = OS::get_singleton()->execute(adb, args, true, nullptr, &output, &rv, true);
 		print_verbose(output);
 		if (err || rv != 0) {
-			EditorNode::add_io_error("Could not execute on device.");
+			EditorNode::add_io_error(TTR("Could not execute on device."));
 			CLEANUP_AND_RETURN(ERR_CANT_CREATE);
 		}
 
@@ -2129,6 +2140,8 @@ public:
 			if (!installed_android_build_template) {
 				r_missing_templates = !exists_export_template("android_source.zip", &err);
 				err += TTR("Android build template not installed in the project. Install it from the Project menu.") + "\n";
+			} else {
+				r_missing_templates = false;
 			}
 
 			valid = installed_android_build_template && !r_missing_templates;
@@ -2688,7 +2701,7 @@ public:
 		String apksigner = get_apksigner_path();
 		print_verbose("Starting signing of the " + export_label + " binary using " + apksigner);
 		if (!FileAccess::exists(apksigner)) {
-			EditorNode::add_io_error("'apksigner' could not be found.\nPlease check the command is available in the Android SDK build-tools directory.\nThe resulting " + export_label + " is unsigned.");
+			EditorNode::add_io_error(vformat(TTR("'apksigner' could not be found.\nPlease check the command is available in the Android SDK build-tools directory.\nThe resulting %s is unsigned."), export_label));
 			return OK;
 		}
 
@@ -2706,7 +2719,7 @@ public:
 				user = EditorSettings::get_singleton()->get("export/android/debug_keystore_user");
 			}
 
-			if (ep.step("Signing debug " + export_label + "...", 104)) {
+			if (ep.step(vformat(TTR("Signing debug %s..."), export_label), 104)) {
 				return ERR_SKIP;
 			}
 
@@ -2715,13 +2728,13 @@ public:
 			password = release_password;
 			user = release_username;
 
-			if (ep.step("Signing release " + export_label + "...", 104)) {
+			if (ep.step(vformat(TTR("Signing release %s..."), export_label), 104)) {
 				return ERR_SKIP;
 			}
 		}
 
 		if (!FileAccess::exists(keystore)) {
-			EditorNode::add_io_error("Could not find keystore, unable to export.");
+			EditorNode::add_io_error(TTR("Could not find keystore, unable to export."));
 			return ERR_FILE_CANT_OPEN;
 		}
 
@@ -2745,11 +2758,11 @@ public:
 		OS::get_singleton()->execute(apksigner, args, true, nullptr, &output, &retval, true);
 		print_verbose(output);
 		if (retval) {
-			EditorNode::add_io_error("'apksigner' returned with error #" + itos(retval));
+			EditorNode::add_io_error(vformat(TTR("'apksigner' returned with error #%d"), retval));
 			return ERR_CANT_CREATE;
 		}
 
-		if (ep.step("Verifying " + export_label + "...", 105)) {
+		if (ep.step(vformat(TTR("Verifying %s..."), export_label), 105)) {
 			return ERR_SKIP;
 		}
 
@@ -2765,7 +2778,7 @@ public:
 		OS::get_singleton()->execute(apksigner, args, true, nullptr, &output, &retval, true);
 		print_verbose(output);
 		if (retval) {
-			EditorNode::add_io_error("'apksigner' verification of " + export_label + " failed.");
+			EditorNode::add_io_error(vformat(TTR("'apksigner' verification of %s failed."), export_label));
 			return ERR_CANT_CREATE;
 		}
 
@@ -2830,7 +2843,7 @@ public:
 		String src_apk;
 		Error err;
 
-		EditorProgress ep("export", "Exporting for Android", 105, true);
+		EditorProgress ep("export", TTR("Exporting for Android"), 105, true);
 
 		bool use_custom_build = bool(p_preset->get("custom_template/use_custom_build"));
 		bool p_give_internet = p_flags & (DEBUG_FLAG_DUMB_CLIENT | DEBUG_FLAG_REMOTE_DEBUG);
@@ -2879,7 +2892,7 @@ public:
 			return ERR_UNCONFIGURED;
 		}
 		if (export_format > EXPORT_FORMAT_AAB || export_format < EXPORT_FORMAT_APK) {
-			EditorNode::add_io_error("Unsupported export format!\n");
+			EditorNode::add_io_error(TTR("Unsupported export format!\n"));
 			return ERR_UNCONFIGURED; //TODO: is this the right error?
 		}
 
@@ -2909,7 +2922,7 @@ public:
 			String project_name = get_project_name(p_preset->get("package/name"));
 			err = _create_project_name_strings_files(p_preset, project_name); //project name localization.
 			if (err != OK) {
-				EditorNode::add_io_error("Unable to overwrite res://android/build/res/*.xml files with project name");
+				EditorNode::add_io_error(TTR("Unable to overwrite res://android/build/res/*.xml files with project name"));
 			}
 			// Copies the project icon files into the appropriate Gradle project directory.
 			_copy_icons_to_gradle_project(p_preset, processed_splash_config_xml, splash_image, splash_bg_color_image, main_image, foreground, background);
@@ -2925,7 +2938,7 @@ public:
 				user_data.debug = p_debug;
 				err = export_project_files(p_preset, rename_and_store_file_in_gradle_project, &user_data, copy_gradle_so);
 				if (err != OK) {
-					EditorNode::add_io_error("Could not export project files to gradle project\n");
+					EditorNode::add_io_error(TTR("Could not export project files to gradle project\n"));
 					return err;
 				}
 				if (user_data.libs.size() > 0) {
@@ -2937,7 +2950,7 @@ public:
 				print_verbose("Saving apk expansion file..");
 				err = save_apk_expansion_file(p_preset, p_path);
 				if (err != OK) {
-					EditorNode::add_io_error("Could not write expansion package file!");
+					EditorNode::add_io_error(TTR("Could not write expansion package file!"));
 					return err;
 				}
 			}
@@ -3024,7 +3037,7 @@ public:
 					String release_username = p_preset->get("keystore/release_user");
 					String release_password = p_preset->get("keystore/release_password");
 					if (!FileAccess::exists(release_keystore)) {
-						EditorNode::add_io_error("Could not find keystore, unable to export.");
+						EditorNode::add_io_error(TTR("Could not find keystore, unable to export."));
 						return ERR_FILE_CANT_OPEN;
 					}
 
@@ -3089,7 +3102,7 @@ public:
 				src_apk = find_export_template("android_release.apk");
 			}
 			if (src_apk == "") {
-				EditorNode::add_io_error("Package not found: " + src_apk);
+				EditorNode::add_io_error(vformat(TTR("Package not found: %s"), src_apk));
 				return ERR_FILE_NOT_FOUND;
 			}
 		}
@@ -3101,13 +3114,13 @@ public:
 		FileAccess *src_f = nullptr;
 		zlib_filefunc_def io = zipio_create_io_from_file(&src_f);
 
-		if (ep.step("Creating APK...", 0)) {
+		if (ep.step(TTR("Creating APK..."), 0)) {
 			return ERR_SKIP;
 		}
 
 		unzFile pkg = unzOpen2(src_apk.utf8().get_data(), &io);
 		if (!pkg) {
-			EditorNode::add_io_error("Could not find template APK to export:\n" + src_apk);
+			EditorNode::add_io_error(vformat(TTR("Could not find template APK to export:\n%s"), src_apk));
 			return ERR_FILE_NOT_FOUND;
 		}
 
@@ -3235,12 +3248,11 @@ public:
 
 		if (!invalid_abis.empty()) {
 			String unsupported_arch = String(", ").join(invalid_abis);
-			EditorNode::add_io_error("Missing libraries in the export template for the selected architectures: " + unsupported_arch + ".\n" +
-									 "Please build a template with all required libraries, or uncheck the missing architectures in the export preset.");
+			EditorNode::add_io_error(vformat(TTR("Missing libraries in the export template for the selected architectures: %s.\nPlease build a template with all required libraries, or uncheck the missing architectures in the export preset."), unsupported_arch));
 			CLEANUP_AND_RETURN(ERR_FILE_NOT_FOUND);
 		}
 
-		if (ep.step("Adding files...", 1)) {
+		if (ep.step(TTR("Adding files..."), 1)) {
 			CLEANUP_AND_RETURN(ERR_SKIP);
 		}
 		err = OK;
@@ -3254,7 +3266,7 @@ public:
 			if (apk_expansion) {
 				err = save_apk_expansion_file(p_preset, p_path);
 				if (err != OK) {
-					EditorNode::add_io_error("Could not write expansion package file!");
+					EditorNode::add_io_error(TTR("Could not write expansion package file!"));
 					return err;
 				}
 			} else {
@@ -3267,7 +3279,7 @@ public:
 
 		if (err != OK) {
 			unzClose(pkg);
-			EditorNode::add_io_error("Could not export project files");
+			EditorNode::add_io_error(TTR("Could not export project files"));
 			CLEANUP_AND_RETURN(ERR_SKIP);
 		}
 
@@ -3298,13 +3310,13 @@ public:
 
 		// If we're not signing the apk, then the next step should be the last.
 		const int next_step = should_sign ? 103 : 105;
-		if (ep.step("Aligning APK...", next_step)) {
+		if (ep.step(TTR("Aligning APK..."), next_step)) {
 			CLEANUP_AND_RETURN(ERR_SKIP);
 		}
 
 		unzFile tmp_unaligned = unzOpen2(tmp_unaligned_path.utf8().get_data(), &io);
 		if (!tmp_unaligned) {
-			EditorNode::add_io_error("Could not unzip temporary unaligned APK.");
+			EditorNode::add_io_error(TTR("Could not unzip temporary unaligned APK."));
 			CLEANUP_AND_RETURN(ERR_FILE_NOT_FOUND);
 		}
 

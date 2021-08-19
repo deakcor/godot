@@ -54,8 +54,7 @@ Portal::Portal() {
 	_pts_local_raw.resize(0);
 	_pt_center_world = Vector3();
 	_plane = Plane();
-	_margin = 1.0f;
-	_default_margin = 1.0f;
+	_margin = 1.0;
 	_use_default_margin = true;
 
 	// the visual server portal lifetime is linked to the lifetime of this object
@@ -115,6 +114,16 @@ String Portal::get_configuration_warning() const {
 	return warning;
 }
 
+void Portal::set_point(int p_idx, const Vector2 &p_point) {
+	if (p_idx >= _pts_local_raw.size()) {
+		return;
+	}
+
+	_pts_local_raw.set(p_idx, p_point);
+	_sanitize_points();
+	update_gizmo();
+}
+
 void Portal::set_points(const PoolVector<Vector2> &p_points) {
 	_pts_local_raw = p_points;
 	_sanitize_points();
@@ -146,6 +155,7 @@ void Portal::clear() {
 	_internal = false;
 	_linkedroom_ID[0] = -1;
 	_linkedroom_ID[1] = -1;
+	_importing_portal = false;
 }
 
 void Portal::_notification(int p_what) {
@@ -168,6 +178,15 @@ void Portal::_notification(int p_what) {
 		case NOTIFICATION_TRANSFORM_CHANGED: {
 			// keep the world points and the visual server up to date
 			portal_update();
+
+			// In theory we shouldn't need to update the gizmo when the transform
+			// changes .. HOWEVER, the portal margin is displayed in world space units,
+			// back transformed to model space.
+			// If the Z scale is changed by the user, the portal margin length can become incorrect
+			// and needs 'resyncing' to the global scale of the portal node.
+			// We really only need to do this when Z scale is changed, but it is easier codewise
+			// to always change it, unless we have evidence this is a performance problem.
+			update_gizmo();
 		} break;
 	}
 }
@@ -271,34 +290,14 @@ bool Portal::try_set_unique_name(const String &p_name) {
 void Portal::set_linked_room(const NodePath &link_path) {
 	_settings_path_linkedroom = link_path;
 
-	// change the name of the portal as well, if the link looks legit
+	// see if the link looks legit
 	Room *linkedroom = nullptr;
 	if (has_node(link_path)) {
 		linkedroom = Object::cast_to<Room>(get_node(link_path));
 
 		if (linkedroom) {
 			if (linkedroom != get_parent()) {
-				_settings_path_linkedroom = link_path;
-
-				// change the portal name
-				String string_link_room = RoomManager::_find_name_after(linkedroom, "Room");
-
-				// we need a unique name for the portal
-				String string_name_base = "Portal" + GODOT_PORTAL_DELINEATOR + string_link_room;
-				if (!try_set_unique_name(string_name_base)) {
-					bool success = false;
-					for (int n = 0; n < 128; n++) {
-						String string_name = string_name_base + GODOT_PORTAL_WILDCARD + itos(n);
-						if (try_set_unique_name(string_name)) {
-							success = true;
-							break;
-						}
-					}
-
-					if (!success) {
-						WARN_PRINT("Could not set portal name, suggest setting name manually instead.");
-					}
-				}
+				// was ok
 			} else {
 				WARN_PRINT("Linked room cannot be the parent room of a portal.");
 			}
@@ -508,7 +507,7 @@ void Portal::portal_update() {
 
 real_t Portal::get_active_portal_margin() const {
 	if (_use_default_margin) {
-		return _default_margin;
+		return RoomManager::_get_default_portal_margin();
 	}
 	return _margin;
 }
@@ -680,6 +679,8 @@ void Portal::_bind_methods() {
 
 	ClassDB::bind_method(D_METHOD("set_points", "points"), &Portal::set_points);
 	ClassDB::bind_method(D_METHOD("get_points"), &Portal::get_points);
+
+	ClassDB::bind_method(D_METHOD("set_point", "index", "position"), &Portal::set_point);
 
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "portal_active"), "set_portal_active", "get_portal_active");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "two_way"), "set_two_way", "is_two_way");
