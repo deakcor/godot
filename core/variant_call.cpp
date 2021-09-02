@@ -871,6 +871,7 @@ struct _VariantCall {
 	VCALL_PTR0R(Transform2D, get_rotation);
 	VCALL_PTR0R(Transform2D, get_origin);
 	VCALL_PTR0R(Transform2D, get_scale);
+	VCALL_PTR0R(Transform2D, get_skew);
 	VCALL_PTR0R(Transform2D, orthonormalized);
 	VCALL_PTR1R(Transform2D, rotated);
 	VCALL_PTR1R(Transform2D, scaled);
@@ -1043,6 +1044,11 @@ struct _VariantCall {
 
 	static void Transform2D_init2(Variant &r_ret, const Variant **p_args) {
 		Transform2D m(*p_args[0], *p_args[1]);
+		r_ret = m;
+	}
+
+	static void Transform2D_init4(Variant &r_ret, const Variant **p_args) {
+		Transform2D m(*p_args[0], *p_args[1], *p_args[2], *p_args[3]);
 		r_ret = m;
 	}
 
@@ -2130,6 +2136,7 @@ void register_variant_methods() {
 	ADDFUNC0R(TRANSFORM2D, REAL, Transform2D, get_rotation, varray());
 	ADDFUNC0R(TRANSFORM2D, VECTOR2, Transform2D, get_origin, varray());
 	ADDFUNC0R(TRANSFORM2D, VECTOR2, Transform2D, get_scale, varray());
+	ADDFUNC0R(TRANSFORM2D, REAL, Transform2D, get_skew, varray());
 	ADDFUNC0R(TRANSFORM2D, TRANSFORM2D, Transform2D, orthonormalized, varray());
 	ADDFUNC1R(TRANSFORM2D, TRANSFORM2D, Transform2D, rotated, REAL, "angle", varray());
 	ADDFUNC1R(TRANSFORM2D, TRANSFORM2D, Transform2D, scaled, VECTOR2, "scale", varray());
@@ -2180,6 +2187,7 @@ void register_variant_methods() {
 	_VariantCall::add_constructor(_VariantCall::Rect2_init2, Variant::RECT2, "x", Variant::REAL, "y", Variant::REAL, "width", Variant::REAL, "height", Variant::REAL);
 
 	_VariantCall::add_constructor(_VariantCall::Transform2D_init2, Variant::TRANSFORM2D, "rotation", Variant::REAL, "position", Variant::VECTOR2);
+	_VariantCall::add_constructor(_VariantCall::Transform2D_init4, Variant::TRANSFORM2D, "rotation", Variant::REAL, "scale", Variant::VECTOR2, "skew", Variant::REAL, "position", Variant::VECTOR2);
 	_VariantCall::add_constructor(_VariantCall::Transform2D_init3, Variant::TRANSFORM2D, "x_axis", Variant::VECTOR2, "y_axis", Variant::VECTOR2, "origin", Variant::VECTOR2);
 
 	_VariantCall::add_constructor(_VariantCall::Vector3_init1, Variant::VECTOR3, "x", Variant::REAL, "y", Variant::REAL, "z", Variant::REAL);

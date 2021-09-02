@@ -130,6 +130,9 @@ struct _NO_DISCARD_CLASS_ Transform2D {
 	}
 
 	Transform2D(real_t p_rot, const Vector2 &p_pos);
+
+	Transform2D(real_t p_rot, const Size2 &p_scale, real_t p_skew, const Vector2 &p_pos);
+
 	Transform2D() {
 		elements[0][0] = 1.0;
 		elements[1][1] = 1.0;
