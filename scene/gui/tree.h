@@ -96,6 +96,8 @@ private:
 			int id;
 			bool disabled;
 			bool visible;
+			bool toggle_mode;
+			bool toggled;
 			Ref<Texture> texture;
 			Color color;
 			String tooltip;
@@ -212,6 +214,10 @@ public:
 	void set_button_visible(int p_column, int p_idx, bool p_visible);
 	bool is_button_disabled(int p_column, int p_idx) const;
 	bool is_button_visible(int p_column, int p_idx) const;
+	void set_button_toggled(int p_column, int p_idx, bool p_toggled);
+	void set_button_toggle_mode(int p_column, int p_idx, bool p_toggle_mode);
+	bool is_button_toggled(int p_column, int p_idx) const;
+	bool is_button_toggle_mode(int p_column, int p_idx) const;
 
 	/* range works for mode number or mode combo */
 
@@ -423,6 +429,8 @@ private:
 
 		Color font_color;
 		Color font_color_selected;
+		Color button_color;
+		Color button_color_selected;
 		Color guide_color;
 		Color drop_position_color;
 		Color relationship_line_color;
