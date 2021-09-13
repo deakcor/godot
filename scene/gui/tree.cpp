@@ -491,6 +491,9 @@ void TreeItem::add_button(int p_column, const Ref<Texture> &p_button, int p_id, 
 	}
 	button.id = p_id;
 	button.disabled = p_disabled;
+	button.visible = true;
+	button.toggled = false;
+	button.toggle_mode = false;
 	button.tooltip = p_tooltip;
 	cells.write[p_column].buttons.push_back(button);
 	_changed_notify(p_column);
@@ -576,6 +579,36 @@ bool TreeItem::is_button_visible(int p_column, int p_idx) const {
 	ERR_FAIL_INDEX_V(p_idx, cells[p_column].buttons.size(), false);
 
 	return cells[p_column].buttons[p_idx].visible;
+}
+
+void TreeItem::set_button_toggled(int p_column, int p_idx, bool p_toggled) {
+	ERR_FAIL_INDEX(p_column, cells.size());
+	ERR_FAIL_INDEX(p_idx, cells[p_column].buttons.size());
+
+	cells.write[p_column].buttons.write[p_idx].toggled = p_toggled;
+	_changed_notify(p_column);
+}
+
+void TreeItem::set_button_toggle_mode(int p_column, int p_idx, bool p_toggle_mode) {
+	ERR_FAIL_INDEX(p_column, cells.size());
+	ERR_FAIL_INDEX(p_idx, cells[p_column].buttons.size());
+
+	cells.write[p_column].buttons.write[p_idx].toggle_mode = p_toggle_mode;
+	_changed_notify(p_column);
+}
+
+bool TreeItem::is_button_toggled(int p_column, int p_idx) const {
+	ERR_FAIL_INDEX_V(p_column, cells.size(), false);
+	ERR_FAIL_INDEX_V(p_idx, cells[p_column].buttons.size(), false);
+
+	return cells[p_column].buttons[p_idx].toggled;
+}
+
+bool TreeItem::is_button_toggle_mode(int p_column, int p_idx) const {
+	ERR_FAIL_INDEX_V(p_column, cells.size(), false);
+	ERR_FAIL_INDEX_V(p_idx, cells[p_column].buttons.size(), false);
+
+	return cells[p_column].buttons[p_idx].toggle_mode;
 }
 
 void TreeItem::set_editable(int p_column, bool p_editable) {
@@ -800,10 +833,15 @@ void TreeItem::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_button", "column", "button_idx", "button"), &TreeItem::set_button);
 	ClassDB::bind_method(D_METHOD("erase_button", "column", "button_idx"), &TreeItem::erase_button);
 	ClassDB::bind_method(D_METHOD("set_button_disabled", "column", "button_idx", "disabled"), &TreeItem::set_button_disabled);
+	ClassDB::bind_method(D_METHOD("set_button_color", "column", "button_idx", "color"), &TreeItem::set_button_color);
 	ClassDB::bind_method(D_METHOD("set_button_visible", "column", "button_idx", "visible"), &TreeItem::set_button_visible);
 	ClassDB::bind_method(D_METHOD("is_button_disabled", "column", "button_idx"), &TreeItem::is_button_disabled);
 	ClassDB::bind_method(D_METHOD("is_button_visible", "column", "button_idx"), &TreeItem::is_button_visible);
-
+	ClassDB::bind_method(D_METHOD("set_button_toggled", "column", "button_idx", "toggled"), &TreeItem::set_button_toggled);
+	ClassDB::bind_method(D_METHOD("set_button_toggle_mode", "column", "button_idx", "toggle_mode"), &TreeItem::set_button_toggle_mode);
+	ClassDB::bind_method(D_METHOD("is_button_toggled", "column", "button_idx"), &TreeItem::is_button_toggled);
+	ClassDB::bind_method(D_METHOD("is_button_toggle_mode", "column", "button_idx"), &TreeItem::is_button_toggle_mode);
+	
 	ClassDB::bind_method(D_METHOD("set_expand_right", "column", "enable"), &TreeItem::set_expand_right);
 	ClassDB::bind_method(D_METHOD("get_expand_right", "column"), &TreeItem::get_expand_right);
 
@@ -934,6 +972,8 @@ void Tree::update_cache() {
 
 	cache.font_color = get_color("font_color");
 	cache.font_color_selected = get_color("font_color_selected");
+	cache.button_color = get_color("button_color");
+	cache.button_color_selected = get_color("button_color_selected");
 	cache.guide_color = get_color("guide_color");
 	cache.drop_position_color = get_color("drop_position_color");
 	cache.hseparation = get_constant("hseparation");
@@ -1143,16 +1183,20 @@ int Tree::draw_item(const Point2i &p_pos, const Point2 &p_draw_ofs, const Size2 
 				Size2 s = b->get_size() + cache.button_pressed->get_minimum_size();
 
 				Point2i o = Point2i(ofs + w - s.width, p_pos.y) - cache.offset + p_draw_ofs;
-
-				if (cache.click_type == Cache::CLICK_BUTTON && cache.click_item == p_item && cache.click_column == i && cache.click_index == j && !p_item->cells[i].buttons[j].disabled) {
-					// Being pressed.
-					cache.button_pressed->draw(get_canvas_item(), Rect2(o.x, o.y, s.width, MAX(s.height, label_h)));
+				bool pressed = cache.click_type == Cache::CLICK_BUTTON && cache.click_item == p_item && cache.click_column == i && cache.click_index == j && !p_item->cells[i].buttons[j].disabled;
+				if (pressed) {
+					//being pressed
+					cache.button_pressed->draw(get_canvas_item(), Rect2(o, s));
 				}
 
 				o.y += (label_h - s.height) / 2;
 				o += cache.button_pressed->get_offset();
 				if (p_item->cells[i].buttons[j].visible) {
-					b->draw(ci, o, p_item->cells[i].buttons[j].disabled ? Color(1, 1, 1, 0.5) : p_item->cells[i].buttons[j].color);
+					Color col = p_item->cells[i].buttons[j].color; //get_color(pressed ? "button_color_selected" : "button_color");
+					if (p_item->cells[i].buttons[j].disabled) {
+						col.a /= 2;
+					}
+					b->draw(ci, o, col);
 				}
 				
 				w -= s.width + cache.button_margin;
@@ -2558,6 +2602,12 @@ void Tree::_gui_input(Ref<InputEvent> p_event) {
 				if (cache.click_type == Cache::CLICK_BUTTON && cache.click_item != nullptr) {
 					// make sure in case of wrong reference after reconstructing whole TreeItems
 					cache.click_item = get_item_at_position(cache.click_pos);
+					if (cache.click_item->cells.write[cache.click_column].buttons.write[cache.click_id].toggle_mode) {
+						cache.click_item->cells.write[cache.click_column].buttons.write[cache.click_id].toggled = !cache.click_item->cells[cache.click_column].buttons[cache.click_id].toggled;
+					} else {
+						cache.click_item->cells.write[cache.click_column].buttons.write[cache.click_id].toggled = false;
+					}
+					
 					emit_signal("button_pressed", cache.click_item, cache.click_column, cache.click_id);
 				}
 				cache.click_type = Cache::CLICK_NONE;
