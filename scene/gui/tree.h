@@ -95,6 +95,7 @@ private:
 		struct Button {
 			int id;
 			bool disabled;
+			bool visible;
 			Ref<Texture> texture;
 			Color color;
 			String tooltip;
@@ -208,7 +209,9 @@ public:
 	void set_button(int p_column, int p_idx, const Ref<Texture> &p_button);
 	void set_button_color(int p_column, int p_idx, const Color &p_color);
 	void set_button_disabled(int p_column, int p_idx, bool p_disabled);
+	void set_button_visible(int p_column, int p_idx, bool p_visible);
 	bool is_button_disabled(int p_column, int p_idx) const;
+	bool is_button_visible(int p_column, int p_idx) const;
 
 	/* range works for mode number or mode combo */
 
@@ -294,7 +297,8 @@ public:
 	enum SelectMode {
 		SELECT_SINGLE,
 		SELECT_ROW,
-		SELECT_MULTI
+		SELECT_MULTI,
+		SELECT_MULTI_ROW
 	};
 
 	enum DropModeFlags {

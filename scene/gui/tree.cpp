@@ -556,11 +556,26 @@ void TreeItem::set_button_disabled(int p_column, int p_idx, bool p_disabled) {
 	_changed_notify(p_column);
 }
 
+void TreeItem::set_button_visible(int p_column, int p_idx, bool p_visible) {
+	ERR_FAIL_INDEX(p_column, cells.size());
+	ERR_FAIL_INDEX(p_idx, cells[p_column].buttons.size());
+
+	cells.write[p_column].buttons.write[p_idx].visible = p_visible;
+	_changed_notify(p_column);
+}
+
 bool TreeItem::is_button_disabled(int p_column, int p_idx) const {
 	ERR_FAIL_INDEX_V(p_column, cells.size(), false);
 	ERR_FAIL_INDEX_V(p_idx, cells[p_column].buttons.size(), false);
 
 	return cells[p_column].buttons[p_idx].disabled;
+}
+
+bool TreeItem::is_button_visible(int p_column, int p_idx) const {
+	ERR_FAIL_INDEX_V(p_column, cells.size(), false);
+	ERR_FAIL_INDEX_V(p_idx, cells[p_column].buttons.size(), false);
+
+	return cells[p_column].buttons[p_idx].visible;
 }
 
 void TreeItem::set_editable(int p_column, bool p_editable) {
@@ -785,7 +800,9 @@ void TreeItem::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_button", "column", "button_idx", "button"), &TreeItem::set_button);
 	ClassDB::bind_method(D_METHOD("erase_button", "column", "button_idx"), &TreeItem::erase_button);
 	ClassDB::bind_method(D_METHOD("set_button_disabled", "column", "button_idx", "disabled"), &TreeItem::set_button_disabled);
+	ClassDB::bind_method(D_METHOD("set_button_visible", "column", "button_idx", "visible"), &TreeItem::set_button_visible);
 	ClassDB::bind_method(D_METHOD("is_button_disabled", "column", "button_idx"), &TreeItem::is_button_disabled);
+	ClassDB::bind_method(D_METHOD("is_button_visible", "column", "button_idx"), &TreeItem::is_button_visible);
 
 	ClassDB::bind_method(D_METHOD("set_expand_right", "column", "enable"), &TreeItem::set_expand_right);
 	ClassDB::bind_method(D_METHOD("get_expand_right", "column"), &TreeItem::get_expand_right);
@@ -1134,8 +1151,10 @@ int Tree::draw_item(const Point2i &p_pos, const Point2 &p_draw_ofs, const Size2 
 
 				o.y += (label_h - s.height) / 2;
 				o += cache.button_pressed->get_offset();
-
-				b->draw(ci, o, p_item->cells[i].buttons[j].disabled ? Color(1, 1, 1, 0.5) : p_item->cells[i].buttons[j].color);
+				if (p_item->cells[i].buttons[j].visible) {
+					b->draw(ci, o, p_item->cells[i].buttons[j].disabled ? Color(1, 1, 1, 0.5) : p_item->cells[i].buttons[j].color);
+				}
+				
 				w -= s.width + cache.button_margin;
 				bw += s.width + cache.button_margin;
 			}
@@ -1164,6 +1183,8 @@ int Tree::draw_item(const Point2i &p_pos, const Point2 &p_draw_ofs, const Size2 
 				}
 			}
 
+			
+
 			if ((select_mode == SELECT_ROW && selected_item == p_item) || p_item->cells[i].selected || !p_item->has_meta("__focus_rect")) {
 				Rect2i r(cell_rect.position, cell_rect.size);
 
@@ -1172,8 +1193,8 @@ int Tree::draw_item(const Point2i &p_pos, const Point2 &p_draw_ofs, const Size2 
 					if (p_item->get_icon_max_width(i) > 0) {
 						icon_width = p_item->get_icon_max_width(i);
 					}
-					r.position.x += icon_width;
-					r.size.x -= icon_width;
+					//r.position.x += icon_width;
+					//r.size.x -= icon_width;
 				}
 				p_item->set_meta("__focus_rect", Rect2(r.position, r.size));
 
@@ -1205,7 +1226,9 @@ int Tree::draw_item(const Point2i &p_pos, const Point2 &p_draw_ofs, const Size2 
 				}
 			}
 
-			if (drop_mode_flags && drop_mode_over) {
+			
+
+			if (drop_mode_flags && drop_mode_over == p_item) {
 				Rect2 r = cell_rect;
 				if (drop_mode_over == p_item) {
 					if (drop_mode_section == 0 || drop_mode_section == -1) {
@@ -1516,14 +1539,20 @@ void Tree::select_single_item(TreeItem *p_selected, TreeItem *p_current, int p_c
 			continue;
 		}
 
-		if (select_mode == SELECT_ROW) {
+		if (select_mode == SELECT_ROW || select_mode == SELECT_MULTI_ROW) {
+			//if (!r_in_range && &selected_cell == &c) {
 			if (p_selected == p_current && (!c.selected || allow_reselect)) {
 				c.selected = true;
 				selected_item = p_selected;
 				selected_col = 0;
-				if (!emitted_row) {
-					emit_signal("item_selected");
-					emitted_row = true;
+				if (select_mode == SELECT_ROW) {
+					if (!emitted_row) {
+						emit_signal("item_selected");
+						emitted_row = true;
+					} else {
+						emit_signal("multi_selected", p_current, 0, true);
+						emitted_row = true;
+					}
 				}
 				/*
 					if (p_col==i)
@@ -1536,6 +1565,9 @@ void Tree::select_single_item(TreeItem *p_selected, TreeItem *p_current, int p_c
 					c.selected = false;
 				}
 			}
+			//} else {
+			//}
+
 		} else if (select_mode == SELECT_SINGLE || select_mode == SELECT_MULTI) {
 			if (!r_in_range && &selected_cell == &c) {
 				if (!selected_cell.selected || allow_reselect) {
@@ -3903,6 +3935,7 @@ void Tree::_bind_methods() {
 	BIND_ENUM_CONSTANT(SELECT_SINGLE);
 	BIND_ENUM_CONSTANT(SELECT_ROW);
 	BIND_ENUM_CONSTANT(SELECT_MULTI);
+	BIND_ENUM_CONSTANT(SELECT_MULTI_ROW);
 
 	BIND_ENUM_CONSTANT(DROP_MODE_DISABLED);
 	BIND_ENUM_CONSTANT(DROP_MODE_ON_ITEM);
