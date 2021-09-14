@@ -33,6 +33,15 @@
 		<method name="Transform2D">
 			<return type="Transform2D" />
 			<argument index="0" name="rotation" type="float" />
+			<argument index="1" name="scale" type="Vector2" />
+			<argument index="2" name="skew" type="float" />
+			<argument index="3" name="position" type="Vector2" />
+			<description>
+			</description>
+		</method>
+		<method name="Transform2D">
+			<return type="Transform2D" />
+			<argument index="0" name="rotation" type="float" />
 			<argument index="1" name="position" type="Vector2" />
 			<description>
 				Constructs the transform from a given angle (in radians) and position.
@@ -76,6 +85,11 @@
 			<return type="Vector2" />
 			<description>
 				Returns the scale.
+			</description>
+		</method>
+		<method name="get_skew">
+			<return type="float" />
+			<description>
 			</description>
 		</method>
 		<method name="interpolate_with">

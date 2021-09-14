@@ -431,9 +431,6 @@
 		<member name="debug/settings/stdout/verbose_stdout" type="bool" setter="" getter="" default="false">
 			Print more information to standard output when running. It displays information such as memory leaks, which scenes and resources are being loaded, etc.
 		</member>
-		<member name="debug/settings/visual_script/max_call_stack" type="int" setter="" getter="" default="1024">
-			Maximum call stack in visual scripting, to avoid infinite recursion.
-		</member>
 		<member name="debug/shapes/collision/contact_color" type="Color" setter="" getter="" default="Color( 1, 0.2, 0.1, 0.8 )">
 			Color of the contact points between collision shapes, visible when "Visible Collision Shapes" is enabled in the Debug menu.
 		</member>
@@ -1335,9 +1332,6 @@
 		</member>
 		<member name="physics/2d/use_bvh" type="bool" setter="" getter="" default="true">
 			Enables the use of bounding volume hierarchy instead of hash grid for 2D physics spatial partitioning. This may give better performance.
-		</member>
-		<member name="physics/3d/active_soft_world" type="bool" setter="" getter="" default="true">
-			Sets whether the 3D physics world will be created with support for [SoftBody] physics. Only applies to the Bullet physics engine.
 		</member>
 		<member name="physics/3d/default_angular_damp" type="float" setter="" getter="" default="0.1">
 			The default angular damp in 3D.

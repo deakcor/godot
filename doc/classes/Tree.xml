@@ -339,6 +339,8 @@
 			Allows selection of multiple cells at the same time. From the perspective of items, multiple items are allowed to be selected. And there can be multiple columns selected in each selected item.
 			The focus cursor is visible in this mode, the item or column under the cursor is not necessarily selected.
 		</constant>
+		<constant name="SELECT_MULTI_ROW" value="3" enum="SelectMode">
+		</constant>
 		<constant name="DROP_MODE_DISABLED" value="0" enum="DropModeFlags">
 			Disables all drop sections, but still allows to detect the "on item" drop section by [method get_drop_section_at_position].
 			[b]Note:[/b] This is the default flag, it has no effect when combined with other flags.
