@@ -24,8 +24,8 @@
 			<return type="int" />
 			<argument index="0" name="type" type="int" enum="Animation.TrackType" />
 			<argument index="1" name="at_position" type="int" default="-1" />
+			<argument index="2" name="track_id" type="int" default="0" />
 			<description>
-				Adds a track to the Animation.
 			</description>
 		</method>
 		<method name="animation_track_get_key_animation" qualifiers="const">
@@ -143,6 +143,12 @@
 				Returns the value of the key identified by [code]key_idx[/code]. The [code]track_idx[/code] must be the index of a Bezier Track.
 			</description>
 		</method>
+		<method name="bezier_track_get_modulo" qualifiers="const">
+			<return type="float" />
+			<argument index="0" name="track_idx" type="int" />
+			<description>
+			</description>
+		</method>
 		<method name="bezier_track_insert_key">
 			<return type="int" />
 			<argument index="0" name="track_idx" type="int" />
@@ -190,6 +196,13 @@
 				Sets the value of the key identified by [code]key_idx[/code] to the given value. The [code]track_idx[/code] must be the index of a Bezier Track.
 			</description>
 		</method>
+		<method name="bezier_track_set_modulo">
+			<return type="void" />
+			<argument index="0" name="track_idx" type="int" />
+			<argument index="1" name="modulo" type="float" />
+			<description>
+			</description>
+		</method>
 		<method name="clear">
 			<return type="void" />
 			<description>
@@ -209,6 +222,12 @@
 			<argument index="0" name="path" type="NodePath" />
 			<description>
 				Returns the index of the specified track. If the track is not found, return -1.
+			</description>
+		</method>
+		<method name="get_first_track_idx_by_id" qualifiers="const">
+			<return type="int" />
+			<argument index="0" name="track_id" type="int" />
+			<description>
 			</description>
 		</method>
 		<method name="get_track_count" qualifiers="const">
@@ -258,6 +277,19 @@
 				Finds the key index by time in a given track. Optionally, only find it if the exact time is given.
 			</description>
 		</method>
+		<method name="track_get_first_key_idx_by_id" qualifiers="const">
+			<return type="int" />
+			<argument index="0" name="track_idx" type="int" />
+			<argument index="1" name="key_id" type="int" />
+			<description>
+			</description>
+		</method>
+		<method name="track_get_id" qualifiers="const">
+			<return type="int" />
+			<argument index="0" name="track_idx" type="int" />
+			<description>
+			</description>
+		</method>
 		<method name="track_get_interpolation_loop_wrap" qualifiers="const">
 			<return type="bool" />
 			<argument index="0" name="track_idx" type="int" />
@@ -277,6 +309,20 @@
 			<argument index="0" name="track_idx" type="int" />
 			<description>
 				Returns the amount of keys in a given track.
+			</description>
+		</method>
+		<method name="track_get_key_id" qualifiers="const">
+			<return type="int" />
+			<argument index="0" name="track_idx" type="int" />
+			<argument index="1" name="key_idx" type="int" />
+			<description>
+			</description>
+		</method>
+		<method name="track_get_key_metadata" qualifiers="const">
+			<return type="Variant" />
+			<argument index="0" name="track_idx" type="int" />
+			<argument index="1" name="key_idx" type="int" />
+			<description>
 			</description>
 		</method>
 		<method name="track_get_key_time" qualifiers="const">
@@ -387,6 +433,13 @@
 				Enables/disables the given track. Tracks are enabled by default.
 			</description>
 		</method>
+		<method name="track_set_id">
+			<return type="void" />
+			<argument index="0" name="track_idx" type="int" />
+			<argument index="1" name="track_id" type="int" />
+			<description>
+			</description>
+		</method>
 		<method name="track_set_imported">
 			<return type="void" />
 			<argument index="0" name="track_idx" type="int" />
@@ -409,6 +462,22 @@
 			<argument index="1" name="interpolation" type="int" enum="Animation.InterpolationType" />
 			<description>
 				Sets the interpolation type of a given track.
+			</description>
+		</method>
+		<method name="track_set_key_id">
+			<return type="void" />
+			<argument index="0" name="track_idx" type="int" />
+			<argument index="1" name="key_idx" type="int" />
+			<argument index="2" name="key_id" type="int" />
+			<description>
+			</description>
+		</method>
+		<method name="track_set_key_metadata">
+			<return type="void" />
+			<argument index="0" name="track_idx" type="int" />
+			<argument index="1" name="key_idx" type="int" />
+			<argument index="2" name="key_metadata" type="Variant" />
+			<description>
 			</description>
 		</method>
 		<method name="track_set_key_time">

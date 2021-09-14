@@ -104,6 +104,10 @@
 		<member name="global_scale" type="Vector2" setter="set_global_scale" getter="get_global_scale">
 			Global scale.
 		</member>
+		<member name="global_skew" type="float" setter="set_global_skew" getter="get_global_skew">
+		</member>
+		<member name="global_skew_degrees" type="float" setter="set_global_skew_degrees" getter="get_global_skew_degrees">
+		</member>
 		<member name="global_transform" type="Transform2D" setter="set_global_transform" getter="get_global_transform">
 			Global [Transform2D].
 		</member>
@@ -118,6 +122,10 @@
 		</member>
 		<member name="scale" type="Vector2" setter="set_scale" getter="get_scale" default="Vector2( 1, 1 )">
 			The node's scale. Unscaled value: [code](1, 1)[/code].
+		</member>
+		<member name="skew" type="float" setter="set_skew" getter="get_skew" default="0.0">
+		</member>
+		<member name="skew_degrees" type="float" setter="set_skew_degrees" getter="get_skew_degrees" default="0.0">
 		</member>
 		<member name="transform" type="Transform2D" setter="set_transform" getter="get_transform">
 			Local [Transform2D].

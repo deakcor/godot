@@ -257,7 +257,7 @@
 		<member name="audio/default_bus_layout" type="String" setter="" getter="" default="&quot;res://default_bus_layout.tres&quot;">
 			Default [AudioBusLayout] resource file to use in the project, unless overridden by the scene.
 		</member>
-		<member name="audio/driver" type="String" setter="" getter="" default="&quot;PulseAudio&quot;">
+		<member name="audio/driver" type="String" setter="" getter="" default="&quot;WASAPI&quot;">
 			Specifies the audio driver to use. This setting is platform-dependent as each platform supports different audio drivers. If left empty, the default audio driver will be used.
 		</member>
 		<member name="audio/enable_audio_input" type="bool" setter="" getter="" default="false">
@@ -403,9 +403,6 @@
 		<member name="debug/settings/stdout/verbose_stdout" type="bool" setter="" getter="" default="false">
 			Print more information to standard output when running. It displays information such as memory leaks, which scenes and resources are being loaded, etc.
 		</member>
-		<member name="debug/settings/visual_script/max_call_stack" type="int" setter="" getter="" default="1024">
-			Maximum call stack in visual scripting, to avoid infinite recursion.
-		</member>
 		<member name="debug/shapes/collision/contact_color" type="Color" setter="" getter="" default="Color( 1, 0.2, 0.1, 0.8 )">
 			Color of the contact points between collision shapes, visible when "Visible Collision Shapes" is enabled in the Debug menu.
 		</member>
@@ -481,7 +478,7 @@
 		<member name="display/window/size/width" type="int" setter="" getter="" default="1024">
 			Sets the game's main viewport width. On desktop platforms, this is the default window size. Stretch mode settings also use this as a reference when enabled.
 		</member>
-		<member name="display/window/tablet_driver" type="String" setter="" getter="" default="&quot;&quot;">
+		<member name="display/window/tablet_driver" type="String" setter="" getter="" default="&quot;winink&quot;">
 			Specifies the tablet driver to use. If left empty, the default driver will be used.
 		</member>
 		<member name="display/window/vsync/use_vsync" type="bool" setter="" getter="" default="true">
@@ -508,7 +505,7 @@
 		<member name="gui/common/default_scroll_deadzone" type="int" setter="" getter="" default="0">
 			Default value for [member ScrollContainer.scroll_deadzone], which will be used for all [ScrollContainer]s unless overridden.
 		</member>
-		<member name="gui/common/swap_ok_cancel" type="bool" setter="" getter="" default="false">
+		<member name="gui/common/swap_ok_cancel" type="bool" setter="" getter="" default="true">
 			If [code]true[/code], swaps OK and Cancel buttons in dialogs on Windows and UWP to follow interface conventions.
 		</member>
 		<member name="gui/common/text_edit_undo_stack_max_size" type="int" setter="" getter="" default="1024">
@@ -1047,9 +1044,6 @@
 		<member name="physics/2d/use_bvh" type="bool" setter="" getter="" default="true">
 			Enables the use of bounding volume hierarchy instead of hash grid for 2D physics spatial partitioning. This may give better performance.
 		</member>
-		<member name="physics/3d/active_soft_world" type="bool" setter="" getter="" default="true">
-			Sets whether the 3D physics world will be created with support for [SoftBody] physics. Only applies to the Bullet physics engine.
-		</member>
 		<member name="physics/3d/default_angular_damp" type="float" setter="" getter="" default="0.1">
 			The default angular damp in 3D.
 			[b]Note:[/b] Good values are in the range [code]0[/code] to [code]1[/code]. At value [code]0[/code] objects will keep moving with the same velocity. Values greater than [code]1[/code] will aim to reduce the velocity to [code]0[/code] in less than a second e.g. a value of [code]2[/code] will aim to reduce the velocity to [code]0[/code] in half a second. A value equal to or greater than the physics frame rate ([member ProjectSettings.physics/common/physics_fps], [code]60[/code] by default) will bring the object to a stop in one iteration.
@@ -1080,6 +1074,12 @@
 		<member name="physics/3d/physics_engine" type="String" setter="" getter="" default="&quot;DEFAULT&quot;">
 			Sets which physics engine to use for 3D physics.
 			"DEFAULT" is currently the [url=https://bulletphysics.org]Bullet[/url] physics engine. The "GodotPhysics" engine is still supported as an alternative.
+		</member>
+		<member name="physics/3d/sleep_threshold_angular" type="float" setter="" getter="" default="0.139626">
+		</member>
+		<member name="physics/3d/sleep_threshold_linear" type="float" setter="" getter="" default="0.1">
+		</member>
+		<member name="physics/3d/time_before_sleep" type="float" setter="" getter="" default="0.5">
 		</member>
 		<member name="physics/common/enable_object_picking" type="bool" setter="" getter="" default="true">
 			Enables [member Viewport.physics_object_picking] on the root viewport.
