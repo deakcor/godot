@@ -249,6 +249,27 @@
 				Returns [code]true[/code] if the button at index [code]button_idx[/code] for the given column is disabled.
 			</description>
 		</method>
+		<method name="is_button_toggle_mode" qualifiers="const">
+			<return type="bool" />
+			<argument index="0" name="column" type="int" />
+			<argument index="1" name="button_idx" type="int" />
+			<description>
+			</description>
+		</method>
+		<method name="is_button_toggled" qualifiers="const">
+			<return type="bool" />
+			<argument index="0" name="column" type="int" />
+			<argument index="1" name="button_idx" type="int" />
+			<description>
+			</description>
+		</method>
+		<method name="is_button_visible" qualifiers="const">
+			<return type="bool" />
+			<argument index="0" name="column" type="int" />
+			<argument index="1" name="button_idx" type="int" />
+			<description>
+			</description>
+		</method>
 		<method name="is_checked" qualifiers="const">
 			<return type="bool" />
 			<argument index="0" name="column" type="int" />
@@ -318,6 +339,14 @@
 				Sets the given column's button [Texture] at index [code]button_idx[/code] to [code]button[/code].
 			</description>
 		</method>
+		<method name="set_button_color">
+			<return type="void" />
+			<argument index="0" name="column" type="int" />
+			<argument index="1" name="button_idx" type="int" />
+			<argument index="2" name="color" type="Color" />
+			<description>
+			</description>
+		</method>
 		<method name="set_button_disabled">
 			<return type="void" />
 			<argument index="0" name="column" type="int" />
@@ -325,6 +354,30 @@
 			<argument index="2" name="disabled" type="bool" />
 			<description>
 				If [code]true[/code], disables the button at index [code]button_idx[/code] in column [code]column[/code].
+			</description>
+		</method>
+		<method name="set_button_toggle_mode">
+			<return type="void" />
+			<argument index="0" name="column" type="int" />
+			<argument index="1" name="button_idx" type="int" />
+			<argument index="2" name="toggle_mode" type="bool" />
+			<description>
+			</description>
+		</method>
+		<method name="set_button_toggled">
+			<return type="void" />
+			<argument index="0" name="column" type="int" />
+			<argument index="1" name="button_idx" type="int" />
+			<argument index="2" name="toggled" type="bool" />
+			<description>
+			</description>
+		</method>
+		<method name="set_button_visible">
+			<return type="void" />
+			<argument index="0" name="column" type="int" />
+			<argument index="1" name="button_idx" type="int" />
+			<argument index="2" name="visible" type="bool" />
+			<description>
 			</description>
 		</method>
 		<method name="set_cell_mode">
