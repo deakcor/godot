@@ -2602,12 +2602,14 @@ void Tree::_gui_input(Ref<InputEvent> p_event) {
 				if (cache.click_type == Cache::CLICK_BUTTON && cache.click_item != nullptr) {
 					// make sure in case of wrong reference after reconstructing whole TreeItems
 					cache.click_item = get_item_at_position(cache.click_pos);
-					if (cache.click_item->cells.write[cache.click_column].buttons.write[cache.click_id].toggle_mode) {
-						cache.click_item->cells.write[cache.click_column].buttons.write[cache.click_id].toggled = !cache.click_item->cells[cache.click_column].buttons[cache.click_id].toggled;
-					} else {
-						cache.click_item->cells.write[cache.click_column].buttons.write[cache.click_id].toggled = false;
+					if (cache.click_item != nullptr) {
+						int idx = cache.click_item->get_button_by_id(cache.click_column, cache.click_id);
+						if (cache.click_item->cells[cache.click_column].buttons[idx].toggle_mode == true) {
+							cache.click_item->set_button_toggled(cache.click_column ,idx,!cache.click_item->cells[cache.click_column].buttons[idx].toggled);
+						} else {
+							cache.click_item->set_button_toggled(cache.click_column ,idx,false);
+						}
 					}
-					
 					emit_signal("button_pressed", cache.click_item, cache.click_column, cache.click_id);
 				}
 				cache.click_type = Cache::CLICK_NONE;
