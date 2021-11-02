@@ -938,6 +938,7 @@ struct _VariantCall {
 	VCALL_PTR1R(Basis, scaled);
 	VCALL_PTR0R(Basis, get_scale);
 	VCALL_PTR0R(Basis, get_euler);
+	VCALL_PTR2(Basis, set_euler_scale);
 	VCALL_PTR0R(Basis, get_euler_xyz);
 	VCALL_PTR1(Basis, set_euler_xyz);
 	VCALL_PTR0R(Basis, get_euler_xzy);
@@ -2156,6 +2157,7 @@ void register_variant_methods() {
 	ADDFUNC1R(BASIS, BASIS, Basis, scaled, VECTOR3, "scale", varray());
 	ADDFUNC0R(BASIS, VECTOR3, Basis, get_scale, varray());
 	ADDFUNC0R(BASIS, VECTOR3, Basis, get_euler, varray());
+	ADDFUNC2(BASIS, NIL, Basis, set_euler_scale, VECTOR3, "euler", VECTOR3, "scale", varray());
 	ADDFUNC1R(BASIS, REAL, Basis, tdotx, VECTOR3, "with", varray());
 	ADDFUNC1R(BASIS, REAL, Basis, tdoty, VECTOR3, "with", varray());
 	ADDFUNC1R(BASIS, REAL, Basis, tdotz, VECTOR3, "with", varray());
