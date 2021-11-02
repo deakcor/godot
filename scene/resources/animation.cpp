@@ -2547,12 +2547,14 @@ float Animation::bezier_track_interpolate(int p_track, float p_time) const {
 				duration = bt->values[next_idx].time - bt->values[idx].time;
 			}
 		} else {
+			// on loop, behind first key
 			idx = len - 1;
 			next_idx = 0;
 			duration = length - bt->values[idx].time;
 			if (duration < 0) // may be keys past the end
 				duration = 0;
 			duration += bt->values[next_idx].time;
+			p_time += length;
 		}
 	} else {
 		if (idx >= 0) {
@@ -2565,9 +2567,7 @@ float Animation::bezier_track_interpolate(int p_track, float p_time) const {
 				duration = bt->values[next_idx].time - bt->values[idx].time;
 			}
 		} else {
-			if (loop) {
-				return bt->values[0].value.value;
-			}
+			return bt->values[0].value.value;
 		}
 	}
 	if (duration == 0.0) {
