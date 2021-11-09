@@ -236,6 +236,9 @@ private:
 	DynamicFontData::CacheID cache_id;
 	DynamicFontData::CacheID outline_cache_id;
 
+	Vector<DynamicFontData::CacheID> fallbacks_cache_id;
+	Vector<DynamicFontData::CacheID> fallbacks_outline_cache_id;
+
 	bool valid;
 	int spacing_top;
 	int spacing_bottom;
@@ -259,6 +262,14 @@ public:
 
 	void set_size(int p_size);
 	int get_size() const;
+
+	void set_fallback_size(int p_idx, int p_size);
+	int get_fallback_size(int p_idx) const;
+	void add_fallback_size(int p_idx);
+	void remove_fallback_size(int p_idx);
+
+	DynamicFontData::CacheID get_fallback_or_main_cache(int p_idx) const;
+	DynamicFontData::CacheID get_fallback_or_main_outline_cache(int p_idx) const;
 
 	void set_outline_size(int p_size);
 	int get_outline_size() const;

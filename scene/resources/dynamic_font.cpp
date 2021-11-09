@@ -925,9 +925,9 @@ void DynamicFont::_reload_cache(const char *p_triggering_property) {
 	}
 
 	for (int i = 0; i < fallbacks.size(); i++) {
-		fallback_data_at_size.write[i] = fallbacks.write[i]->_get_dynamic_font_at_size(cache_id);
+		fallback_data_at_size.write[i] = fallbacks.write[i]->_get_dynamic_font_at_size(get_fallback_or_main_cache(i));
 		if (outline_cache_id.outline_size > 0) {
-			fallback_outline_data_at_size.write[i] = fallbacks.write[i]->_get_dynamic_font_at_size(outline_cache_id);
+			fallback_outline_data_at_size.write[i] = fallbacks.write[i]->_get_dynamic_font_at_size(get_fallback_or_main_outline_cache(i));
 		}
 	}
 
@@ -955,6 +955,49 @@ void DynamicFont::set_size(int p_size) {
 
 int DynamicFont::get_size() const {
 	return cache_id.size;
+}
+
+void DynamicFont::add_fallback_size(int p_size) {
+	fallbacks_cache_id.push_back(cache_id);
+	fallbacks_outline_cache_id.push_back(outline_cache_id);
+	set_fallback_size(fallbacks_cache_id.size() - 1, p_size);
+}
+
+void DynamicFont::remove_fallback_size(int p_idx) {
+	ERR_FAIL_INDEX(p_idx, fallbacks_cache_id.size());
+	ERR_FAIL_INDEX(p_idx, fallbacks_outline_cache_id.size());
+	fallbacks_cache_id.remove(p_idx);
+	fallbacks_outline_cache_id.remove(p_idx);
+	_reload_cache();
+}
+
+void DynamicFont::set_fallback_size(int p_idx, int p_size) {
+	ERR_FAIL_INDEX(p_idx, fallbacks_cache_id.size());
+	ERR_FAIL_INDEX(p_idx, fallbacks_outline_cache_id.size());
+	fallbacks_cache_id.write[p_idx].size = p_size;
+	fallbacks_outline_cache_id.write[p_idx].size = p_size;
+	_reload_cache();
+}
+int DynamicFont::get_fallback_size(int p_idx) const {
+	ERR_FAIL_INDEX_V(p_idx, fallbacks_cache_id.size(), 1);
+	return fallbacks_cache_id[p_idx].size;
+}
+
+DynamicFontData::CacheID DynamicFont::get_fallback_or_main_cache(int p_idx) const {
+	if (fallbacks_cache_id.size() > p_idx) {
+		if (fallbacks_cache_id[p_idx].size > 0) {
+			return fallbacks_cache_id[p_idx];
+		}
+	}
+	return cache_id;
+}
+DynamicFontData::CacheID DynamicFont::get_fallback_or_main_outline_cache(int p_idx) const {
+	if (fallbacks_outline_cache_id.size() > p_idx) {
+		if (fallbacks_outline_cache_id[p_idx].size > 0) {
+			return fallbacks_outline_cache_id[p_idx];
+		}
+	}
+	return outline_cache_id;
 }
 
 void DynamicFont::set_outline_size(int p_size) {
@@ -1235,7 +1278,7 @@ void DynamicFont::set_fallback(int p_idx, const Ref<DynamicFontData> &p_data) {
 	ERR_FAIL_COND(p_data.is_null());
 	ERR_FAIL_INDEX(p_idx, fallbacks.size());
 	fallbacks.write[p_idx] = p_data;
-	fallback_data_at_size.write[p_idx] = fallbacks.write[p_idx]->_get_dynamic_font_at_size(cache_id);
+	fallback_data_at_size.write[p_idx] = fallbacks.write[p_idx]->_get_dynamic_font_at_size(get_fallback_or_main_cache(p_idx));
 }
 
 void DynamicFont::add_fallback(const Ref<DynamicFontData> &p_data) {
@@ -1243,7 +1286,7 @@ void DynamicFont::add_fallback(const Ref<DynamicFontData> &p_data) {
 	fallbacks.push_back(p_data);
 	fallback_data_at_size.push_back(fallbacks.write[fallbacks.size() - 1]->_get_dynamic_font_at_size(cache_id)); //const..
 	if (outline_cache_id.outline_size > 0) {
-		fallback_outline_data_at_size.push_back(fallbacks.write[fallbacks.size() - 1]->_get_dynamic_font_at_size(outline_cache_id));
+		fallback_outline_data_at_size.push_back(fallbacks.write[fallbacks.size() - 1]->_get_dynamic_font_at_size(get_fallback_or_main_outline_cache(fallbacks.size() - 1)));
 	}
 
 	emit_changed();
@@ -1288,6 +1331,26 @@ bool DynamicFont::_set(const StringName &p_name, const Variant &p_value) {
 		}
 	}
 
+	if (str.begins_with("fallback_size/")) {
+		int idx = str.get_slicec('/', 1).to_int();
+		int new_size = p_value;
+
+		if (new_size>0) {
+			if (idx == fallbacks_cache_id.size()) {
+				add_fallback_size(new_size);
+				return true;
+			} else if (idx >= 0 && idx < fallbacks_cache_id.size()) {
+				set_fallback_size(idx, new_size);
+				return true;
+			} else {
+				return false;
+			}
+		} else if (idx >= 0 && idx < fallbacks_cache_id.size()) {
+			remove_fallback_size(idx);
+			return true;
+		}
+	}
+
 	return false;
 }
 
@@ -1304,6 +1367,17 @@ bool DynamicFont::_get(const StringName &p_name, Variant &r_ret) const {
 			return true;
 		}
 	}
+	if (str.begins_with("fallback_size/")) {
+		int idx = str.get_slicec('/', 1).to_int();
+
+		if (idx == fallbacks_cache_id.size()) {
+			r_ret = 0;
+			return true;
+		} else if (idx >= 0 && idx < fallbacks_cache_id.size()) {
+			r_ret = get_fallback_size(idx);
+			return true;
+		}
+	}
 
 	return false;
 }
@@ -1313,6 +1387,12 @@ void DynamicFont::_get_property_list(List<PropertyInfo> *p_list) const {
 	}
 
 	p_list->push_back(PropertyInfo(Variant::OBJECT, "fallback/" + itos(fallbacks.size()), PROPERTY_HINT_RESOURCE_TYPE, "DynamicFontData"));
+
+	for (int i = 0; i < fallbacks_cache_id.size(); i++) {
+		p_list->push_back(PropertyInfo(Variant::INT, "fallback_size/" + itos(i), PROPERTY_HINT_RANGE, "0,1024,1"));
+	}
+
+	p_list->push_back(PropertyInfo(Variant::INT, "fallback_size/" + itos(fallbacks_cache_id.size()), PROPERTY_HINT_RANGE, "0,1024,1"));
 }
 
 void DynamicFont::_bind_methods() {
@@ -1342,6 +1422,11 @@ void DynamicFont::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_fallback", "idx"), &DynamicFont::get_fallback);
 	ClassDB::bind_method(D_METHOD("remove_fallback", "idx"), &DynamicFont::remove_fallback);
 	ClassDB::bind_method(D_METHOD("get_fallback_count"), &DynamicFont::get_fallback_count);
+
+	ClassDB::bind_method(D_METHOD("add_fallback_size", "data"), &DynamicFont::add_fallback_size);
+	ClassDB::bind_method(D_METHOD("set_fallback_size", "idx", "data"), &DynamicFont::set_fallback_size);
+	ClassDB::bind_method(D_METHOD("get_fallback_size", "idx"), &DynamicFont::get_fallback_size);
+	ClassDB::bind_method(D_METHOD("remove_fallback_size", "idx"), &DynamicFont::remove_fallback_size);
 
 	ADD_GROUP("Settings", "");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "size", PROPERTY_HINT_RANGE, "1,1024,1"), "set_size", "get_size");
