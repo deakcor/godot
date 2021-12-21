@@ -224,6 +224,29 @@ Basis Basis::scaled(const Vector3 &p_scale) const {
 	return m;
 }
 
+void Basis::set_scale(const Vector3 &p_scale) {
+	Vector3 x = Vector3(elements[0][0], elements[1][0], elements[2][0]);
+	x.normalize();
+	x *= p_scale.x;
+	Vector3 y = Vector3(elements[0][1], elements[1][1], elements[2][1]);
+	y.normalize();
+	y *= p_scale.y;
+	Vector3 z = Vector3(elements[0][2], elements[1][2], elements[2][2]);
+	z.normalize();
+	z *= p_scale.z;
+	elements[0][0] = x.x;
+	elements[1][0] = x.y;
+	elements[2][0] = x.z;
+
+	elements[0][1] = y.x;
+	elements[1][1] = y.y;
+	elements[2][1] = y.z;
+
+	elements[0][2] = z.x;
+	elements[1][2] = z.y;
+	elements[2][2] = z.z;
+}
+
 void Basis::scale_local(const Vector3 &p_scale) {
 	// performs a scaling in object-local coordinate system:
 	// M -> (M.S.Minv).M = M.S.
@@ -947,6 +970,18 @@ void Basis::set_quat(const Quat &p_quat) {
 	set(1 - (yy + zz), xy - wz, xz + wy,
 			xy + wz, 1 - (xx + zz), yz - wx,
 			xz - wy, yz + wx, 1 - (xx + yy));
+}
+
+void Basis::set_rotation_quat(const Quat &p_quat) {
+	Vector3 scale = get_scale();
+	set_quat(p_quat);
+	set_scale(scale);
+}
+
+void Basis::set_rotation_euler(const Vector3 &p_euler) {
+	Vector3 scale = get_scale();
+	set_euler(p_euler);
+	set_scale(scale);
 }
 
 void Basis::set_axis_angle(const Vector3 &p_axis, real_t p_angle) {
