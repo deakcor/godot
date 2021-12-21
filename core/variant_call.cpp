@@ -937,7 +937,9 @@ struct _VariantCall {
 	VCALL_PTR2R(Basis, rotated);
 	VCALL_PTR1R(Basis, scaled);
 	VCALL_PTR0R(Basis, get_scale);
+	VCALL_PTR1(Basis, set_scale);
 	VCALL_PTR0R(Basis, get_euler);
+	VCALL_PTR1(Basis, set_rotation_euler);
 	VCALL_PTR2(Basis, set_euler_scale);
 	VCALL_PTR0R(Basis, get_euler_xyz);
 	VCALL_PTR1(Basis, set_euler_xyz);
@@ -961,6 +963,7 @@ struct _VariantCall {
 	VCALL_PTR2R(Basis, slerp);
 	VCALL_PTR2R(Basis, is_equal_approx);
 	VCALL_PTR0R(Basis, get_rotation_quat);
+	VCALL_PTR1(Basis, set_rotation_quat);
 
 	VCALL_PTR0R(Transform, inverse);
 	VCALL_PTR0R(Transform, affine_inverse);
@@ -2156,7 +2159,9 @@ void register_variant_methods() {
 	ADDFUNC2R(BASIS, BASIS, Basis, rotated, VECTOR3, "axis", REAL, "angle", varray());
 	ADDFUNC1R(BASIS, BASIS, Basis, scaled, VECTOR3, "scale", varray());
 	ADDFUNC0R(BASIS, VECTOR3, Basis, get_scale, varray());
+	ADDFUNC1(BASIS, NIL, Basis, set_scale, VECTOR3, "scale", varray());
 	ADDFUNC0R(BASIS, VECTOR3, Basis, get_euler, varray());
+	ADDFUNC1(BASIS, NIL, Basis, set_rotation_euler, VECTOR3, "euler", varray());
 	ADDFUNC2(BASIS, NIL, Basis, set_euler_scale, VECTOR3, "euler", VECTOR3, "scale", varray());
 	ADDFUNC1R(BASIS, REAL, Basis, tdotx, VECTOR3, "with", varray());
 	ADDFUNC1R(BASIS, REAL, Basis, tdoty, VECTOR3, "with", varray());
@@ -2168,6 +2173,7 @@ void register_variant_methods() {
 	// For complicated reasons, the epsilon argument is always discarded. See #45062.
 	ADDFUNC2R(BASIS, BOOL, Basis, is_equal_approx, BASIS, "b", REAL, "epsilon", varray(CMP_EPSILON));
 	ADDFUNC0R(BASIS, QUAT, Basis, get_rotation_quat, varray());
+	ADDFUNC1(BASIS, NIL, Basis, set_rotation_quat, QUAT, "quat", varray());
 
 	ADDFUNC0R(TRANSFORM, TRANSFORM, Transform, inverse, varray());
 	ADDFUNC0R(TRANSFORM, TRANSFORM, Transform, affine_inverse, varray());
