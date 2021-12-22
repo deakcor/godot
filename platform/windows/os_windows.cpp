@@ -1755,7 +1755,7 @@ void OS_Windows::set_clipboard(const String &p_text) {
 
 Ref<Image> OS_Windows::get_image_clipboard() const {
 
-	Ref<Image> image = memnew(Image);
+	Ref<Image> image;
 
 	if (!OpenClipboard(hWnd)) {
 		return image;
@@ -1782,7 +1782,7 @@ Ref<Image> OS_Windows::get_image_clipboard() const {
 						pba.append(rgbquad->rgbReserved);
 					}
 				}
-
+				image.instance();
 				image->create(info->biWidth, info->biHeight, false, Image::Format::FORMAT_RGBA8, pba);
 				
 				GlobalUnlock(mem);
