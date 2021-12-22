@@ -53,6 +53,8 @@ class OS {
 	bool _update_vital_only;
 	bool _verbose_stdout;
 	bool _debug_stdout;
+	bool _has_text_clipboard;
+	bool _has_image_clipboard;
 	String _local_clipboard;
 	String _primary_clipboard;
 	Ref<Image> _local_image_clipboard;
@@ -179,6 +181,8 @@ public:
 	virtual void set_window_title(const String &p_title) = 0;
 	virtual void set_window_mouse_passthrough(const PoolVector2Array &p_region){};
 
+	virtual bool has_text_clipboard() const;
+	virtual bool has_image_clipboard() const;
 	virtual void set_clipboard(const String &p_text);
 	virtual String get_clipboard() const;
 	virtual bool has_clipboard() const;
