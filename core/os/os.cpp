@@ -168,6 +168,14 @@ int OS::get_low_processor_usage_mode_sleep_usec() const {
 	return low_processor_usage_mode_sleep_usec;
 }
 
+bool OS::has_text_clipboard() const {
+	return _has_text_clipboard;
+}
+
+bool OS::has_image_clipboard() const {
+	return _has_image_clipboard;
+}
+
 void OS::set_clipboard(const String &p_text) {
 
 	_local_clipboard = p_text;

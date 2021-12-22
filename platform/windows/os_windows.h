@@ -506,6 +506,8 @@ public:
 	virtual String get_environment(const String &p_var) const;
 	virtual bool set_environment(const String &p_var, const String &p_value) const;
 
+	virtual bool has_text_clipboard() const;
+	virtual bool has_image_clipboard() const;
 	virtual void set_clipboard(const String &p_text);
 	virtual String get_clipboard() const;
 	virtual Ref<Image> get_image_clipboard() const;

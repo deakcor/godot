@@ -234,6 +234,14 @@ bool _OS::has_touchscreen_ui_hint() const {
 	return OS::get_singleton()->has_touchscreen_ui_hint();
 }
 
+bool _OS::has_text_clipboard() const {
+	return OS::get_singleton()->has_text_clipboard();
+}
+
+bool _OS::has_image_clipboard() const {
+	return OS::get_singleton()->has_image_clipboard();
+}
+
 void _OS::set_clipboard(const String &p_text) {
 
 	OS::get_singleton()->set_clipboard(p_text);
@@ -1257,6 +1265,8 @@ void _OS::_bind_methods() {
 	//ClassDB::bind_method(D_METHOD("get_mouse_position"),&_OS::get_mouse_position);
 	//ClassDB::bind_method(D_METHOD("is_mouse_grab_enabled"),&_OS::is_mouse_grab_enabled);
 
+	ClassDB::bind_method(D_METHOD("has_text_clipboard"), &_OS::has_text_clipboard);
+	ClassDB::bind_method(D_METHOD("has_image_clipboard"), &_OS::has_image_clipboard);
 	ClassDB::bind_method(D_METHOD("set_clipboard", "clipboard"), &_OS::set_clipboard);
 	ClassDB::bind_method(D_METHOD("get_clipboard"), &_OS::get_clipboard);
 	ClassDB::bind_method(D_METHOD("get_image_clipboard"), &_OS::get_image_clipboard);

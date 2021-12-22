@@ -162,6 +162,8 @@ public:
 	void set_window_mouse_passthrough(const PoolVector2Array &p_region);
 	int get_mouse_button_state() const;
 
+	bool has_text_clipboard() const;
+	bool has_image_clipboard() const;
 	void set_clipboard(const String &p_text);
 	String get_clipboard() const;
 	Ref<Image> get_image_clipboard() const;

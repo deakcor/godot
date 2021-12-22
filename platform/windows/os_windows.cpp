@@ -1718,6 +1718,17 @@ Error OS_Windows::initialize(const VideoMode &p_desired, int p_video_driver, int
 	return OK;
 }
 
+bool OS_Windows::has_text_clipboard() const {
+	return
+      (IsClipboardFormatAvailable(CF_TEXT) ||
+       IsClipboardFormatAvailable(CF_UNICODETEXT) ||
+       IsClipboardFormatAvailable(CF_OEMTEXT));
+}
+
+bool OS_Windows::has_image_clipboard() const {
+	return IsClipboardFormatAvailable(CF_DIB);
+}
+
 void OS_Windows::set_clipboard(const String &p_text) {
 
 	// Convert LF line endings to CRLF in clipboard content
