@@ -54,6 +54,7 @@
 #include <process.h>
 #include <regstr.h>
 #include <shlobj.h>
+#include <drivers/png/png_driver_common.h>
 
 static const WORD MAX_CONSOLE_LINES = 1500;
 
@@ -1771,8 +1772,19 @@ Ref<Image> OS_Windows::get_image_clipboard() const {
 	if (!OpenClipboard(hWnd)) {
 		return image;
 	};
+	UINT png_format = RegisterClipboardFormatA("PNG");
+	if (png_format && IsClipboardFormatAvailable(png_format)) {
+		HANDLE png_handle = GetClipboardData(png_format);
+		if (png_handle) {
+			size_t png_size = GlobalSize(png_handle);
+			uint8_t* png_data = (uint8_t*)GlobalLock(png_handle);
+			image.instance();
+			
+			Error err = PNGDriverCommon::png_to_image(png_data, png_size, false, image);
 
-	if (IsClipboardFormatAvailable(CF_DIB)) {
+			GlobalUnlock(png_handle);
+		}
+	}else if (IsClipboardFormatAvailable(CF_DIB)) {
 
 		HGLOBAL mem = GetClipboardData(CF_DIB);
 		if (mem != NULL) {
