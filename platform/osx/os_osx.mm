@@ -2369,7 +2369,7 @@ Ref<Image> OS_OSX::get_image_clipboard() const {
 	if (!data)
       return image;
 	NSBitmapImageRep* bitmap = [NSBitmapImageRep imageRepWithData:data];
-	NSData *pngData = [bitmap representationUsingType:NSPNGFileType properties:nil];
+	NSData *pngData = [bitmap representationUsingType:NSPNGFileType properties:@{}];
 	image.instance();
 	UInt8 buf[pngData.length]; // local stack array
 	[pngData getBytes:buf length:pngData.length];
