@@ -60,6 +60,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <drivers/png/png_driver_common.h>
 
 #if MAC_OS_X_VERSION_MAX_ALLOWED < 101200
 #define NSEventMaskAny NSAnyEventMask
@@ -2344,15 +2345,36 @@ bool OS_OSX::can_draw() const {
 }
 
 bool OS_OSX::has_text_clipboard() const {
-	return false;
+	NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
+	NSArray *classArray = [NSArray arrayWithObject:[NSString class]];
+	NSDictionary *options = [NSDictionary dictionary];
+	return [pasteboard canReadObjectForClasses:classArray options:options];
 }
 
 bool OS_OSX::has_image_clipboard() const {
-	return false;
+	NSPasteboard* pasteboard = [NSPasteboard generalPasteboard];
+    NSString* result = [pasteboard availableTypeFromArray:
+                                [NSArray arrayWithObjects:NSPasteboardTypeTIFF,NSPasteboardTypePNG,nil]];
+	return result;
 }
 
 Ref<Image> OS_OSX::get_image_clipboard() const {
-	return NULL;
+	Ref<Image> image;
+	NSPasteboard* pasteboard = [NSPasteboard generalPasteboard];
+    NSString* result = [pasteboard availableTypeFromArray:
+                                [NSArray arrayWithObjects:NSPasteboardTypeTIFF,NSPasteboardTypePNG,nil]];
+	if (!result)
+      return image;
+	NSData* data = [pasteboard dataForType:result];
+	if (!data)
+      return image;
+	NSBitmapImageRep* bitmap = [NSBitmapImageRep imageRepWithData:data];
+	NSData *pngData = [bitmap representationUsingType:NSPNGFileType properties:nil];
+	image.instance();
+	UInt8 buf[pngData.length]; // local stack array
+	[pngData getBytes:buf length:pngData.length];
+	PNGDriverCommon::png_to_image(buf, pngData.length, false, image);
+	return image;
 }
 
 void OS_OSX::set_clipboard(const String &p_text) {
