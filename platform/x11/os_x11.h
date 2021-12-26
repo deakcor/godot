@@ -276,10 +276,13 @@ public:
 
 	virtual bool can_draw() const;
 
+	virtual bool has_text_clipboard() const;
+	virtual bool has_image_clipboard() const;
 	virtual void set_clipboard(const String &p_text);
 	virtual String get_clipboard() const;
 	virtual void set_clipboard_primary(const String &p_text);
 	virtual String get_clipboard_primary() const;
+	virtual Ref<Image> get_image_clipboard() const;
 
 	virtual void release_rendering_thread();
 	virtual void make_rendering_thread();
