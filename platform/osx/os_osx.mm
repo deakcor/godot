@@ -2343,6 +2343,18 @@ bool OS_OSX::can_draw() const {
 	return true;
 }
 
+bool OS_OSX::has_text_clipboard() const {
+	return false;
+}
+
+bool OS_OSX::has_image_clipboard() const {
+	return false;
+}
+
+Ref<Image> OS_OSX::get_image_clipboard() const {
+	return NULL;
+}
+
 void OS_OSX::set_clipboard(const String &p_text) {
 
 	NSString *copiedString = [NSString stringWithUTF8String:p_text.utf8().get_data()];

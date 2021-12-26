@@ -2923,6 +2923,19 @@ bool OS_X11::can_draw() const {
 	return !minimized;
 };
 
+bool OS_X11::has_text_clipboard() const {
+	return
+      get_clipboard()!="";
+}
+
+bool OS_X11::has_image_clipboard() const {
+	return false;
+}
+
+Ref<Image> OS_X11::get_image_clipboard() const {
+	return NULL;
+}
+
 void OS_X11::set_clipboard(const String &p_text) {
 	{
 		// The clipboard content can be accessed while polling for events.
