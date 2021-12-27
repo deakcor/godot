@@ -2353,16 +2353,14 @@ bool OS_OSX::has_text_clipboard() const {
 
 bool OS_OSX::has_image_clipboard() const {
 	NSPasteboard* pasteboard = [NSPasteboard generalPasteboard];
-    NSString* result = [pasteboard availableTypeFromArray:
-                                [NSArray arrayWithObjects:NSPasteboardTypeTIFF,NSPasteboardTypePNG,nil]];
+    NSString* result = [pasteboard availableTypeFromArray:[NSArray arrayWithObjects:NSPasteboardTypeTIFF,NSPasteboardTypePNG,nil]];
 	return result;
 }
 
 Ref<Image> OS_OSX::get_image_clipboard() const {
 	Ref<Image> image;
 	NSPasteboard* pasteboard = [NSPasteboard generalPasteboard];
-    NSString* result = [pasteboard availableTypeFromArray:
-                                [NSArray arrayWithObjects:NSPasteboardTypeTIFF,NSPasteboardTypePNG,nil]];
+    NSString* result = [pasteboard availableTypeFromArray:[NSArray arrayWithObjects:NSPasteboardTypeTIFF,NSPasteboardTypePNG,nil]];
 	if (!result)
       return image;
 	NSData* data = [pasteboard dataForType:result];
@@ -2371,7 +2369,7 @@ Ref<Image> OS_OSX::get_image_clipboard() const {
 	NSBitmapImageRep* bitmap = [NSBitmapImageRep imageRepWithData:data];
 	NSData *pngData = [bitmap representationUsingType:NSPNGFileType properties:@{}];
 	image.instance();
-	UInt8 buf[pngData.length]; // local stack array
+	UInt8 buf[pngData.length];
 	[pngData getBytes:buf length:pngData.length];
 	PNGDriverCommon::png_to_image(buf, pngData.length, false, image);
 	return image;

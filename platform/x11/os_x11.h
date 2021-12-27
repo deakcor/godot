@@ -162,6 +162,7 @@ class OS_X11 : public OS_Unix {
 	void _handle_selection_request_event(XSelectionRequestEvent *p_event) const;
 
 	String _get_clipboard_impl(Atom p_source, Window x11_window, Atom target) const;
+	Ref<Image> _get_image_clipboard(Atom p_source, Window x11_window) const;
 	String _get_clipboard(Atom p_source, Window x11_window) const;
 	void _clipboard_transfer_ownership(Atom p_source, Window x11_window) const;
 
