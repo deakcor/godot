@@ -1734,7 +1734,7 @@ Ref<Image> OS_Windows::get_image_clipboard() const {
 			uint8_t* png_data = (uint8_t*)GlobalLock(png_handle);
 			image.instance();
 			
-			Error err = PNGDriverCommon::png_to_image(png_data, png_size, false, image);
+			PNGDriverCommon::png_to_image(png_data, png_size, false, image);
 
 			GlobalUnlock(png_handle);
 		}
