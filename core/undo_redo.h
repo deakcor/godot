@@ -41,7 +41,9 @@ public:
 	enum MergeMode {
 		MERGE_DISABLE,
 		MERGE_ENDS,
-		MERGE_ALL
+		MERGE_ALL,
+		MERGE_MULTI_ALL,
+		MERGE_MULTI_ENDS
 	};
 
 	typedef void (*CommitNotifyCallback)(void *p_ud, const String &p_name);
@@ -78,6 +80,7 @@ private:
 	Vector<Action> actions;
 	int current_action;
 	int action_level;
+	
 	MergeMode merge_mode;
 	bool merging;
 	uint64_t version;
@@ -100,7 +103,12 @@ protected:
 	static void _bind_methods();
 
 public:
+	int merge_wait_ms;
+
 	void create_action(const String &p_name = "", MergeMode p_mode = MERGE_DISABLE);
+
+	void set_merge_wait_ms(const int p_merge_wait_ms);
+	int get_merge_wait_ms() const;
 
 	void add_do_method(Object *p_object, const String &p_method, VARIANT_ARG_LIST);
 	void add_undo_method(Object *p_object, const String &p_method, VARIANT_ARG_LIST);
