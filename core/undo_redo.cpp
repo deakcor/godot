@@ -69,24 +69,39 @@ void UndoRedo::create_action(const String &p_name, MergeMode p_mode) {
 		_discard_redo();
 
 		// Check if the merge operation is valid
-		if (p_mode != MERGE_DISABLE && actions.size() && actions[actions.size() - 1].name == p_name && actions[actions.size() - 1].last_tick + 800 > ticks) {
-			current_action = actions.size() - 2;
+		if (p_mode != MERGE_DISABLE && actions.size() && actions[actions.size() - 1].last_tick + merge_wait_ms > ticks) {
+			if (actions[actions.size() - 1].name == p_name || p_mode == MERGE_MULTI_ALL || p_mode == MERGE_MULTI_ENDS) {
+				current_action = actions.size() - 2;
 
-			if (p_mode == MERGE_ENDS) {
-				// Clear all do ops from last action, and delete all object references
-				List<Operation>::Element *E = actions.write[current_action + 1].do_ops.front();
-
-				while (E) {
-					E->get().delete_reference();
-					E = E->next();
-					actions.write[current_action + 1].do_ops.pop_front();
+				if (actions[actions.size() - 1].name != p_name) {
+					actions.write[actions.size() - 1].name = actions[actions.size() - 1].name + ";" + p_name;
 				}
+
+				if (p_mode == MERGE_ENDS) {
+					// Clear all do ops from last action, and delete all object references
+					List<Operation>::Element *E = actions.write[current_action + 1].do_ops.front();
+
+					while (E) {
+						if (E->get().type == Operation::TYPE_REFERENCE) {
+							Object *obj = ObjectDB::get_instance(E->get().object);
+
+							if (obj) {
+								memdelete(obj);
+							}
+						}
+
+						E = E->next();
+						actions.write[current_action + 1].do_ops.pop_front();
+					}
+				}
+
+				actions.write[actions.size() - 1].last_tick = ticks;
+
+				merge_mode = p_mode;
+				merging = true;
+
 			}
-
-			actions.write[actions.size() - 1].last_tick = ticks;
-
-			merge_mode = p_mode;
-			merging = true;
+			
 		} else {
 			Action new_action;
 			new_action.name = p_name;
@@ -129,6 +144,15 @@ void UndoRedo::add_undo_method(Object *p_object, const String &p_method, VARIANT
 	// No undo if the merge mode is MERGE_ENDS
 	if (merge_mode == MERGE_ENDS) {
 		return;
+	} else if (merge_mode == MERGE_MULTI_ENDS) {
+		List<Operation>::Element *E = actions.write[current_action + 1].undo_ops.front();
+		// No undo if the merge mode is MERGE_MULTI_ENDS and it's same method and object
+		while (E) {
+			if (E->get().object == p_object->get_instance_id() && E->get().name == p_method && E->get().type == Operation::TYPE_METHOD) {
+				return;
+			}
+			E = E->next();
+		}
 	}
 
 	Operation undo_op;
@@ -168,6 +192,15 @@ void UndoRedo::add_undo_property(Object *p_object, const String &p_property, con
 	// No undo if the merge mode is MERGE_ENDS
 	if (merge_mode == MERGE_ENDS) {
 		return;
+	} else if (merge_mode == MERGE_MULTI_ENDS) {
+		List<Operation>::Element *E = actions.write[current_action + 1].undo_ops.front();
+		// No undo if the merge mode is MERGE_MULTI_ENDS and it's same property and object
+		while (E) {
+			if (E->get().object == p_object->get_instance_id() && E->get().name == p_property && E->get().type == Operation::TYPE_PROPERTY) {
+				return;
+			}
+			E = E->next();
+		}
 	}
 
 	Operation undo_op;
@@ -202,6 +235,15 @@ void UndoRedo::add_undo_reference(Object *p_object) {
 	// No undo if the merge mode is MERGE_ENDS
 	if (merge_mode == MERGE_ENDS) {
 		return;
+	} else if (merge_mode == MERGE_MULTI_ENDS) {
+		List<Operation>::Element *E = actions.write[current_action + 1].undo_ops.front();
+		// No undo if the merge mode is MERGE_MULTI_ENDS and it's same object
+		while (E) {
+			if (E->get().object == p_object->get_instance_id() && E->get().type == Operation::TYPE_REFERENCE) {
+				return;
+			}
+			E = E->next();
+		}
 	}
 
 	Operation undo_op;
@@ -398,6 +440,7 @@ UndoRedo::UndoRedo() {
 	version = 1;
 	action_level = 0;
 	current_action = -1;
+	merge_wait_ms = 800;
 	merge_mode = MERGE_DISABLE;
 	merging = false;
 	callback = nullptr;
@@ -487,6 +530,13 @@ Variant UndoRedo::_add_undo_method(const Variant **p_args, int p_argcount, Varia
 	return Variant();
 }
 
+void UndoRedo::set_merge_wait_ms(const int p_merge_wait_ms) {
+	merge_wait_ms = p_merge_wait_ms;
+}
+int UndoRedo::get_merge_wait_ms() const {
+	return merge_wait_ms;
+}
+
 void UndoRedo::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("create_action", "name", "merge_mode"), &UndoRedo::create_action, DEFVAL(MERGE_DISABLE));
 	ClassDB::bind_method(D_METHOD("commit_action"), &UndoRedo::commit_action);
@@ -523,9 +573,16 @@ void UndoRedo::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("redo"), &UndoRedo::redo);
 	ClassDB::bind_method(D_METHOD("undo"), &UndoRedo::undo);
 
+	ClassDB::bind_method(D_METHOD("set_merge_wait_ms", "merge_wait_ms"), &UndoRedo::set_merge_wait_ms);
+	ClassDB::bind_method(D_METHOD("get_merge_wait_ms"), &UndoRedo::get_merge_wait_ms);
+
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "merge_wait_ms", PROPERTY_HINT_NONE, "", 0), "set_merge_wait_ms", "get_merge_wait_ms");
+
 	ADD_SIGNAL(MethodInfo("version_changed"));
 
 	BIND_ENUM_CONSTANT(MERGE_DISABLE);
 	BIND_ENUM_CONSTANT(MERGE_ENDS);
 	BIND_ENUM_CONSTANT(MERGE_ALL);
+	BIND_ENUM_CONSTANT(MERGE_MULTI_ALL);
+	BIND_ENUM_CONSTANT(MERGE_MULTI_ENDS);
 }
