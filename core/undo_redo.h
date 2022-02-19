@@ -104,11 +104,15 @@ protected:
 
 public:
 	int merge_wait_ms;
+	bool apply_redo_on_commit;
 
 	void create_action(const String &p_name = "", MergeMode p_mode = MERGE_DISABLE);
 
 	void set_merge_wait_ms(const int p_merge_wait_ms);
 	int get_merge_wait_ms() const;
+
+	void set_apply_redo_on_commit(const bool p_apply_redo_on_commit);
+	bool get_apply_redo_on_commit() const;
 
 	void add_do_method(Object *p_object, const String &p_method, VARIANT_ARG_LIST);
 	void add_undo_method(Object *p_object, const String &p_method, VARIANT_ARG_LIST);

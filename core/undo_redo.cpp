@@ -74,7 +74,7 @@ void UndoRedo::create_action(const String &p_name, MergeMode p_mode) {
 				current_action = actions.size() - 2;
 
 				if (actions[actions.size() - 1].name != p_name) {
-					actions.write[actions.size() - 1].name = actions[actions.size() - 1].name + ";" + p_name;
+					actions.write[actions.size() - 1].name = "Multiple actions";
 				}
 
 				if (p_mode == MERGE_ENDS) {
@@ -120,6 +120,17 @@ void UndoRedo::add_do_method(Object *p_object, const String &p_method, VARIANT_A
 	ERR_FAIL_COND(p_object == nullptr);
 	ERR_FAIL_COND(action_level <= 0);
 	ERR_FAIL_COND((current_action + 1) >= actions.size());
+	if (merge_mode == MERGE_MULTI_ENDS) {
+		List<Operation>::Element *E = actions.write[current_action + 1].do_ops.front();
+		// Remove other do if the merge mode is MERGE_MULTI_ENDS and it's same method and object
+		while (E) {
+			if (E->get().object == p_object->get_instance_id() && E->get().name == p_method && E->get().type == Operation::TYPE_METHOD) {
+				actions.write[current_action + 1].do_ops.erase(E);
+			}
+			E = E->next();
+			
+		}
+	}
 	Operation do_op;
 	do_op.object = p_object->get_instance_id();
 	if (Object::cast_to<Reference>(p_object)) {
@@ -290,7 +301,14 @@ void UndoRedo::commit_action() {
 	}
 
 	committing++;
-	redo(); // perform action
+	if (apply_redo_on_commit) {
+		redo(); // perform action
+	} else {
+		current_action++;
+		version++;
+		emit_signal("version_changed");
+	}
+	
 	committing--;
 	if (callback && actions.size() > 0) {
 		callback(callback_ud, actions[actions.size() - 1].name);
@@ -441,6 +459,7 @@ UndoRedo::UndoRedo() {
 	action_level = 0;
 	current_action = -1;
 	merge_wait_ms = 800;
+	apply_redo_on_commit = true;
 	merge_mode = MERGE_DISABLE;
 	merging = false;
 	callback = nullptr;
@@ -537,6 +556,13 @@ int UndoRedo::get_merge_wait_ms() const {
 	return merge_wait_ms;
 }
 
+void UndoRedo::set_apply_redo_on_commit(const bool p_apply_redo_on_commit) {
+	apply_redo_on_commit = p_apply_redo_on_commit;
+}
+bool UndoRedo::get_apply_redo_on_commit() const {
+	return apply_redo_on_commit;
+}
+
 void UndoRedo::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("create_action", "name", "merge_mode"), &UndoRedo::create_action, DEFVAL(MERGE_DISABLE));
 	ClassDB::bind_method(D_METHOD("commit_action"), &UndoRedo::commit_action);
@@ -576,8 +602,12 @@ void UndoRedo::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_merge_wait_ms", "merge_wait_ms"), &UndoRedo::set_merge_wait_ms);
 	ClassDB::bind_method(D_METHOD("get_merge_wait_ms"), &UndoRedo::get_merge_wait_ms);
 
-	ADD_PROPERTY(PropertyInfo(Variant::INT, "merge_wait_ms", PROPERTY_HINT_NONE, "", 0), "set_merge_wait_ms", "get_merge_wait_ms");
+	ClassDB::bind_method(D_METHOD("set_apply_redo_on_commit", "apply_redo_on_commit"), &UndoRedo::set_apply_redo_on_commit);
+	ClassDB::bind_method(D_METHOD("get_apply_redo_on_commit"), &UndoRedo::get_apply_redo_on_commit);
 
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "merge_wait_ms", PROPERTY_HINT_NONE, "", 0), "set_merge_wait_ms", "get_merge_wait_ms");
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "apply_redo_on_commit"), "set_apply_redo_on_commit", "get_apply_redo_on_commit");
+	
 	ADD_SIGNAL(MethodInfo("version_changed"));
 
 	BIND_ENUM_CONSTANT(MERGE_DISABLE);
