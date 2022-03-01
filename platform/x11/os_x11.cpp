@@ -3273,30 +3273,23 @@ void OS_X11::set_clipboard(const String &p_text) {
 Ref<Image> OS_X11::_get_image_clipboard(Atom p_source, Window x11_window) const {
 	Ref<Image> image;
 	Atom target = XInternAtom(x11_display, "image/png", True);
-	printf("png.\n");
 	if (target == None) {
 		target = XInternAtom(x11_display, "image/bmp", True);
-		printf("bmp.\n");
 	}
 	if (target == None) {
 		target = XInternAtom(x11_display, "image/jpeg", True);
-		printf("jpeg.\n");
 	}
 	if (target == None) {
 		target = XInternAtom(x11_display, "image/tiff", True);
-		printf("tiff.\n");
 	}
 	if (target == None) {
 		target = XInternAtom(x11_display, "PIXMAP", True);
-		printf("pixmap.\n");
 	}
 	
 	
 	if (target != None) {
-		printf("b.\n");
 		Window selection_owner = XGetSelectionOwner(x11_display, p_source);
 		if (selection_owner == x11_window) {
-			printf("res.\n");
 			return OS::get_image_clipboard();
 		}
 
@@ -3332,13 +3325,11 @@ Ref<Image> OS_X11::_get_image_clipboard(Atom p_source, Window x11_window) const 
 			if (data) {
 				XFree(data);
 			}
-			printf("go.\n");
 			if (type == XInternAtom(x11_display, "INCR", 0)) {
 				// Data is going to be received incrementally.
 				LocalVector<uint8_t> incr_data;
 				uint32_t data_size = 0;
 				bool success = false;
-				printf("part.\n");
 				// Delete INCR property to notify the owner.
 				XDeleteProperty(x11_display, x11_window, type);
 
@@ -3406,10 +3397,8 @@ Ref<Image> OS_X11::_get_image_clipboard(Atom p_source, Window x11_window) const 
 						selection, 0, bytes_left, 0,
 						AnyPropertyType, &type, &format,
 						&len, &dummy, &data);
-				printf("compl.\n");
 				if (result == Success) {
 					image.instance();
-					printf("data %s\n",data);
 					PNGDriverCommon::png_to_image(data, len, false, image);
 				} else {
 					printf("Failed to get selection data.\n");
