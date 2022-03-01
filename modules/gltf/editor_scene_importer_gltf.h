@@ -38,6 +38,10 @@
 #include "gltf_document.h"
 #include "gltf_state.h"
 
+class AnimationPlayer;
+class BoneAttachment;
+class EditorSceneImporterMeshNode3D;
+
 class EditorSceneImporterGLTF : public EditorSceneImporter {
 	GDCLASS(EditorSceneImporterGLTF, EditorSceneImporter);
 
