@@ -31,7 +31,11 @@
 #ifndef _3D_DISABLED
 
 #include "register_types.h"
-
+#ifdef TOOLS_ENABLED
+#include "editor/editor_node.h"
+#include "editor_scene_exporter_gltf_plugin.h"
+#endif
+#include "editor_scene_importer_gltf.h"
 #include "gltf_accessor.h"
 #include "gltf_animation.h"
 #include "gltf_buffer_view.h"
