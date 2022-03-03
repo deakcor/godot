@@ -42,6 +42,7 @@ class AnimationPlayer;
 class BoneAttachment;
 class EditorSceneImporterMeshNode3D;
 
+#ifdef TOOLS_ENABLED
 class EditorSceneImporterGLTF : public EditorSceneImporter {
 	GDCLASS(EditorSceneImporterGLTF, EditorSceneImporter);
 
@@ -55,7 +56,8 @@ public:
 	virtual Ref<Animation> import_animation(const String &p_path,
 			uint32_t p_flags, int p_bake_fps);
 };
-
-#endif // TOOLS_ENABLED
+#endif
+class PackedSceneGLTF : public PackedScene {
+	GDCLASS(PackedSceneGLTF, PackedScene);
 
 #endif // EDITOR_SCENE_IMPORTER_GLTF_H
