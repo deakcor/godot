@@ -311,7 +311,7 @@ void Tabs::_notification(int p_what) {
 				Size2i sb_ms = sb->get_minimum_size();
 				Ref<Texture> icon = tabs[i].icon;
 				if (icon.is_valid()) {
-					icon->draw(ci, Point2i(w, sb->get_margin(MARGIN_TOP) + ((sb_rect.size.y - sb_ms.y) - icon->get_height()) / 2));
+					icon->draw(ci, Point2i(w, sb->get_margin(MARGIN_TOP) + ((sb_rect.size.y - sb_ms.y) - icon->get_height()) / 2),col);
 					if (tabs[i].text != "") {
 						w += icon->get_width() + get_constant("hseparation");
 					}
@@ -340,7 +340,7 @@ void Tabs::_notification(int p_what) {
 						}
 					}
 
-					rb->draw(ci, Point2i(w + style->get_margin(MARGIN_LEFT), rb_rect.position.y + style->get_margin(MARGIN_TOP)));
+					rb->draw(ci, Point2i(w + style->get_margin(MARGIN_LEFT), rb_rect.position.y + style->get_margin(MARGIN_TOP)), col);
 					w += rb->get_width();
 					tabs.write[i].rb_rect = rb_rect;
 				}
@@ -364,7 +364,7 @@ void Tabs::_notification(int p_what) {
 						}
 					}
 
-					cb->draw(ci, Point2i(w + style->get_margin(MARGIN_LEFT), cb_rect.position.y + style->get_margin(MARGIN_TOP)));
+					cb->draw(ci, Point2i(w + style->get_margin(MARGIN_LEFT), cb_rect.position.y + style->get_margin(MARGIN_TOP)), col);
 					w += cb->get_width();
 					tabs.write[i].cb_rect = cb_rect;
 				}

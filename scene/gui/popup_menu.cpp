@@ -516,6 +516,13 @@ void PopupMenu::_notification(int p_what) {
 			Color font_color_hover = get_color("font_color_hover");
 			Color font_color_separator = get_color("font_color_separator");
 
+			Color icon_color_normal = get_color("icon_color");
+			Color icon_color_disabled = get_color("icon_color_disabled");
+			Color icon_color_accel = get_color("icon_color_accel");
+			Color icon_color_hover = get_color("icon_color_hover");
+
+			float font_h = font->get_height();
+
 			// Add the check and the wider icon to the offset of all items.
 			float icon_ofs = 0.0;
 			bool has_check = false;
@@ -582,7 +589,7 @@ void PopupMenu::_notification(int p_what) {
 					}
 				}
 
-				Color icon_color(1, 1, 1, items[i].disabled ? 0.5 : 1);
+				Color icon_color = items[i].disabled ? icon_color_disabled : (i == mouse_over ? icon_color_hover : icon_color_normal);
 
 				if (items[i].checkable_type) {
 					Texture *icon = (items[i].checked ? check[items[i].checkable_type - 1] : uncheck[items[i].checkable_type - 1]).ptr();
