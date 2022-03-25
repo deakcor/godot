@@ -1313,9 +1313,9 @@ int Tree::draw_item(const Point2i &p_pos, const Point2 &p_draw_ofs, const Size2 
 					check_ofs.y += Math::floor((real_t)(item_rect.size.y - checked->get_height()) / 2);
 
 					if (p_item->cells[i].checked) {
-						checked->draw(ci, check_ofs);
+						checked->draw(ci, check_ofs, cache.font_color);
 					} else {
-						unchecked->draw(ci, check_ofs);
+						unchecked->draw(ci, check_ofs, cache.font_color);
 					}
 
 					int check_w = checked->get_width() + cache.hseparation;
@@ -1361,7 +1361,7 @@ int Tree::draw_item(const Point2i &p_pos, const Point2 &p_draw_ofs, const Size2 
 						arrow_pos.x += item_rect.size.x - downarrow->get_width();
 						arrow_pos.y += Math::floor(((item_rect.size.y - downarrow->get_height())) / 2.0);
 
-						downarrow->draw(ci, arrow_pos);
+						downarrow->draw(ci, arrow_pos, cache.font_color);
 					} else {
 						Ref<Texture> updown = cache.updown;
 
@@ -1381,7 +1381,7 @@ int Tree::draw_item(const Point2i &p_pos, const Point2 &p_draw_ofs, const Size2 
 						updown_pos.x += item_rect.size.x - updown->get_width();
 						updown_pos.y += Math::floor(((item_rect.size.y - updown->get_height())) / 2.0);
 
-						updown->draw(ci, updown_pos);
+						updown->draw(ci, updown_pos, cache.font_color);
 					}
 
 				} break;
@@ -1440,7 +1440,7 @@ int Tree::draw_item(const Point2i &p_pos, const Point2 &p_draw_ofs, const Size2 
 
 					draw_item_rect(p_item->cells[i], ir, col, icon_col);
 
-					downarrow->draw(ci, arrow_pos);
+					downarrow->draw(ci, arrow_pos, cache.font_color);
 
 				} break;
 			}
@@ -1470,10 +1470,7 @@ int Tree::draw_item(const Point2i &p_pos, const Point2 &p_draw_ofs, const Size2 
 				arrow = cache.arrow;
 			}
 
-			Point2 apos = p_pos + Point2i(0, (label_h - arrow->get_height()) / 2) - cache.offset + p_draw_ofs;
-			apos.x += cache.item_margin - arrow->get_width();
-
-			arrow->draw(ci, apos);
+			arrow->draw(ci, p_pos + p_draw_ofs + Point2i(0, (label_h - arrow->get_height()) / 2) - cache.offset, cache.font_color);
 		}
 	}
 
