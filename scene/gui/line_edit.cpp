@@ -861,7 +861,7 @@ void LineEdit::_notification(int p_what) {
 			bool display_clear_icon = !using_placeholder && is_editable() && clear_button_enabled;
 			if (right_icon.is_valid() || display_clear_icon) {
 				Ref<Texture> r_icon = display_clear_icon ? Control::get_icon("clear") : right_icon;
-				Color color_icon(1, 1, 1, !is_editable() ? .5 * .9 : .9);
+				Color color_icon = font_color;
 				if (display_clear_icon) {
 					if (clear_button_status.press_attempt && clear_button_status.pressing_inside) {
 						color_icon = get_color("clear_button_color_pressed");
