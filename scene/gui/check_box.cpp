@@ -97,10 +97,18 @@ void CheckBox::_notification(int p_what) {
 		ofs.x = sb->get_margin(MARGIN_LEFT);
 		ofs.y = int((get_size().height - get_icon_size().height) / 2) + get_constant("check_vadjust");
 
+		Color color(1, 1, 1, 1);
+
 		if (is_pressed()) {
-			on->draw(ci, ofs);
+			if (has_color("icon_color_pressed")) {
+				color = get_color("icon_color_pressed");
+			}
+			on->draw(ci, ofs, color);
 		} else {
-			off->draw(ci, ofs);
+			if (has_color("icon_color_normal")) {
+				color = get_color("icon_color_normal");
+			}
+			off->draw(ci, ofs, color);
 		}
 	}
 }
