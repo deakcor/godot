@@ -516,10 +516,10 @@ void PopupMenu::_notification(int p_what) {
 			Color font_color_hover = get_color("font_color_hover");
 			Color font_color_separator = get_color("font_color_separator");
 
-			Color icon_color_normal = get_color("icon_color");
-			Color icon_color_disabled = get_color("icon_color_disabled");
-			Color icon_color_accel = get_color("icon_color_accel");
-			Color icon_color_hover = get_color("icon_color_hover");
+			Color icon_color_normal = has_color("icon_color")?get_color("icon_color"):Color(1, 1, 1, 1);
+			Color icon_color_disabled = has_color("icon_color_disabled")?get_color("icon_color_disabled"):Color(1, 1, 1, 1);
+			Color icon_color_accel = has_color("icon_color_accel")?get_color("icon_color_accel"):Color(1, 1, 1, 1);
+			Color icon_color_hover = has_color("icon_color_hover")?get_color("icon_color_hover"):Color(1, 1, 1, 1);
 
 			float font_h = font->get_height();
 
