@@ -76,10 +76,18 @@ void CheckButton::_notification(int p_what) {
 		ofs.x = get_size().width - (tex_size.width + sb->get_margin(MARGIN_RIGHT));
 		ofs.y = (get_size().height - tex_size.height) / 2 + get_constant("check_vadjust");
 
+		Color color(1, 1, 1, 1);
+
 		if (is_pressed()) {
-			on->draw(ci, ofs);
+			if (has_color("icon_color_pressed")) {
+				color = get_color("icon_color_pressed");
+			}
+			on->draw(ci, ofs,color);
 		} else {
-			off->draw(ci, ofs);
+			if (has_color("icon_color_normal")) {
+				color = get_color("icon_color_normal");
+			}
+			off->draw(ci, ofs,color);
 		}
 	}
 }
