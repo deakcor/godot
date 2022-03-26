@@ -171,6 +171,11 @@ void Slider::_notification(int p_what) {
 			Ref<Texture> tick = get_icon("tick");
 			double ratio = Math::is_nan(get_as_ratio()) ? 0 : get_as_ratio();
 
+			Color grabber_color(1, 1, 1, 1);
+			if (has_color("grabber_color")) {
+				grabber_color = get_color("grabber_color");
+			}
+
 			if (orientation == VERTICAL) {
 				int widget_width = style->get_minimum_size().width + style->get_center_size().width;
 				float areasize = size.height - grabber->get_size().height;
@@ -187,7 +192,7 @@ void Slider::_notification(int p_what) {
 						tick->draw(ci, Point2i((size.width - widget_width) / 2, ofs));
 					}
 				}
-				grabber->draw(ci, Point2i(size.width / 2 - grabber->get_size().width / 2, size.height - ratio * areasize - grabber->get_size().height));
+				grabber->draw(ci, Point2i(size.width / 2 - grabber->get_size().width / 2, size.height - ratio * areasize - grabber->get_size().height), grabber_color);
 			} else {
 				int widget_height = style->get_minimum_size().height + style->get_center_size().height;
 				float areasize = size.width - grabber->get_size().width;
@@ -205,7 +210,7 @@ void Slider::_notification(int p_what) {
 						tick->draw(ci, Point2i(ofs, (size.height - widget_height) / 2));
 					}
 				}
-				grabber->draw(ci, Point2i(ratio * areasize, size.height / 2 - grabber->get_size().height / 2));
+				grabber->draw(ci, Point2i(ratio * areasize, size.height / 2 - grabber->get_size().height / 2), grabber_color);
 			}
 
 		} break;
