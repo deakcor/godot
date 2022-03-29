@@ -43,7 +43,8 @@ public:
 		MERGE_ENDS,
 		MERGE_ALL,
 		MERGE_MULTI_ALL,
-		MERGE_MULTI_ENDS
+		MERGE_MULTI_ENDS,
+		MERGE_MULTI_CUSTOM_ENDS
 	};
 
 	typedef void (*CommitNotifyCallback)(void *p_ud, const String &p_name);
@@ -68,6 +69,7 @@ private:
 		Variant args[VARIANT_ARG_MAX];
 
 		void delete_reference();
+		Dictionary custom_merge_property;
 	};
 
 	struct Action {
@@ -75,6 +77,7 @@ private:
 		List<Operation> do_ops;
 		List<Operation> undo_ops;
 		uint64_t last_tick;
+		Dictionary last_custom_merge_property;
 	};
 
 	Vector<Action> actions;
@@ -106,7 +109,7 @@ public:
 	int merge_wait_ms;
 	bool apply_redo_on_commit;
 
-	void create_action(const String &p_name = "", MergeMode p_mode = MERGE_DISABLE);
+	void create_action(const String &p_name = "", MergeMode p_mode = MERGE_DISABLE, Dictionary p_custom_merge_properties = {});
 
 	void set_merge_wait_ms(const int p_merge_wait_ms);
 	int get_merge_wait_ms() const;
