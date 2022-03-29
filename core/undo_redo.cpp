@@ -62,15 +62,15 @@ void UndoRedo::_discard_redo() {
 	actions.resize(current_action + 1);
 }
 
-void UndoRedo::create_action(const String &p_name, MergeMode p_mode) {
-	uint64_t ticks = OS::get_singleton()->get_ticks_msec();
+void UndoRedo::create_action(const String &p_name, MergeMode p_mode, Dictionary p_custom_merge_properties) {
+	uint32_t ticks = OS::get_singleton()->get_ticks_msec();
 
 	if (action_level == 0) {
 		_discard_redo();
 
 		// Check if the merge operation is valid
 		if (p_mode != MERGE_DISABLE && actions.size() && actions[actions.size() - 1].last_tick + merge_wait_ms > ticks) {
-			if (actions[actions.size() - 1].name == p_name || p_mode == MERGE_MULTI_ALL || p_mode == MERGE_MULTI_ENDS) {
+			if (actions[actions.size() - 1].name == p_name || p_mode == MERGE_MULTI_ALL || p_mode == MERGE_MULTI_ENDS || p_mode == MERGE_MULTI_CUSTOM_ENDS) {
 				current_action = actions.size() - 2;
 
 				if (actions[actions.size() - 1].name != p_name) {
@@ -95,8 +95,41 @@ void UndoRedo::create_action(const String &p_name, MergeMode p_mode) {
 					}
 				}
 
-				actions.write[actions.size() - 1].last_tick = ticks;
+				else if (p_mode == MERGE_MULTI_CUSTOM_ENDS) {
+					// Clear all do ops with same custom properties, and delete all object references
+					List<Operation>::Element *E = actions.write[current_action + 1].do_ops.front();
 
+					while (E) {
+						bool valid = true;
+						if (E->get().custom_merge_property.size() == p_custom_merge_properties.size()) {
+							for (int k = 0; k < p_custom_merge_properties.keys().size(); k++) {
+								Variant key = p_custom_merge_properties.keys()[k];
+								if (p_custom_merge_properties[key] != E->get().custom_merge_property.get(key, NULL)) {
+									valid = false;
+								}
+							}
+						} else {
+							valid = false;
+						}
+
+						if (valid) {
+							if (E->get().type == Operation::TYPE_REFERENCE) {
+								Object *obj = ObjectDB::get_instance(E->get().object);
+
+								if (obj) {
+									memdelete(obj);
+								}
+							}
+
+							actions.write[current_action + 1].do_ops.pop_front();
+						}
+
+						E = E->next();
+					}
+				}
+
+				actions.write[actions.size() - 1].last_tick = ticks;
+				actions.write[actions.size() - 1].last_custom_merge_property = p_custom_merge_properties;
 				merge_mode = p_mode;
 				merging = true;
 
@@ -139,6 +172,7 @@ void UndoRedo::add_do_method(Object *p_object, const String &p_method, VARIANT_A
 
 	do_op.type = Operation::TYPE_METHOD;
 	do_op.name = p_method;
+	do_op.custom_merge_property = actions.write[current_action + 1].last_custom_merge_property;
 
 	for (int i = 0; i < VARIANT_ARG_MAX; i++) {
 		do_op.args[i] = *argptr[i];
@@ -164,6 +198,26 @@ void UndoRedo::add_undo_method(Object *p_object, const String &p_method, VARIANT
 			}
 			E = E->next();
 		}
+	}else if (merge_mode == MERGE_MULTI_CUSTOM_ENDS) {
+		List<Operation>::Element *E = actions.write[current_action + 1].undo_ops.front();
+		// No undo if the merge mode is MERGE_MULTI_ENDS and it's same method and object
+		while (E) {
+			bool valid = true;
+			if (E->get().custom_merge_property.size() == actions.write[current_action + 1].last_custom_merge_property.size()) {
+				for (int k = 0; k < actions.write[current_action + 1].last_custom_merge_property.keys().size(); k++) {
+					Variant key = actions.write[current_action + 1].last_custom_merge_property.keys()[k];
+					if (actions.write[current_action + 1].last_custom_merge_property[key] != E->get().custom_merge_property.get(key, NULL)) {
+						valid = false;
+					}
+				}
+			} else {
+				valid = false;
+			}
+			if (valid) {
+				return;
+			}
+			E = E->next();
+		}
 	}
 
 	Operation undo_op;
@@ -174,6 +228,7 @@ void UndoRedo::add_undo_method(Object *p_object, const String &p_method, VARIANT
 
 	undo_op.type = Operation::TYPE_METHOD;
 	undo_op.name = p_method;
+	undo_op.custom_merge_property = actions.write[current_action + 1].last_custom_merge_property;
 
 	for (int i = 0; i < VARIANT_ARG_MAX; i++) {
 		undo_op.args[i] = *argptr[i];
@@ -564,7 +619,7 @@ bool UndoRedo::get_apply_redo_on_commit() const {
 }
 
 void UndoRedo::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("create_action", "name", "merge_mode"), &UndoRedo::create_action, DEFVAL(MERGE_DISABLE));
+	ClassDB::bind_method(D_METHOD("create_action", "name", "merge_mode", "custom_merge_properties"), &UndoRedo::create_action, DEFVAL(MERGE_DISABLE), DEFVAL(Dictionary()));
 	ClassDB::bind_method(D_METHOD("commit_action"), &UndoRedo::commit_action);
 	// FIXME: Typo in "commiting", fix in 4.0 when breaking compat.
 	ClassDB::bind_method(D_METHOD("is_commiting_action"), &UndoRedo::is_committing_action);
@@ -615,4 +670,5 @@ void UndoRedo::_bind_methods() {
 	BIND_ENUM_CONSTANT(MERGE_ALL);
 	BIND_ENUM_CONSTANT(MERGE_MULTI_ALL);
 	BIND_ENUM_CONSTANT(MERGE_MULTI_ENDS);
+	BIND_ENUM_CONSTANT(MERGE_MULTI_CUSTOM_ENDS);
 }
