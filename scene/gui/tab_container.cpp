@@ -401,16 +401,16 @@ void TabContainer::_notification(int p_what) {
 			if (buttons_visible_cache) {
 				x -= increment->get_width();
 				if (last_tab_cache < tabs.size() - 1) {
-					draw_texture(highlight_arrow == 1 ? increment_hl : increment, Point2(x, (header_height - increment->get_height()) / 2));
+					draw_texture(highlight_arrow == 1 ? increment_hl : increment, Point2(x, (header_height - increment->get_height()) / 2),font_color_fg);
 				} else {
-					draw_texture(increment, Point2(x, (header_height - increment->get_height()) / 2), Color(1, 1, 1, 0.5));
+					draw_texture(increment, Point2(x, (header_height - increment->get_height()) / 2), font_color_bg);
 				}
 
 				x -= decrement->get_width();
 				if (first_tab_cache > 0) {
-					draw_texture(highlight_arrow == 0 ? decrement_hl : decrement, Point2(x, (header_height - decrement->get_height()) / 2));
+					draw_texture(highlight_arrow == 0 ? decrement_hl : decrement, Point2(x, (header_height - decrement->get_height()) / 2),font_color_fg);
 				} else {
-					draw_texture(decrement, Point2(x, (header_height - decrement->get_height()) / 2), Color(1, 1, 1, 0.5));
+					draw_texture(decrement, Point2(x, (header_height - decrement->get_height()) / 2), font_color_bg);
 				}
 			}
 		} break;
@@ -445,7 +445,7 @@ void TabContainer::_draw_tab(Ref<StyleBox> &p_tab_style, Color &p_font_color, in
 		Ref<Texture> icon = control->get_meta("_tab_icon");
 		if (icon.is_valid()) {
 			int y = y_center - (icon->get_height() / 2);
-			icon->draw(canvas, Point2i(x_content, y));
+			icon->draw(canvas, Point2i(x_content, y), p_font_color);
 			if (text != "") {
 				x_content += icon->get_width() + icon_text_distance;
 			}
