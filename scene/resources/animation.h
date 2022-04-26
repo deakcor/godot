@@ -32,6 +32,7 @@
 #define ANIMATION_H
 
 #include "core/resource.h"
+#include "scene/animation/tween.h"
 
 #define ANIM_MIN_LENGTH 0.001
 
@@ -61,6 +62,11 @@ public:
 		UPDATE_TRIGGER,
 		UPDATE_CAPTURE,
 
+	};
+
+	enum KeyTransitionMode {
+		BEZIER,
+		TRANSITION_EASING
 	};
 
 private:
@@ -142,6 +148,10 @@ private:
 	struct BezierKey {
 		Vector2 in_handle; //relative (x always <0)
 		Vector2 out_handle; //relative (x always >0)
+		bool handle_normalized;
+		KeyTransitionMode transition_mode;
+		Tween::TransitionType transition;
+		Tween::EaseType easing;
 		float value;
 	};
 
@@ -331,6 +341,14 @@ public:
 	float bezier_track_get_key_value(int p_track, int p_index) const;
 	Vector2 bezier_track_get_key_in_handle(int p_track, int p_index) const;
 	Vector2 bezier_track_get_key_out_handle(int p_track, int p_index) const;
+	void bezier_track_set_key_handle_normalized(int p_track, int p_index, bool p_handle_normalized);
+	bool bezier_track_is_key_handle_normalized(int p_track, int p_index) const;
+	void bezier_track_set_key_transition_mode(int p_track, int p_index, KeyTransitionMode p_transition_mode);
+	KeyTransitionMode bezier_track_get_key_transition_mode(int p_track, int p_index) const;
+
+	void bezier_track_set_key_easing_function(int p_track, int p_index, Tween::TransitionType p_transition_type, Tween::EaseType p_easing_type);
+	Tween::TransitionType bezier_track_get_key_transition(int p_track, int p_index) const;
+	Tween::EaseType bezier_track_get_key_easing(int p_track, int p_index) const;
 
 	float bezier_track_interpolate(int p_track, float p_time) const;
 
