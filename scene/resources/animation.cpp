@@ -2438,6 +2438,7 @@ void Animation::bezier_track_set_key_in_handle(int p_track, int p_index, const V
 	if (bt->values[p_index].value.in_handle.x > 0) {
 		bt->values.write[p_index].value.in_handle.x = 0;
 	}
+	
 	emit_changed();
 }
 void Animation::bezier_track_set_key_out_handle(int p_track, int p_index, const Vector2 &p_handle) {
@@ -2450,7 +2451,7 @@ void Animation::bezier_track_set_key_out_handle(int p_track, int p_index, const 
 	ERR_FAIL_INDEX(p_index, bt->values.size());
 
 	bt->values.write[p_index].value.out_handle = p_handle;
-	if (bt->values[p_index].value.out_handle.x < 0) {
+	if (bt->values[p_index].value.out_handle.x > 0) {
 		bt->values.write[p_index].value.out_handle.x = 0;
 	}
 	emit_changed();
@@ -2487,6 +2488,107 @@ Vector2 Animation::bezier_track_get_key_out_handle(int p_track, int p_index) con
 	ERR_FAIL_INDEX_V(p_index, bt->values.size(), Vector2());
 
 	return bt->values[p_index].value.out_handle;
+}
+
+void Animation::bezier_track_set_key_handle_normalized(int p_track, int p_index, bool p_handle_normalized) {
+	ERR_FAIL_INDEX(p_track, tracks.size());
+	Track *t = tracks[p_track];
+	ERR_FAIL_COND(t->type != TYPE_BEZIER);
+
+	BezierTrack *bt = static_cast<BezierTrack *>(t);
+
+	ERR_FAIL_INDEX(p_index, bt->values.size());
+
+	/*
+	if (bt->values[p_index].value.handle_normalized && !p_handle_normalized) {
+		bt->values.write[p_index].value.in_handle = bt->values[p_index].value.in_handle * (new_value - value);
+		bt->values.write[p_index].value.out_handle = bt->values[p_index].value.out_handle * (new_value - value);
+	}
+	*/
+
+	bt->values.write[p_index].value.handle_normalized = p_handle_normalized;
+
+	emit_changed();
+	
+}
+
+bool Animation::bezier_track_is_key_handle_normalized(int p_track, int p_index) const {
+	ERR_FAIL_INDEX_V(p_track, tracks.size(), false);
+	Track *t = tracks[p_track];
+	ERR_FAIL_COND_V(t->type != TYPE_BEZIER, false);
+
+	BezierTrack *bt = static_cast<BezierTrack *>(t);
+
+	ERR_FAIL_INDEX_V(p_index, bt->values.size(), false);
+
+	return bt->values[p_index].value.handle_normalized;
+}
+
+void Animation::bezier_track_set_key_transition_mode(int p_track, int p_index, KeyTransitionMode p_transition_mode) {
+	ERR_FAIL_INDEX(p_track, tracks.size());
+	Track *t = tracks[p_track];
+	ERR_FAIL_COND(t->type != TYPE_BEZIER);
+
+	BezierTrack *bt = static_cast<BezierTrack *>(t);
+
+	ERR_FAIL_INDEX(p_index, bt->values.size());
+
+	bt->values.write[p_index].value.transition_mode = p_transition_mode;
+
+	emit_changed();
+	
+}
+
+Animation::KeyTransitionMode Animation::bezier_track_get_key_transition_mode(int p_track, int p_index) const {
+	ERR_FAIL_INDEX_V(p_track, tracks.size(), BEZIER);
+	Track *t = tracks[p_track];
+	ERR_FAIL_COND_V(t->type != TYPE_BEZIER, BEZIER);
+
+	BezierTrack *bt = static_cast<BezierTrack *>(t);
+
+	ERR_FAIL_INDEX_V(p_index, bt->values.size(), BEZIER);
+
+	return bt->values[p_index].value.transition_mode;
+}
+
+void Animation::bezier_track_set_key_easing_function(int p_track, int p_index, Tween::TransitionType p_transition_type, Tween::EaseType p_easing_type) {
+	ERR_FAIL_INDEX(p_track, tracks.size());
+	Track *t = tracks[p_track];
+	ERR_FAIL_COND(t->type != TYPE_BEZIER);
+
+	BezierTrack *bt = static_cast<BezierTrack *>(t);
+
+	ERR_FAIL_INDEX(p_index, bt->values.size());
+
+	bt->values.write[p_index].value.transition = p_transition_type;
+	bt->values.write[p_index].value.easing = p_easing_type;
+
+	emit_changed();
+	
+}
+
+Tween::TransitionType Animation::bezier_track_get_key_transition(int p_track, int p_index) const{
+	ERR_FAIL_INDEX_V(p_track, tracks.size(), Tween::TRANS_COUNT);
+	Track *t = tracks[p_track];
+	ERR_FAIL_COND_V(t->type != TYPE_BEZIER, Tween::TRANS_COUNT);
+
+	BezierTrack *bt = static_cast<BezierTrack *>(t);
+
+	ERR_FAIL_INDEX_V(p_index, bt->values.size(), Tween::TRANS_COUNT);
+
+	return bt->values[p_index].value.transition;
+}
+
+Tween::EaseType Animation::bezier_track_get_key_easing(int p_track, int p_index) const{
+	ERR_FAIL_INDEX_V(p_track, tracks.size(), Tween::EASE_COUNT);
+	Track *t = tracks[p_track];
+	ERR_FAIL_COND_V(t->type != TYPE_BEZIER, Tween::EASE_COUNT);
+
+	BezierTrack *bt = static_cast<BezierTrack *>(t);
+
+	ERR_FAIL_INDEX_V(p_index, bt->values.size(), Tween::EASE_COUNT);
+
+	return bt->values[p_index].value.easing;
 }
 
 static _FORCE_INLINE_ Vector2 _bezier_interp(real_t t, const Vector2 &start, const Vector2 &control_1, const Vector2 &control_2, const Vector2 &end) {
@@ -2574,6 +2676,7 @@ float Animation::bezier_track_interpolate(int p_track, float p_time) const {
 		return bt->values[idx].value.value;
 	}
 	float t = p_time - bt->values[idx].time;
+
 	
 	float low = 0; // 0% of the current animation segment
 	float high = 1; // 100% of the current animation segment
@@ -2581,8 +2684,19 @@ float Animation::bezier_track_interpolate(int p_track, float p_time) const {
 
 	float value = bt->values[idx].value.value;
 	float new_value = bt->values[next_idx].value.value;
-	float out_handle_normalizedy = (new_value - value) == 0.0 ? 0.0 : bt->values[idx].value.out_handle.y / (new_value - value);
-	float in_handle_normalizedy = (new_value - value) == 0.0 ? 0.0 : bt->values[next_idx].value.in_handle.y / (new_value - value);
+
+	
+	if (bt->values[idx].value.transition_mode == TRANSITION_EASING) {
+		return Tween::_run_equation(bt->values[idx].value.transition, bt->values[idx].value.easing, t, value, new_value-value, duration);
+	}
+
+
+	float out_handle_normalizedy = bt->values[idx].value.out_handle.y;
+	float in_handle_normalizedy = bt->values[idx].value.in_handle.y;
+	if (!bt->values[idx].value.handle_normalized) {
+		out_handle_normalizedy = (new_value - value) == 0.0 ? 0.0 : bt->values[idx].value.out_handle.y / (new_value - value);
+		in_handle_normalizedy = (new_value - value) == 0.0 ? 0.0 : bt->values[next_idx].value.in_handle.y / (new_value - value);
+	}
 	if (bt->modulo > 0.0) {
 		value = Math::fposmod(value, bt->modulo);
 		new_value = Math::fposmod(new_value, bt->modulo);
@@ -2599,10 +2713,16 @@ float Animation::bezier_track_interpolate(int p_track, float p_time) const {
 	Vector2 start(0, value);
 	Vector2 out_handle = bt->values[idx].value.out_handle;
 	out_handle.y = out_handle_normalizedy * (new_value - value);
+	if (bt->values[idx].value.handle_normalized) {
+		out_handle.x = bt->values[idx].value.out_handle.x * (new_value - value);
+	}
 	Vector2 start_out = start + out_handle;
 	Vector2 end(duration, new_value);
 	Vector2 in_handle = bt->values[next_idx].value.in_handle;
 	in_handle.y = in_handle_normalizedy * (new_value - value);
+	if (bt->values[idx].value.handle_normalized) {
+		in_handle.x = bt->values[idx].value.in_handle.x * (new_value - value);
+	}
 	Vector2 end_in = end + in_handle;
 
 	//narrow high and low as much as possible
@@ -2995,10 +3115,17 @@ void Animation::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("bezier_track_set_key_value", "track_idx", "key_idx", "value"), &Animation::bezier_track_set_key_value);
 	ClassDB::bind_method(D_METHOD("bezier_track_set_key_in_handle", "track_idx", "key_idx", "in_handle"), &Animation::bezier_track_set_key_in_handle);
 	ClassDB::bind_method(D_METHOD("bezier_track_set_key_out_handle", "track_idx", "key_idx", "out_handle"), &Animation::bezier_track_set_key_out_handle);
+	ClassDB::bind_method(D_METHOD("bezier_track_set_key_handle_normalized", "track_idx", "key_idx", "handle_normalized"), &Animation::bezier_track_set_key_handle_normalized);
+	ClassDB::bind_method(D_METHOD("bezier_track_set_key_transition_mode", "track_idx", "key_idx", "transition_mode"), &Animation::bezier_track_set_key_transition_mode);
+	ClassDB::bind_method(D_METHOD("bezier_track_set_key_easing_function", "track_idx", "key_idx", "transition", "easing"), &Animation::bezier_track_set_key_easing_function);
 
 	ClassDB::bind_method(D_METHOD("bezier_track_get_key_value", "track_idx", "key_idx"), &Animation::bezier_track_get_key_value);
 	ClassDB::bind_method(D_METHOD("bezier_track_get_key_in_handle", "track_idx", "key_idx"), &Animation::bezier_track_get_key_in_handle);
 	ClassDB::bind_method(D_METHOD("bezier_track_get_key_out_handle", "track_idx", "key_idx"), &Animation::bezier_track_get_key_out_handle);
+	ClassDB::bind_method(D_METHOD("bezier_track_is_key_handle_normalized", "track_idx", "key_idx"), &Animation::bezier_track_is_key_handle_normalized);
+	ClassDB::bind_method(D_METHOD("bezier_track_get_key_transition_mode", "track_idx", "key_idx"), &Animation::bezier_track_get_key_transition_mode);
+	ClassDB::bind_method(D_METHOD("bezier_track_get_key_transition", "track_idx", "key_idx"), &Animation::bezier_track_get_key_transition);
+	ClassDB::bind_method(D_METHOD("bezier_track_get_key_easing", "track_idx", "key_idx"), &Animation::bezier_track_get_key_easing);
 
 	ClassDB::bind_method(D_METHOD("bezier_track_interpolate", "track_idx", "time"), &Animation::bezier_track_interpolate);
 
