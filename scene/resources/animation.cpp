@@ -2692,7 +2692,7 @@ float Animation::bezier_track_interpolate(int p_track, float p_time) const {
 
 
 	float out_handle_normalizedy = bt->values[idx].value.out_handle.y;
-	float in_handle_normalizedy = bt->values[idx].value.in_handle.y;
+	float in_handle_normalizedy = bt->values[next_idx].value.in_handle.y;
 	if (!bt->values[idx].value.handle_normalized) {
 		out_handle_normalizedy = (new_value - value) == 0.0 ? 0.0 : bt->values[idx].value.out_handle.y / (new_value - value);
 		in_handle_normalizedy = (new_value - value) == 0.0 ? 0.0 : bt->values[next_idx].value.in_handle.y / (new_value - value);
@@ -2720,7 +2720,7 @@ float Animation::bezier_track_interpolate(int p_track, float p_time) const {
 	Vector2 end(duration, new_value);
 	Vector2 in_handle = bt->values[next_idx].value.in_handle;
 	in_handle.y = in_handle_normalizedy * (new_value - value);
-	if (bt->values[idx].value.handle_normalized) {
+	if (bt->values[next_idx].value.handle_normalized) {
 		in_handle.x = bt->values[next_idx].value.in_handle.x * (duration);
 	}
 	Vector2 end_in = end + in_handle;
