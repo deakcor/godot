@@ -343,10 +343,10 @@ public:
 	Vector2 bezier_track_get_key_out_handle(int p_track, int p_index) const;
 	void bezier_track_set_key_handle_normalized(int p_track, int p_index, bool p_handle_normalized);
 	bool bezier_track_is_key_handle_normalized(int p_track, int p_index) const;
-	void bezier_track_set_key_transition_mode(int p_track, int p_index, KeyTransitionMode p_transition_mode);
+	void bezier_track_set_key_transition_mode(int p_track, int p_index, const Animation::KeyTransitionMode p_transition_mode);
 	KeyTransitionMode bezier_track_get_key_transition_mode(int p_track, int p_index) const;
 
-	void bezier_track_set_key_easing_function(int p_track, int p_index, Tween::TransitionType p_transition_type, Tween::EaseType p_easing_type);
+	void bezier_track_set_key_easing_function(int p_track, int p_index, const Tween::TransitionType p_transition_type, const Tween::EaseType p_easing_type);
 	Tween::TransitionType bezier_track_get_key_transition(int p_track, int p_index) const;
 	Tween::EaseType bezier_track_get_key_easing(int p_track, int p_index) const;
 
@@ -402,5 +402,6 @@ public:
 VARIANT_ENUM_CAST(Animation::TrackType);
 VARIANT_ENUM_CAST(Animation::InterpolationType);
 VARIANT_ENUM_CAST(Animation::UpdateMode);
+VARIANT_ENUM_CAST(Animation::KeyTransitionMode);
 
 #endif // ANIMATION_H

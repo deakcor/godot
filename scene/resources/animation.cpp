@@ -2451,7 +2451,7 @@ void Animation::bezier_track_set_key_out_handle(int p_track, int p_index, const 
 	ERR_FAIL_INDEX(p_index, bt->values.size());
 
 	bt->values.write[p_index].value.out_handle = p_handle;
-	if (bt->values[p_index].value.out_handle.x > 0) {
+	if (bt->values[p_index].value.out_handle.x < 0) {
 		bt->values.write[p_index].value.out_handle.x = 0;
 	}
 	emit_changed();
@@ -2524,7 +2524,7 @@ bool Animation::bezier_track_is_key_handle_normalized(int p_track, int p_index) 
 	return bt->values[p_index].value.handle_normalized;
 }
 
-void Animation::bezier_track_set_key_transition_mode(int p_track, int p_index, KeyTransitionMode p_transition_mode) {
+void Animation::bezier_track_set_key_transition_mode(int p_track, int p_index, const Animation::KeyTransitionMode p_transition_mode) {
 	ERR_FAIL_INDEX(p_track, tracks.size());
 	Track *t = tracks[p_track];
 	ERR_FAIL_COND(t->type != TYPE_BEZIER);
@@ -2551,7 +2551,7 @@ Animation::KeyTransitionMode Animation::bezier_track_get_key_transition_mode(int
 	return bt->values[p_index].value.transition_mode;
 }
 
-void Animation::bezier_track_set_key_easing_function(int p_track, int p_index, Tween::TransitionType p_transition_type, Tween::EaseType p_easing_type) {
+void Animation::bezier_track_set_key_easing_function(int p_track, int p_index, const Tween::TransitionType p_transition_type, const Tween::EaseType p_easing_type) {
 	ERR_FAIL_INDEX(p_track, tracks.size());
 	Track *t = tracks[p_track];
 	ERR_FAIL_COND(t->type != TYPE_BEZIER);
@@ -2714,14 +2714,14 @@ float Animation::bezier_track_interpolate(int p_track, float p_time) const {
 	Vector2 out_handle = bt->values[idx].value.out_handle;
 	out_handle.y = out_handle_normalizedy * (new_value - value);
 	if (bt->values[idx].value.handle_normalized) {
-		out_handle.x = bt->values[idx].value.out_handle.x * (new_value - value);
+		out_handle.x = bt->values[idx].value.out_handle.x * (duration);
 	}
 	Vector2 start_out = start + out_handle;
 	Vector2 end(duration, new_value);
 	Vector2 in_handle = bt->values[next_idx].value.in_handle;
 	in_handle.y = in_handle_normalizedy * (new_value - value);
 	if (bt->values[idx].value.handle_normalized) {
-		in_handle.x = bt->values[idx].value.in_handle.x * (new_value - value);
+		in_handle.x = bt->values[next_idx].value.in_handle.x * (duration);
 	}
 	Vector2 end_in = end + in_handle;
 
@@ -3165,6 +3165,9 @@ void Animation::_bind_methods() {
 	BIND_ENUM_CONSTANT(TYPE_BEZIER);
 	BIND_ENUM_CONSTANT(TYPE_AUDIO);
 	BIND_ENUM_CONSTANT(TYPE_ANIMATION);
+
+	BIND_ENUM_CONSTANT(BEZIER);
+	BIND_ENUM_CONSTANT(TRANSITION_EASING);
 
 	BIND_ENUM_CONSTANT(INTERPOLATION_NEAREST);
 	BIND_ENUM_CONSTANT(INTERPOLATION_LINEAR);
