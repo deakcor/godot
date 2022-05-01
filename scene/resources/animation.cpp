@@ -2397,6 +2397,9 @@ int Animation::bezier_track_insert_key(int p_track, float p_time, float p_value,
 	k.time = p_time;
 	k.value.value = p_value;
 	k.value.in_handle = p_in_handle;
+	k.value.transition_mode = TRANSITION_EASING;
+	k.value.transition = Tween::TRANS_LINEAR;
+	k.value.easing = Tween::EASE_IN;
 	if (k.value.in_handle.x > 0) {
 		k.value.in_handle.x = 0;
 	}
@@ -2693,9 +2696,10 @@ float Animation::bezier_track_interpolate(int p_track, float p_time) const {
 
 	float out_handle_normalizedy = bt->values[idx].value.out_handle.y;
 	float in_handle_normalizedy = bt->values[next_idx].value.in_handle.y;
+	float diff_val = (new_value - value);
 	if (!bt->values[idx].value.handle_normalized) {
-		out_handle_normalizedy = (new_value - value) == 0.0 ? 0.0 : bt->values[idx].value.out_handle.y / (new_value - value);
-		in_handle_normalizedy = (new_value - value) == 0.0 ? 0.0 : bt->values[next_idx].value.in_handle.y / (new_value - value);
+		out_handle_normalizedy = diff_val == 0.0 ? 0.0 : bt->values[idx].value.out_handle.y / diff_val;
+		in_handle_normalizedy = diff_val == 0.0 ? 0.0 : bt->values[next_idx].value.in_handle.y / diff_val;
 	}
 	if (bt->modulo > 0.0) {
 		value = Math::fposmod(value, bt->modulo);
@@ -2710,16 +2714,19 @@ float Animation::bezier_track_interpolate(int p_track, float p_time) const {
 		}
 		
 	}
+
+	diff_val = (new_value - value);
+
 	Vector2 start(0, value);
 	Vector2 out_handle = bt->values[idx].value.out_handle;
-	out_handle.y = out_handle_normalizedy * (new_value - value);
+	out_handle.y = out_handle_normalizedy * diff_val;
 	if (bt->values[idx].value.handle_normalized) {
 		out_handle.x = bt->values[idx].value.out_handle.x * (duration);
 	}
 	Vector2 start_out = start + out_handle;
 	Vector2 end(duration, new_value);
 	Vector2 in_handle = bt->values[next_idx].value.in_handle;
-	in_handle.y = in_handle_normalizedy * (new_value - value);
+	in_handle.y = in_handle_normalizedy * diff_val;
 	if (bt->values[next_idx].value.handle_normalized) {
 		in_handle.x = bt->values[next_idx].value.in_handle.x * (duration);
 	}
