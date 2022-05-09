@@ -2317,7 +2317,7 @@ void Image::blit_rect(const Ref<Image> &p_src, const Rect2 &p_src_rect, const Po
 	}
 }
 
-void Image::blit_rect_mask(const Ref<Image> &p_src, const Ref<Image> &p_mask, const Rect2 &p_src_rect, const Point2 &p_dest) {
+void Image::blit_rect_mask(const Ref<Image> &p_src, const Ref<Image> &p_mask, const Rect2 &p_src_rect, const Point2 &p_dest, bool inverted) {
 	ERR_FAIL_COND_MSG(p_src.is_null(), "It's not a reference to a valid Image object.");
 	ERR_FAIL_COND_MSG(p_mask.is_null(), "It's not a reference to a valid Image object.");
 	int dsize = data.size();
@@ -2353,7 +2353,7 @@ void Image::blit_rect_mask(const Ref<Image> &p_src, const Ref<Image> &p_mask, co
 			int src_x = src_rect.position.x + j;
 			int src_y = src_rect.position.y + i;
 
-			if (msk->get_pixel(src_x, src_y).a != 0) {
+			if ((msk->get_pixel(src_x, src_y).a != 0 && !inverted) || (msk->get_pixel(src_x, src_y).a == 0 && inverted)) {
 				int dst_x = dest_rect.position.x + j;
 				int dst_y = dest_rect.position.y + i;
 
@@ -2410,7 +2410,7 @@ void Image::blend_rect(const Ref<Image> &p_src, const Rect2 &p_src_rect, const P
 	unlock();
 }
 
-void Image::blend_rect_mask(const Ref<Image> &p_src, const Ref<Image> &p_mask, const Rect2 &p_src_rect, const Point2 &p_dest) {
+void Image::blend_rect_mask(const Ref<Image> &p_src, const Ref<Image> &p_mask, const Rect2 &p_src_rect, const Point2 &p_dest, bool inverted) {
 	ERR_FAIL_COND_MSG(p_src.is_null(), "It's not a reference to a valid Image object.");
 	ERR_FAIL_COND_MSG(p_mask.is_null(), "It's not a reference to a valid Image object.");
 	int dsize = data.size();
@@ -2444,7 +2444,7 @@ void Image::blend_rect_mask(const Ref<Image> &p_src, const Ref<Image> &p_mask, c
 			// If the mask's pixel is transparent then we skip it
 			//Color c = msk->get_pixel(src_x, src_y);
 			//if (c.a == 0) continue;
-			if (msk->get_pixel(src_x, src_y).a != 0) {
+			if ((msk->get_pixel(src_x, src_y).a != 0 && !inverted) || (msk->get_pixel(src_x, src_y).a == 0 && inverted)) {
 				int dst_x = dest_rect.position.x + j;
 				int dst_y = dest_rect.position.y + i;
 
@@ -2945,9 +2945,9 @@ void Image::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("bumpmap_to_normalmap", "bump_scale"), &Image::bumpmap_to_normalmap, DEFVAL(1.0));
 
 	ClassDB::bind_method(D_METHOD("blit_rect", "src", "src_rect", "dst"), &Image::blit_rect);
-	ClassDB::bind_method(D_METHOD("blit_rect_mask", "src", "mask", "src_rect", "dst"), &Image::blit_rect_mask);
+	ClassDB::bind_method(D_METHOD("blit_rect_mask", "src", "mask", "src_rect", "dst", "inverted"), &Image::blit_rect_mask, DEFVAL(false));
 	ClassDB::bind_method(D_METHOD("blend_rect", "src", "src_rect", "dst"), &Image::blend_rect);
-	ClassDB::bind_method(D_METHOD("blend_rect_mask", "src", "mask", "src_rect", "dst"), &Image::blend_rect_mask);
+	ClassDB::bind_method(D_METHOD("blend_rect_mask", "src", "mask", "src_rect", "dst", "inverted"), &Image::blend_rect_mask, DEFVAL(false));
 	ClassDB::bind_method(D_METHOD("fill", "color"), &Image::fill);
 	ClassDB::bind_method(D_METHOD("fill_rect", "rect", "color"), &Image::fill_rect);
 
