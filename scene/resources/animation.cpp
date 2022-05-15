@@ -3047,6 +3047,11 @@ void Animation::copy_track(int p_track, Ref<Animation> p_to_animation) {
 		p_to_animation->track_insert_key(dst_track, track_get_key_time(p_track, i), track_get_key_value(p_track, i), track_get_key_transition(p_track, i));
 		p_to_animation->track_set_key_id(dst_track, i, track_get_key_id(p_track,i));
 		p_to_animation->track_set_key_metadata(dst_track, i, track_get_key_metadata(p_track, i));
+		if (track_get_type(p_track) == TYPE_BEZIER) {
+			p_to_animation->bezier_track_set_key_handle_normalized(dst_track, i, bezier_track_is_key_handle_normalized(p_track, i));
+			p_to_animation->bezier_track_set_key_transition_mode(dst_track, i, bezier_track_get_key_transition_mode(p_track, i));
+			p_to_animation->bezier_track_set_key_easing_function(dst_track, i, bezier_track_get_key_transition(p_track, i), bezier_track_get_key_easing(p_track, i));
+		}
 	}
 }
 
