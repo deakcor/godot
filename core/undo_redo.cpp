@@ -104,7 +104,7 @@ void UndoRedo::create_action(const String &p_name, MergeMode p_mode, Dictionary 
 						if (E->get().custom_merge_property.size() == p_custom_merge_properties.size()) {
 							for (int k = 0; k < p_custom_merge_properties.keys().size(); k++) {
 								Variant key = p_custom_merge_properties.keys()[k];
-								if (p_custom_merge_properties[key] != E->get().custom_merge_property.get(key, NULL)) {
+								if (p_custom_merge_properties[key] != E->get().custom_merge_property[key]) {
 									valid = false;
 								}
 							}
@@ -206,7 +206,7 @@ void UndoRedo::add_undo_method(Object *p_object, const String &p_method, VARIANT
 			if (E->get().custom_merge_property.size() == actions.write[current_action + 1].last_custom_merge_property.size()) {
 				for (int k = 0; k < actions.write[current_action + 1].last_custom_merge_property.keys().size(); k++) {
 					Variant key = actions.write[current_action + 1].last_custom_merge_property.keys()[k];
-					if (actions.write[current_action + 1].last_custom_merge_property[key] != E->get().custom_merge_property.get(key, NULL)) {
+					if (actions.write[current_action + 1].last_custom_merge_property[key] != E->get().custom_merge_property[key]) {
 						valid = false;
 					}
 				}
