@@ -2022,6 +2022,9 @@ void OS_OSX::set_cursor_shape(CursorShape p_shape) {
 			case CURSOR_HELP:
 				[cursorFromSelector(@selector(_helpCursor)) set];
 				break;
+			case CURSOR_ROTATE:
+				[[NSCursor arrowCursor] set];
+				break;
 			default: {
 			};
 		}
