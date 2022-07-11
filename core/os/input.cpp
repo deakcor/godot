@@ -131,6 +131,7 @@ void Input::_bind_methods() {
 	BIND_ENUM_CONSTANT(CURSOR_VSPLIT);
 	BIND_ENUM_CONSTANT(CURSOR_HSPLIT);
 	BIND_ENUM_CONSTANT(CURSOR_HELP);
+	BIND_ENUM_CONSTANT(CURSOR_ROTATE);
 
 	ADD_SIGNAL(MethodInfo("joy_connection_changed", PropertyInfo(Variant::INT, "device"), PropertyInfo(Variant::BOOL, "connected")));
 }

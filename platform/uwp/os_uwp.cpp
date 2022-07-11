@@ -667,7 +667,8 @@ void OS_UWP::set_cursor_shape(CursorShape p_shape) {
 		CoreCursorType::SizeAll,
 		CoreCursorType::SizeNorthSouth,
 		CoreCursorType::SizeWestEast,
-		CoreCursorType::Help
+		CoreCursorType::Help,
+		CoreCursorType::Arrow
 	};
 
 	CoreWindow::GetForCurrentThread()->PointerCursor = ref new CoreCursor(uwp_cursors[p_shape], 0);
