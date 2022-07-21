@@ -878,6 +878,18 @@ struct _VariantCall {
 	VCALL_PTR1R(Transform2D, translated);
 	VCALL_PTR2R(Transform2D, interpolate_with);
 	VCALL_PTR1R(Transform2D, is_equal_approx);
+	//VCALL_PTR1R(Transform2D, set_rotation);
+	VCALL_PTR1R(Transform2D, looking_at);
+
+	static void _call_Transform2D_set_rotation(Variant &r_ret, Variant &p_self, const Variant **p_args) {
+		reinterpret_cast<Transform2D *>(p_self._data._ptr)->set_rotation(p_args[0]->operator real_t());
+		return;
+	}
+
+	static void _call_Transform2D_set_scale(Variant &r_ret, Variant &p_self, const Variant **p_args) {
+		reinterpret_cast<Transform2D *>(p_self._data._ptr)->set_scale(p_args[0]->operator Vector2());
+		return;
+	}
 
 	static void _call_Transform2D_xform(Variant &r_ret, Variant &p_self, const Variant **p_args) {
 		switch (p_args[0]->type) {
@@ -2151,6 +2163,9 @@ void register_variant_methods() {
 	ADDFUNC1R(TRANSFORM2D, VECTOR2, Transform2D, basis_xform_inv, VECTOR2, "v", varray());
 	ADDFUNC2R(TRANSFORM2D, TRANSFORM2D, Transform2D, interpolate_with, TRANSFORM2D, "transform", REAL, "weight", varray());
 	ADDFUNC1R(TRANSFORM2D, BOOL, Transform2D, is_equal_approx, TRANSFORM2D, "transform", varray());
+	ADDFUNC1R(TRANSFORM2D, NIL, Transform2D, set_rotation, REAL, "rotation", varray());
+	ADDFUNC1R(TRANSFORM2D, NIL, Transform2D, set_scale, VECTOR2, "scale", varray());
+	ADDFUNC1R(TRANSFORM2D, TRANSFORM2D, Transform2D, looking_at, VECTOR2, "target", varray(Vector2()));
 
 	ADDFUNC0R(BASIS, BASIS, Basis, inverse, varray());
 	ADDFUNC0R(BASIS, BASIS, Basis, transposed, varray());
