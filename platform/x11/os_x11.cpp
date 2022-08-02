@@ -544,7 +544,8 @@ Error OS_X11::initialize(const VideoMode &p_desired, int p_video_driver, int p_a
 			"hand1",
 			"sb_v_double_arrow",
 			"sb_h_double_arrow",
-			"question_arrow"
+			"question_arrow",
+			"rotate"
 		};
 
 		img[i] = XcursorLibraryLoadImage(cursor_file[i], cursor_theme, cursor_size);
