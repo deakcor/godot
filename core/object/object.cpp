@@ -569,6 +569,29 @@ Variant Object::_call_deferred_bind(const Variant **p_args, int p_argcount, Call
 	return Variant();
 }
 
+Variant Object::_call_unique_deferred_bind(const Variant **p_args, int p_argcount, Callable::CallError &r_error) {
+	if (p_argcount < 1) {
+		r_error.error = Callable::CallError::CALL_ERROR_TOO_FEW_ARGUMENTS;
+		r_error.argument = 0;
+		return Variant();
+	}
+
+	if (p_args[0]->get_type() != Variant::STRING_NAME && p_args[0]->get_type() != Variant::STRING) {
+		r_error.error = Callable::CallError::CALL_ERROR_INVALID_ARGUMENT;
+		r_error.argument = 0;
+		r_error.expected = Variant::STRING_NAME;
+		return Variant();
+	}
+
+	r_error.error = Callable::CallError::CALL_OK;
+
+	StringName method = *p_args[0];
+
+	MessageQueue::get_singleton()->push_callp(get_instance_id(), method, &p_args[1], p_argcount - 1, true, true);
+
+	return Variant();
+}
+
 bool Object::has_method(const StringName &p_method) const {
 	if (p_method == CoreStringNames::get_singleton()->_free) {
 		return true;
@@ -1457,6 +1480,14 @@ void Object::_bind_methods() {
 		mi.arguments.push_back(PropertyInfo(Variant::STRING_NAME, "method"));
 
 		ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "call_deferred", &Object::_call_deferred_bind, mi, varray(), false);
+	}
+
+	{
+		MethodInfo mi;
+		mi.name = "call_unique_deferred";
+		mi.arguments.push_back(PropertyInfo(Variant::STRING_NAME, "method"));
+
+		ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "call_unique_deferred", &Object::_call_unique_deferred_bind, mi, varray(), false);
 	}
 
 	ClassDB::bind_method(D_METHOD("set_deferred", "property", "value"), &Object::set_deferred);

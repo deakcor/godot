@@ -41,8 +41,8 @@ MessageQueue *MessageQueue::get_singleton() {
 	return singleton;
 }
 
-Error MessageQueue::push_callp(ObjectID p_id, const StringName &p_method, const Variant **p_args, int p_argcount, bool p_show_error) {
-	return push_callablep(Callable(p_id, p_method), p_args, p_argcount, p_show_error);
+Error MessageQueue::push_callp(ObjectID p_id, const StringName &p_method, const Variant **p_args, int p_argcount, bool p_show_error, bool p_unique) {
+	return push_callablep(Callable(p_id, p_method), p_args, p_argcount, p_show_error, p_unique);
 }
 
 Error MessageQueue::push_set(ObjectID p_id, const StringName &p_prop, const Variant &p_value) {
@@ -99,8 +99,8 @@ Error MessageQueue::push_notification(ObjectID p_id, int p_notification) {
 	return OK;
 }
 
-Error MessageQueue::push_callp(Object *p_object, const StringName &p_method, const Variant **p_args, int p_argcount, bool p_show_error) {
-	return push_callp(p_object->get_instance_id(), p_method, p_args, p_argcount, p_show_error);
+Error MessageQueue::push_callp(Object *p_object, const StringName &p_method, const Variant **p_args, int p_argcount, bool p_show_error, bool p_unique) {
+	return push_callp(p_object->get_instance_id(), p_method, p_args, p_argcount, p_show_error, p_unique);
 }
 
 Error MessageQueue::push_notification(Object *p_object, int p_notification) {
@@ -111,7 +111,7 @@ Error MessageQueue::push_set(Object *p_object, const StringName &p_prop, const V
 	return push_set(p_object->get_instance_id(), p_prop, p_value);
 }
 
-Error MessageQueue::push_callablep(const Callable &p_callable, const Variant **p_args, int p_argcount, bool p_show_error) {
+Error MessageQueue::push_callablep(const Callable &p_callable, const Variant **p_args, int p_argcount, bool p_show_error, bool p_unique) {
 	_THREAD_SAFE_METHOD_
 
 	int room_needed = sizeof(Message) + sizeof(Variant) * p_argcount;
@@ -121,11 +121,44 @@ Error MessageQueue::push_callablep(const Callable &p_callable, const Variant **p
 		statistics();
 		ERR_FAIL_V_MSG(ERR_OUT_OF_MEMORY, "Message queue out of memory. Try increasing 'memory/limits/message_queue/max_size_kb' in project settings.");
 	}
+	if (p_unique) {
+		uint32_t read_pos = 0;
+		while (read_pos < buffer_end) {
+			Message *message = (Message *)&buffer[read_pos];
 
+			uint32_t advance = sizeof(Message);
+			if ((message->type & FLAG_MASK) != TYPE_NOTIFICATION) {
+				advance += sizeof(Variant) * message->args;
+			}
+
+			//pre-advance so this function is reentrant
+			read_pos += advance;
+
+			_THREAD_SAFE_UNLOCK_
+
+			switch (message->type) {
+				case TYPE_CALL | FLAG_UNIQUE: {
+					if (message->callable.get_object_id() == p_callable.get_object_id() && message->callable.get_method() == p_callable.get_method()) {
+						Variant *args = (Variant *)(message + 1);
+						for (int i = 0; i < message->args; i++) {
+							args[i].~Variant();
+						}
+
+						message->~Message();
+					}
+				}
+			}
+
+			_THREAD_SAFE_LOCK_
+		}
+	}
 	Message *msg = memnew_placement(&buffer[buffer_end], Message);
 	msg->args = p_argcount;
 	msg->callable = p_callable;
 	msg->type = TYPE_CALL;
+	if (p_unique) {
+		msg->type |= FLAG_UNIQUE;
+	}
 	if (p_show_error) {
 		msg->type |= FLAG_SHOW_ERROR;
 	}
