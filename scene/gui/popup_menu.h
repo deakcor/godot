@@ -60,6 +60,7 @@ class PopupMenu : public Popup {
 		Ref<ShortCut> shortcut;
 		bool shortcut_is_global;
 		bool shortcut_is_disabled;
+		bool shortcut_allow_repeat;
 
 		Item() {
 			checked = false;
@@ -73,6 +74,7 @@ class PopupMenu : public Popup {
 			h_ofs = 0;
 			shortcut_is_global = false;
 			shortcut_is_disabled = false;
+			shortcut_allow_repeat = false;
 		}
 	};
 
@@ -151,7 +153,7 @@ public:
 	void set_item_as_checkable(int p_idx, bool p_checkable);
 	void set_item_as_radio_checkable(int p_idx, bool p_radio_checkable);
 	void set_item_tooltip(int p_idx, const String &p_tooltip);
-	void set_item_shortcut(int p_idx, const Ref<ShortCut> &p_shortcut, bool p_global = false);
+	void set_item_shortcut(int p_idx, const Ref<ShortCut> &p_shortcut, bool p_global = false, bool p_allow_repeat = false);
 	void set_item_h_offset(int p_idx, int p_offset);
 	void set_item_multistate(int p_idx, int p_state);
 	void toggle_item_multistate(int p_idx);
@@ -182,7 +184,7 @@ public:
 
 	int get_item_count() const;
 
-	bool activate_item_by_event(const Ref<InputEvent> &p_event, bool p_for_global_only = false);
+	bool activate_item_by_event(const Ref<InputEvent> &p_event, bool p_for_global_only = false, bool p_is_echo=false);
 	void activate_item(int p_item);
 
 	void remove_item(int p_idx);
