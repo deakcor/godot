@@ -999,13 +999,14 @@ void PopupMenu::set_item_tooltip(int p_idx, const String &p_tooltip) {
 	update();
 }
 
-void PopupMenu::set_item_shortcut(int p_idx, const Ref<ShortCut> &p_shortcut, bool p_global) {
+void PopupMenu::set_item_shortcut(int p_idx, const Ref<ShortCut> &p_shortcut, bool p_global, bool p_allow_repeat) {
 	ERR_FAIL_INDEX(p_idx, items.size());
 	if (items[p_idx].shortcut.is_valid()) {
 		_unref_shortcut(items[p_idx].shortcut);
 	}
 	items.write[p_idx].shortcut = p_shortcut;
 	items.write[p_idx].shortcut_is_global = p_global;
+	items.write[p_idx].shortcut_allow_repeat = p_allow_repeat;
 
 	if (items[p_idx].shortcut.is_valid()) {
 		_ref_shortcut(items[p_idx].shortcut);
@@ -1083,7 +1084,7 @@ int PopupMenu::get_item_count() const {
 	return items.size();
 }
 
-bool PopupMenu::activate_item_by_event(const Ref<InputEvent> &p_event, bool p_for_global_only) {
+bool PopupMenu::activate_item_by_event(const Ref<InputEvent> &p_event, bool p_for_global_only, bool p_is_echo) {
 	uint32_t code = 0;
 	Ref<InputEventKey> k = p_event;
 
@@ -1112,13 +1113,18 @@ bool PopupMenu::activate_item_by_event(const Ref<InputEvent> &p_event, bool p_fo
 		}
 
 		if (items[i].shortcut.is_valid() && items[i].shortcut->is_shortcut(p_event) && (items[i].shortcut_is_global || !p_for_global_only)) {
-			activate_item(i);
-			return true;
+			if (!p_is_echo || items[i].shortcut_allow_repeat){
+				activate_item(i);
+				return true;
+			}
+			
 		}
 
 		if (code != 0 && items[i].accel == code) {
-			activate_item(i);
-			return true;
+			if (!p_is_echo){
+				activate_item(i);
+				return true;
+			}
 		}
 
 		if (items[i].submenu != "") {
@@ -1422,7 +1428,7 @@ void PopupMenu::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_item_as_checkable", "idx", "enable"), &PopupMenu::set_item_as_checkable);
 	ClassDB::bind_method(D_METHOD("set_item_as_radio_checkable", "idx", "enable"), &PopupMenu::set_item_as_radio_checkable);
 	ClassDB::bind_method(D_METHOD("set_item_tooltip", "idx", "tooltip"), &PopupMenu::set_item_tooltip);
-	ClassDB::bind_method(D_METHOD("set_item_shortcut", "idx", "shortcut", "global"), &PopupMenu::set_item_shortcut, DEFVAL(false));
+	ClassDB::bind_method(D_METHOD("set_item_shortcut", "idx", "shortcut", "global", "allow_repeat"), &PopupMenu::set_item_shortcut, DEFVAL(false), DEFVAL(false));
 	ClassDB::bind_method(D_METHOD("set_item_multistate", "idx", "state"), &PopupMenu::set_item_multistate);
 	ClassDB::bind_method(D_METHOD("set_item_shortcut_disabled", "idx", "disabled"), &PopupMenu::set_item_shortcut_disabled);
 
