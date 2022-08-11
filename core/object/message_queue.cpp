@@ -112,8 +112,6 @@ Error MessageQueue::push_set(Object *p_object, const StringName &p_prop, const V
 }
 
 Error MessageQueue::push_callablep(const Callable &p_callable, const Variant **p_args, int p_argcount, bool p_show_error, bool p_unique) {
-	_THREAD_SAFE_METHOD_
-
 	int room_needed = sizeof(Message) + sizeof(Variant) * p_argcount;
 
 	if ((buffer_end + room_needed) >= buffer_size) {
@@ -122,36 +120,52 @@ Error MessageQueue::push_callablep(const Callable &p_callable, const Variant **p
 		ERR_FAIL_V_MSG(ERR_OUT_OF_MEMORY, "Message queue out of memory. Try increasing 'memory/limits/message_queue/max_size_kb' in project settings.");
 	}
 	if (p_unique) {
+		_THREAD_SAFE_LOCK_
 		uint32_t read_pos = 0;
+		bool deleted = false;
 		while (read_pos < buffer_end) {
 			Message *message = (Message *)&buffer[read_pos];
 
-			uint32_t advance = sizeof(Message);
-			if ((message->type & FLAG_MASK) != TYPE_NOTIFICATION) {
-				advance += sizeof(Variant) * message->args;
-			}
-
-			//pre-advance so this function is reentrant
-			read_pos += advance;
-
 			_THREAD_SAFE_UNLOCK_
+			Object *target = message->callable.get_object();
 
-			switch (message->type) {
-				case TYPE_CALL | FLAG_UNIQUE: {
-					if (message->callable.get_object_id() == p_callable.get_object_id() && message->callable.get_method() == p_callable.get_method()) {
+			if (target != nullptr) {
+				if (((message->type & FLAG_MASK) == TYPE_CALL) && (message->type & FLAG_UNIQUE) > 0 && message->callable.get_object_id() == p_callable.get_object_id() && message->callable.get_method() == p_callable.get_method()) {
+					if ((message->type & FLAG_MASK) != TYPE_NOTIFICATION) {
 						Variant *args = (Variant *)(message + 1);
 						for (int i = 0; i < message->args; i++) {
 							args[i].~Variant();
 						}
-
-						message->~Message();
 					}
+
+					message->~Message();
+					//buffer_end -= advance;
+
+					//read_pos += sizeof(Message);
+					//read_pos += sizeof(Variant) * message->args;
+					//buffer_end += sizeof(Message) + sizeof(Variant) * message->args;
+					print_line("delete: " + message->callable);
+					//buffer_end -= advance;
+					//buffer_end += sizeof(Message) + sizeof(Variant) * message->args;
+					deleted = true;
+					_THREAD_SAFE_LOCK_
+					return OK;
+				} else {
+					print_line("Ok: " + message->callable);
+					print_line(((message->type & FLAG_MASK) == TYPE_CALL));
+					print_line((message->type & FLAG_UNIQUE) > 0);
+					print_line(message->callable.get_object_id() == p_callable.get_object_id() && message->callable.get_method() == p_callable.get_method());
 				}
 			}
-
+			read_pos += advance;
 			_THREAD_SAFE_LOCK_
 		}
+		print_line("Ok end: ", p_callable);
+		if (deleted) {
+			return OK;
+		}
 	}
+
 	Message *msg = memnew_placement(&buffer[buffer_end], Message);
 	msg->args = p_argcount;
 	msg->callable = p_callable;
