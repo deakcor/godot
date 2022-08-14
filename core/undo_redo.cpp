@@ -481,6 +481,14 @@ String UndoRedo::get_current_action_name() const {
 	return actions[current_action].name;
 }
 
+String UndoRedo::get_redo_action_name() const {
+	ERR_FAIL_COND_V(action_level > 0, "");
+	if ((current_action + 1) >= actions.size()) {
+		return "";
+	}
+	return actions[current_action + 1].name;
+}
+
 bool UndoRedo::has_undo() const {
 	return current_action >= 0;
 }
@@ -648,6 +656,7 @@ void UndoRedo::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("add_undo_reference", "object"), &UndoRedo::add_undo_reference);
 	ClassDB::bind_method(D_METHOD("clear_history", "increase_version"), &UndoRedo::clear_history, DEFVAL(true));
 	ClassDB::bind_method(D_METHOD("get_current_action_name"), &UndoRedo::get_current_action_name);
+	ClassDB::bind_method(D_METHOD("get_redo_action_name"), &UndoRedo::get_redo_action_name);
 	ClassDB::bind_method(D_METHOD("has_undo"), &UndoRedo::has_undo);
 	ClassDB::bind_method(D_METHOD("has_redo"), &UndoRedo::has_redo);
 	ClassDB::bind_method(D_METHOD("get_version"), &UndoRedo::get_version);

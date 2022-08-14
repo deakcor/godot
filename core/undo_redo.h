@@ -130,6 +130,7 @@ public:
 	bool redo();
 	bool undo();
 	String get_current_action_name() const;
+	String get_redo_action_name() const;
 	void clear_history(bool p_increase_version = true);
 
 	bool has_undo() const;
