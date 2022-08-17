@@ -2688,19 +2688,6 @@ float Animation::bezier_track_interpolate(int p_track, float p_time) const {
 	float value = bt->values[idx].value.value;
 	float new_value = bt->values[next_idx].value.value;
 
-	
-	if (bt->values[idx].value.transition_mode == TRANSITION_EASING) {
-		return Tween::_run_equation(bt->values[idx].value.transition, bt->values[idx].value.easing, t, value, new_value-value, duration);
-	}
-
-
-	float out_handle_normalizedy = bt->values[idx].value.out_handle.y;
-	float in_handle_normalizedy = bt->values[next_idx].value.in_handle.y;
-	float diff_val = (new_value - value);
-	if (!bt->values[idx].value.handle_normalized) {
-		out_handle_normalizedy = diff_val == 0.0 ? 0.0 : bt->values[idx].value.out_handle.y / diff_val;
-		in_handle_normalizedy = diff_val == 0.0 ? 0.0 : bt->values[next_idx].value.in_handle.y / diff_val;
-	}
 	if (bt->modulo > 0.0) {
 		value = Math::fposmod(value, bt->modulo);
 		new_value = Math::fposmod(new_value, bt->modulo);
@@ -2715,7 +2702,19 @@ float Animation::bezier_track_interpolate(int p_track, float p_time) const {
 		
 	}
 
-	diff_val = (new_value - value);
+	
+	if (bt->values[idx].value.transition_mode == TRANSITION_EASING) {
+		return Tween::_run_equation(bt->values[idx].value.transition, bt->values[idx].value.easing, t, value, new_value-value, duration);
+	}
+
+
+	float out_handle_normalizedy = bt->values[idx].value.out_handle.y;
+	float in_handle_normalizedy = bt->values[next_idx].value.in_handle.y;
+	float diff_val = (new_value - value);
+	if (!bt->values[idx].value.handle_normalized) {
+		out_handle_normalizedy = diff_val == 0.0 ? 0.0 : bt->values[idx].value.out_handle.y / diff_val;
+		in_handle_normalizedy = diff_val == 0.0 ? 0.0 : bt->values[next_idx].value.in_handle.y / diff_val;
+	}
 
 	Vector2 start(0, value);
 	Vector2 out_handle = bt->values[idx].value.out_handle;
