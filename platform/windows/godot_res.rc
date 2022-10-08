@@ -18,12 +18,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName",            "Deakcor"
             VALUE "FileDescription",        "PixelOver - Art to Pixel Art"
-            VALUE "FileVersion",            "0.11.0.0"
+            VALUE "FileVersion",            "0.12.0.0"
             VALUE "ProductName",            "PixelOver"
             VALUE "Licence",                "EULA"
             VALUE "LegalCopyright",         "Copyright (c) 2020-" _MKSTR(VERSION_YEAR) " Deakcor"
             VALUE "Info",                   "https://pixelover.io/"
-            VALUE "ProductVersion",         "0.11.0.0"
+            VALUE "ProductVersion",         "0.12.0.0"
         END
     END
     BLOCK "VarFileInfo"
