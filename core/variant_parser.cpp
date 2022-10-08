@@ -1698,7 +1698,10 @@ Error VariantWriter::write(const Variant &p_variant, StoreStringFunc p_store_str
 					}
 
 					p_store_string_func(p_store_string_ud, "\"" + E->get().name + "\":");
-					write(obj->get(E->get().name), p_store_string_func, p_store_string_ud, p_encode_res_func, p_encode_res_ud);
+					Error err = write(obj->get(E->get().name), p_store_string_func, p_store_string_ud, p_encode_res_func, p_encode_res_ud);
+					if (err != OK) {
+						return err;
+					}
 				}
 			}
 
@@ -1719,9 +1722,15 @@ Error VariantWriter::write(const Variant &p_variant, StoreStringFunc p_store_str
 				if (!_check_type(dict[E->get()]))
 					continue;
 				*/
-				write(E->get(), p_store_string_func, p_store_string_ud, p_encode_res_func, p_encode_res_ud);
+				Error err = write(E->get(), p_store_string_func, p_store_string_ud, p_encode_res_func, p_encode_res_ud);
+				if (err != OK) {
+					return err;
+				}
 				p_store_string_func(p_store_string_ud, ": ");
-				write(dict[E->get()], p_store_string_func, p_store_string_ud, p_encode_res_func, p_encode_res_ud);
+				err = write(dict[E->get()], p_store_string_func, p_store_string_ud, p_encode_res_func, p_encode_res_ud);
+				if (err != OK) {
+					return err;
+				}
 				if (E->next()) {
 					p_store_string_func(p_store_string_ud, ",\n");
 				} else {
@@ -1740,7 +1749,10 @@ Error VariantWriter::write(const Variant &p_variant, StoreStringFunc p_store_str
 				if (i > 0) {
 					p_store_string_func(p_store_string_ud, ", ");
 				}
-				write(array[i], p_store_string_func, p_store_string_ud, p_encode_res_func, p_encode_res_ud);
+				Error err = write(array[i], p_store_string_func, p_store_string_ud, p_encode_res_func, p_encode_res_ud);
+				if (err != OK) {
+					return err;
+				}
 			}
 			p_store_string_func(p_store_string_ud, " ]");
 

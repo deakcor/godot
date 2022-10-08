@@ -38,7 +38,10 @@ PoolStringArray ConfigFile::_get_sections() const {
 	List<String> s;
 	get_sections(&s);
 	PoolStringArray arr;
-	arr.resize(s.size());
+	Error err = arr.resize(s.size());
+	if (err != OK) {
+		return PoolStringArray();
+	}
 	int idx = 0;
 	for (const List<String>::Element *E = s.front(); E; E = E->next()) {
 		arr.set(idx++, E->get());
@@ -51,7 +54,10 @@ PoolStringArray ConfigFile::_get_section_keys(const String &p_section) const {
 	List<String> s;
 	get_section_keys(p_section, &s);
 	PoolStringArray arr;
-	arr.resize(s.size());
+	Error err = arr.resize(s.size());
+	if (err != OK) {
+		return PoolStringArray();
+	}
 	int idx = 0;
 	for (const List<String>::Element *E = s.front(); E; E = E->next()) {
 		arr.set(idx++, E->get());
