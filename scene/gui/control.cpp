@@ -2500,6 +2500,10 @@ float Control::get_global_skew() const {
 	return get_global_transform().get_skew();
 }
 
+float Control::get_global_rotation() const {
+	return get_global_transform().get_rotation();
+}
+
 
 void Control::set_global_skew(float p_radians) {
 	CanvasItem *pi = get_parent_item();
@@ -2523,6 +2527,26 @@ float Control::get_global_skew_degrees() const {
 
 float Control::get_rotation_degrees() const {
 	return Math::rad2deg(get_rotation());
+}
+
+float Control::get_global_rotation_degrees() const {
+	return Math::rad2deg(get_global_rotation());
+}
+
+void Control::set_global_rotation_degrees(float p_degrees) {
+	set_global_rotation(Math::deg2rad(p_degrees));
+}
+
+void Control::set_global_rotation(float p_radians) {
+	CanvasItem *pi = get_parent_item();
+	if (pi) {
+		Transform2D new_transform = get_global_transform();
+		new_transform.set_rotation(p_radians);
+		new_transform = pi->get_global_transform().affine_inverse() * new_transform;
+		set_rotation(new_transform.get_rotation());
+	} else {
+		set_rotation(p_radians);
+	}
 }
 
 void Control::_override_changed() {
@@ -2712,6 +2736,8 @@ void Control::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("_set_global_position", "position"), &Control::_set_global_position);
 	ClassDB::bind_method(D_METHOD("set_rotation", "radians"), &Control::set_rotation);
 	ClassDB::bind_method(D_METHOD("set_rotation_degrees", "degrees"), &Control::set_rotation_degrees);
+	ClassDB::bind_method(D_METHOD("set_global_rotation", "radians"), &Control::set_global_rotation);
+	ClassDB::bind_method(D_METHOD("set_global_rotation_degrees", "degrees"), &Control::set_global_rotation_degrees);
 	ClassDB::bind_method(D_METHOD("set_skew", "radians"), &Control::set_skew);
 	ClassDB::bind_method(D_METHOD("set_skew_degrees", "degrees"), &Control::set_skew_degrees);
 	ClassDB::bind_method(D_METHOD("set_global_skew", "radians"), &Control::set_global_skew);
@@ -2725,6 +2751,8 @@ void Control::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_size"), &Control::get_size);
 	ClassDB::bind_method(D_METHOD("get_rotation"), &Control::get_rotation);
 	ClassDB::bind_method(D_METHOD("get_rotation_degrees"), &Control::get_rotation_degrees);
+	ClassDB::bind_method(D_METHOD("get_global_rotation"), &Control::get_global_rotation);
+	ClassDB::bind_method(D_METHOD("get_global_rotation_degrees"), &Control::get_global_rotation_degrees);
 	ClassDB::bind_method(D_METHOD("get_skew"), &Control::get_skew);
 	ClassDB::bind_method(D_METHOD("get_skew_degrees"), &Control::get_skew_degrees);
 	ClassDB::bind_method(D_METHOD("get_global_skew"), &Control::get_global_skew);
@@ -2884,6 +2912,7 @@ void Control::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "rect_size", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_EDITOR), "_set_size", "get_size");
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "rect_min_size"), "set_custom_minimum_size", "get_custom_minimum_size");
 	ADD_PROPERTY(PropertyInfo(Variant::REAL, "rect_rotation", PROPERTY_HINT_RANGE, "-360,360,0.1,or_lesser,or_greater"), "set_rotation_degrees", "get_rotation_degrees");
+	ADD_PROPERTY(PropertyInfo(Variant::REAL, "rect_global_rotation", PROPERTY_HINT_RANGE, "-360,360,0.1,or_lesser,or_greater"), "set_global_rotation_degrees", "get_global_rotation_degrees");
 	ADD_PROPERTY(PropertyInfo(Variant::REAL, "rect_skew", PROPERTY_HINT_RANGE, "-89.9,89.9,0.1"), "set_skew_degrees", "get_skew_degrees");
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "rect_global_skew", PROPERTY_HINT_NONE, "", 0), "set_global_skew_degrees", "get_global_skew_degrees");
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "rect_scale"), "set_scale", "get_scale");
