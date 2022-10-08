@@ -364,12 +364,16 @@ public:
 
 	void set_rotation(float p_radians);
 	void set_rotation_degrees(float p_degrees);
+	void set_global_rotation(float p_radians);
+	void set_global_rotation_degrees(float p_degrees);
 	void set_skew(float p_radians);
 	void set_skew_degrees(float p_degrees);
 	void set_global_skew(float p_radians);
 	void set_global_skew_degrees(float p_degrees);
 	float get_rotation() const;
 	float get_rotation_degrees() const;
+	float get_global_rotation() const;
+	float get_global_rotation_degrees() const;
 	float get_skew() const;
 	float get_skew_degrees() const;
 	float get_global_skew() const;
