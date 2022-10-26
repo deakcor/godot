@@ -232,6 +232,8 @@ String _OS::get_clipboard() const {
 
 bool _OS::has_clipboard() const {
 	return OS::get_singleton()->has_clipboard();
+
+}
 Ref<Image> _OS::get_image_clipboard() const {
 	return OS::get_singleton()->get_image_clipboard();
 }
