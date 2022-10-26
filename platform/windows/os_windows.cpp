@@ -1670,10 +1670,12 @@ void OS_Windows::set_offscreen_gl_current(bool p_current) {
 #if defined(OPENGL_ENABLED)
 	if (p_current) {
 		return gl_context->make_offscreen_current();
-	} else {
+	}
+	else {
 		return gl_context->release_offscreen_current();
 	}
 #endif
+}
 bool OS_Windows::has_text_clipboard() const {
 	return
       (IsClipboardFormatAvailable(CF_TEXT) ||

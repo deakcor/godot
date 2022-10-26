@@ -2704,7 +2704,7 @@ float Animation::bezier_track_interpolate(int p_track, float p_time) const {
 
 	
 	if (bt->values[idx].value.transition_mode == TRANSITION_EASING) {
-		return Tween::_run_equation(bt->values[idx].value.transition, bt->values[idx].value.easing, t, value, new_value-value, duration);
+		return Tween::run_equation(bt->values[idx].value.transition, bt->values[idx].value.easing, t, value, new_value-value, duration);
 	}
 
 
