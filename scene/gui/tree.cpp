@@ -841,7 +841,7 @@ void TreeItem::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_button_toggle_mode", "column", "button_idx", "toggle_mode"), &TreeItem::set_button_toggle_mode);
 	ClassDB::bind_method(D_METHOD("is_button_toggled", "column", "button_idx"), &TreeItem::is_button_toggled);
 	ClassDB::bind_method(D_METHOD("is_button_toggle_mode", "column", "button_idx"), &TreeItem::is_button_toggle_mode);
-	
+
 	ClassDB::bind_method(D_METHOD("set_expand_right", "column", "enable"), &TreeItem::set_expand_right);
 	ClassDB::bind_method(D_METHOD("get_expand_right", "column"), &TreeItem::get_expand_right);
 
@@ -1198,7 +1198,7 @@ int Tree::draw_item(const Point2i &p_pos, const Point2 &p_draw_ofs, const Size2 
 					}
 					b->draw(ci, o, col);
 				}
-				
+
 				w -= s.width + cache.button_margin;
 				bw += s.width + cache.button_margin;
 			}
@@ -1226,8 +1226,6 @@ int Tree::draw_item(const Point2i &p_pos, const Point2 &p_draw_ofs, const Size2 
 					}
 				}
 			}
-
-			
 
 			if ((select_mode == SELECT_ROW && selected_item == p_item) || p_item->cells[i].selected || !p_item->has_meta("__focus_rect")) {
 				Rect2i r(cell_rect.position, cell_rect.size);
@@ -1261,8 +1259,6 @@ int Tree::draw_item(const Point2i &p_pos, const Point2 &p_draw_ofs, const Size2 
 					VisualServer::get_singleton()->canvas_item_add_rect(ci, r, p_item->cells[i].bg_color);
 				}
 			}
-
-			
 
 			if (drop_mode_flags && drop_mode_over == p_item) {
 				Rect2 r = cell_rect;
@@ -2594,9 +2590,9 @@ void Tree::_gui_input(Ref<InputEvent> p_event) {
 					if (cache.click_item != nullptr) {
 						int idx = cache.click_item->get_button_by_id(cache.click_column, cache.click_id);
 						if (cache.click_item->cells[cache.click_column].buttons[idx].toggle_mode == true) {
-							cache.click_item->set_button_toggled(cache.click_column ,idx,!cache.click_item->cells[cache.click_column].buttons[idx].toggled);
+							cache.click_item->set_button_toggled(cache.click_column, idx, !cache.click_item->cells[cache.click_column].buttons[idx].toggled);
 						} else {
-							cache.click_item->set_button_toggled(cache.click_column ,idx,false);
+							cache.click_item->set_button_toggled(cache.click_column, idx, false);
 						}
 					}
 					emit_signal("button_pressed", cache.click_item, cache.click_column, cache.click_id);
