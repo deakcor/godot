@@ -479,5 +479,7 @@
 		<constant name="CURSOR_HELP" value="16" enum="CursorShape">
 			Help cursor. Usually a question mark.
 		</constant>
+		<constant name="CURSOR_ROTATE" value="17" enum="CursorShape">
+		</constant>
 	</constants>
 </class>

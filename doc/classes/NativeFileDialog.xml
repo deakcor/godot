@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="NativeFileDialog" inherits="Node" version="3.5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../class.xsd">
+	<brief_description>
+	</brief_description>
+	<description>
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="add_filter">
+			<return type="void" />
+			<argument index="0" name="filter" type="String" />
+			<description>
+			</description>
+		</method>
+		<method name="clear_filters">
+			<return type="void" />
+			<description>
+			</description>
+		</method>
+		<method name="get_result">
+			<return type="String" />
+			<description>
+			</description>
+		</method>
+		<method name="get_results">
+			<return type="PoolStringArray" />
+			<description>
+			</description>
+		</method>
+		<method name="has_results">
+			<return type="bool" />
+			<description>
+			</description>
+		</method>
+		<method name="hide">
+			<return type="void" />
+			<description>
+			</description>
+		</method>
+		<method name="show">
+			<return type="void" />
+			<description>
+			</description>
+		</method>
+	</methods>
+	<members>
+		<member name="file_mode" type="int" setter="set_file_mode" getter="get_file_mode" enum="NativeFileDialog.NativeFileMode" default="0">
+		</member>
+		<member name="filters" type="PoolStringArray" setter="set_filters" getter="get_filters" default="PoolStringArray(  )">
+		</member>
+		<member name="start_directory" type="String" setter="set_start_directory" getter="get_start_directory" default="&quot;&quot;">
+		</member>
+		<member name="title" type="String" setter="set_title" getter="get_title" default="&quot;&quot;">
+		</member>
+	</members>
+	<signals>
+		<signal name="dir_selected">
+			<argument index="0" name="dir" type="String" />
+			<description>
+			</description>
+		</signal>
+		<signal name="file_selected">
+			<argument index="0" name="path" type="String" />
+			<description>
+			</description>
+		</signal>
+		<signal name="files_selected">
+			<argument index="0" name="paths" type="PoolStringArray" />
+			<description>
+			</description>
+		</signal>
+		<signal name="hide">
+			<description>
+			</description>
+		</signal>
+	</signals>
+	<constants>
+		<constant name="NATIVE_FILE_MODE_OPEN_FILE" value="0" enum="NativeFileMode">
+		</constant>
+		<constant name="NATIVE_FILE_MODE_OPEN_FILES" value="1" enum="NativeFileMode">
+		</constant>
+		<constant name="NATIVE_FILE_MODE_OPEN_DIR" value="2" enum="NativeFileMode">
+		</constant>
+		<constant name="NATIVE_FILE_MODE_SAVE_FILE" value="3" enum="NativeFileMode">
+		</constant>
+	</constants>
+</class>

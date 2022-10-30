@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="POImage" inherits="Reference" version="3.5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../class.xsd">
+	<brief_description>
+	</brief_description>
+	<description>
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="binarize">
+			<return type="void" />
+			<argument index="0" name="image" type="Image" />
+			<argument index="1" name="threshold" type="float" default="-1" />
+			<argument index="2" name="invert" type="bool" default="false" />
+			<description>
+			</description>
+		</method>
+		<method name="fix_transparent_viewport">
+			<return type="void" />
+			<argument index="0" name="image" type="Image" />
+			<description>
+			</description>
+		</method>
+		<method name="generate_palette">
+			<return type="PoolByteArray" />
+			<argument index="0" name="image" type="Image" />
+			<argument index="1" name="num_colors" type="int" default="256" />
+			<argument index="2" name="with_alpha" type="bool" default="true" />
+			<argument index="3" name="high_quality" type="bool" default="false" />
+			<description>
+			</description>
+		</method>
+		<method name="get_palette_colors" qualifiers="const">
+			<return type="PoolColorArray" />
+			<argument index="0" name="palette_data" type="PoolByteArray" />
+			<description>
+			</description>
+		</method>
+		<method name="grayscale">
+			<return type="void" />
+			<argument index="0" name="image" type="Image" />
+			<description>
+			</description>
+		</method>
+		<method name="multiply_alpha">
+			<return type="void" />
+			<argument index="0" name="image" type="Image" />
+			<argument index="1" name="factor" type="float" />
+			<description>
+			</description>
+		</method>
+		<method name="multiply_rgb">
+			<return type="void" />
+			<argument index="0" name="image" type="Image" />
+			<argument index="1" name="factor" type="float" />
+			<description>
+			</description>
+		</method>
+		<method name="repeat">
+			<return type="Image" />
+			<argument index="0" name="image" type="Image" />
+			<argument index="1" name="count" type="Vector2" />
+			<argument index="2" name="wrap_mode" type="int" enum="POImage.WrapMode" default="0" />
+			<argument index="3" name="max_size" type="Vector2" default="Vector2( 16384, 16384 )" />
+			<description>
+			</description>
+		</method>
+		<method name="replace_color">
+			<return type="void" />
+			<argument index="0" name="image" type="Image" />
+			<argument index="1" name="color" type="Color" />
+			<argument index="2" name="with_color" type="Color" />
+			<description>
+			</description>
+		</method>
+		<method name="tile">
+			<return type="Image" />
+			<argument index="0" name="image" type="Image" />
+			<argument index="1" name="size" type="Vector2" />
+			<argument index="2" name="wrap_mode" type="int" enum="POImage.WrapMode" default="0" />
+			<description>
+			</description>
+		</method>
+	</methods>
+	<constants>
+		<constant name="TILE" value="0" enum="WrapMode">
+		</constant>
+		<constant name="TILE_FLIP_X" value="1" enum="WrapMode">
+		</constant>
+		<constant name="TILE_FLIP_Y" value="2" enum="WrapMode">
+		</constant>
+		<constant name="TILE_FLIP_XY" value="3" enum="WrapMode">
+		</constant>
+	</constants>
+</class>

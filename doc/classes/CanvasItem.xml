@@ -61,6 +61,18 @@
 				[b]Note:[/b] Built-in antialiasing is not provided for [method draw_circle]. As a workaround, install the [url=https://github.com/godot-extended-libraries/godot-antialiased-line2d]Antialiased Line2D[/url] add-on then create an AntialiasedRegularPolygon2D node. That node relies on a texture with custom mipmaps to perform antialiasing.
 			</description>
 		</method>
+		<method name="draw_circle_arc">
+			<return type="void" />
+			<argument index="0" name="center" type="Vector2" />
+			<argument index="1" name="radius" type="float" />
+			<argument index="2" name="start_angle" type="float" />
+			<argument index="3" name="end_angle" type="float" />
+			<argument index="4" name="point_count" type="int" />
+			<argument index="5" name="color" type="Color" />
+			<argument index="6" name="antialiased" type="bool" default="false" />
+			<description>
+			</description>
+		</method>
 		<method name="draw_colored_polygon">
 			<return type="void" />
 			<argument index="0" name="points" type="PoolVector2Array" />

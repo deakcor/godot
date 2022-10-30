@@ -97,15 +97,20 @@
 			<return type="void" />
 			<argument index="0" name="name" type="String" />
 			<argument index="1" name="merge_mode" type="int" enum="UndoRedo.MergeMode" default="0" />
+			<argument index="2" name="custom_merge_properties" type="Dictionary" default="{
+}" />
 			<description>
-				Create a new action. After this is called, do all your calls to [method add_do_method], [method add_undo_method], [method add_do_property], and [method add_undo_property], then commit the action with [method commit_action].
-				The way actions are merged is dictated by the [code]merge_mode[/code] argument. See [enum MergeMode] for details.
 			</description>
 		</method>
 		<method name="get_current_action_name" qualifiers="const">
 			<return type="String" />
 			<description>
 				Gets the name of the current action.
+			</description>
+		</method>
+		<method name="get_redo_action_name" qualifiers="const">
+			<return type="String" />
+			<description>
 			</description>
 		</method>
 		<method name="get_version" qualifiers="const">
@@ -146,6 +151,12 @@
 			</description>
 		</method>
 	</methods>
+	<members>
+		<member name="apply_redo_on_commit" type="bool" setter="set_apply_redo_on_commit" getter="get_apply_redo_on_commit" default="true">
+		</member>
+		<member name="merge_wait_ms" type="int" setter="set_merge_wait_ms" getter="get_merge_wait_ms">
+		</member>
+	</members>
 	<signals>
 		<signal name="version_changed">
 			<description>
@@ -162,6 +173,12 @@
 		</constant>
 		<constant name="MERGE_ALL" value="2" enum="MergeMode">
 			Makes subsequent actions with the same name be merged into one.
+		</constant>
+		<constant name="MERGE_MULTI_ALL" value="3" enum="MergeMode">
+		</constant>
+		<constant name="MERGE_MULTI_ENDS" value="4" enum="MergeMode">
+		</constant>
+		<constant name="MERGE_MULTI_CUSTOM_ENDS" value="5" enum="MergeMode">
 		</constant>
 	</constants>
 </class>

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="POFile" inherits="Reference" version="3.5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../class.xsd">
+	<brief_description>
+	</brief_description>
+	<description>
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="end_read_write">
+			<return type="void" />
+			<description>
+			</description>
+		</method>
+		<method name="get_buffer" qualifiers="const">
+			<return type="PoolByteArray" />
+			<argument index="0" name="length" type="int" />
+			<description>
+			</description>
+		</method>
+		<method name="get_current_section_name">
+			<return type="String" />
+			<argument index="0" name="tags_inline" type="bool" default="false" />
+			<description>
+			</description>
+		</method>
+		<method name="get_current_section_tags">
+			<return type="Dictionary" />
+			<description>
+			</description>
+		</method>
+		<method name="get_current_var_name">
+			<return type="String" />
+			<description>
+			</description>
+		</method>
+		<method name="get_current_var_value">
+			<return type="Variant" />
+			<description>
+			</description>
+		</method>
+		<method name="get_position" qualifiers="const">
+			<return type="int" />
+			<description>
+			</description>
+		</method>
+		<method name="insert_buffer">
+			<return type="int" enum="Error" />
+			<argument index="0" name="buffer" type="PoolByteArray" />
+			<description>
+			</description>
+		</method>
+		<method name="insert_section">
+			<return type="int" enum="Error" />
+			<argument index="0" name="section_name" type="String" />
+			<argument index="1" name="section_tags" type="Dictionary" default="{
+}" />
+			<argument index="2" name="pretty_print" type="bool" default="true" />
+			<description>
+			</description>
+		</method>
+		<method name="insert_variable">
+			<return type="int" enum="Error" />
+			<argument index="0" name="var_name" type="String" />
+			<argument index="1" name="var_value" type="Variant" />
+			<description>
+			</description>
+		</method>
+		<method name="is_reading">
+			<return type="bool" />
+			<description>
+			</description>
+		</method>
+		<method name="is_writing">
+			<return type="bool" />
+			<description>
+			</description>
+		</method>
+		<method name="parse_next">
+			<return type="int" enum="Error" />
+			<description>
+			</description>
+		</method>
+		<method name="start_read">
+			<return type="int" enum="Error" />
+			<argument index="0" name="path" type="String" />
+			<description>
+			</description>
+		</method>
+		<method name="start_write">
+			<return type="int" enum="Error" />
+			<argument index="0" name="path" type="String" />
+			<description>
+			</description>
+		</method>
+		<method name="start_write_compressed">
+			<return type="int" enum="Error" />
+			<argument index="0" name="path" type="String" />
+			<description>
+			</description>
+		</method>
+	</methods>
+	<members>
+		<member name="allow_section_tags" type="bool" setter="set_allow_section_tags" getter="get_allow_section_tags" default="true">
+		</member>
+	</members>
+	<constants>
+	</constants>
+</class>
