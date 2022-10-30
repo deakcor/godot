@@ -516,12 +516,9 @@ void PopupMenu::_notification(int p_what) {
 			Color font_color_hover = get_color("font_color_hover");
 			Color font_color_separator = get_color("font_color_separator");
 
-			Color icon_color_normal = has_color("icon_color")?get_color("icon_color"):Color(1, 1, 1, 1);
-			Color icon_color_disabled = has_color("icon_color_disabled")?get_color("icon_color_disabled"):Color(1, 1, 1, 1);
-			Color icon_color_accel = has_color("icon_color_accel")?get_color("icon_color_accel"):Color(1, 1, 1, 1);
-			Color icon_color_hover = has_color("icon_color_hover")?get_color("icon_color_hover"):Color(1, 1, 1, 1);
-
-			float font_h = font->get_height();
+			Color icon_color_normal = has_color("icon_color") ? get_color("icon_color") : Color(1, 1, 1, 1);
+			Color icon_color_disabled = has_color("icon_color_disabled") ? get_color("icon_color_disabled") : Color(1, 1, 1, 1);
+			Color icon_color_hover = has_color("icon_color_hover") ? get_color("icon_color_hover") : Color(1, 1, 1, 1);
 
 			// Add the check and the wider icon to the offset of all items.
 			float icon_ofs = 0.0;
@@ -1113,15 +1110,14 @@ bool PopupMenu::activate_item_by_event(const Ref<InputEvent> &p_event, bool p_fo
 		}
 
 		if (items[i].shortcut.is_valid() && items[i].shortcut->is_shortcut(p_event) && (items[i].shortcut_is_global || !p_for_global_only)) {
-			if (!p_is_echo || items[i].shortcut_allow_repeat){
+			if (!p_is_echo || items[i].shortcut_allow_repeat) {
 				activate_item(i);
 				return true;
 			}
-			
 		}
 
 		if (code != 0 && items[i].accel == code) {
-			if (!p_is_echo){
+			if (!p_is_echo) {
 				activate_item(i);
 				return true;
 			}
