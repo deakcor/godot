@@ -5,7 +5,7 @@ on: [push, pull_request]
 env:
   # Only used for the cache key. Increment version to force clean build.
   GODOT_BASE_BRANCH: 3.5
-  SCONSFLAGS: verbose=yes warnings=all werror=yes debug_symbols=no
+  SCONSFLAGS: verbose=yes warnings=all werror=yes debug_symbols=no custom_modules="./custom_modules"
 
 concurrency:
   group: ci-${{github.actor}}-${{github.head_ref || github.run_number}}-${{github.ref}}-macos
@@ -32,7 +32,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-
+        with:
+          submodules: 'true'
+          token: ${{ secrets.PIXELOVER_MODULE }}
       - name: Setup Godot build cache
         uses: ./.github/actions/godot-cache
         with:
@@ -49,6 +51,7 @@ jobs:
           platform: osx
           target: ${{ matrix.target }}
           tools: ${{ matrix.tools }}
+          encryption-key: ${{ secrets.ENCRYPTION_KEY }}
 
       - name: Prepare artifact
         run: |
