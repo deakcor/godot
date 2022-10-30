@@ -13,6 +13,8 @@ inputs:
   platform:
     description: The Godot platform to build.
     required: false
+  encryption-key:
+    required: false
   sconsflags:
     default: ""
   scons-cache:
@@ -32,7 +34,9 @@ runs:
           SCONSFLAGS: ${{ inputs.sconsflags }}
           SCONS_CACHE: ${{ inputs.scons-cache }}
           SCONS_CACHE_LIMIT: ${{ inputs.scons-cache-limit }}
+          ENCRYPTION_KEY: ${{ inputs.encryption-key }}
       run: |
+        export SCRIPT_AES256_ENCRYPTION_KEY=${{ env.ENCRYPTION_KEY }}
         echo "Building with flags:" ${{ env.SCONSFLAGS }}
         scons p=${{ inputs.platform }} target=${{ inputs.target }} tools=${{ inputs.tools }} tests=${{ inputs.tests }} ${{ env.SCONSFLAGS }}
         ls -l bin/
