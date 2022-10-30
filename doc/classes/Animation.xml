@@ -119,6 +119,13 @@
 				Sets the stream of the key identified by [code]key_idx[/code] to value [code]stream[/code]. The [code]track_idx[/code] must be the index of an Audio Track.
 			</description>
 		</method>
+		<method name="bezier_track_get_key_easing" qualifiers="const">
+			<return type="int" enum="Tween.EaseType" />
+			<argument index="0" name="track_idx" type="int" />
+			<argument index="1" name="key_idx" type="int" />
+			<description>
+			</description>
+		</method>
 		<method name="bezier_track_get_key_in_handle" qualifiers="const">
 			<return type="Vector2" />
 			<argument index="0" name="track_idx" type="int" />
@@ -133,6 +140,20 @@
 			<argument index="1" name="key_idx" type="int" />
 			<description>
 				Returns the out handle of the key identified by [code]key_idx[/code]. The [code]track_idx[/code] must be the index of a Bezier Track.
+			</description>
+		</method>
+		<method name="bezier_track_get_key_transition" qualifiers="const">
+			<return type="int" enum="Tween.TransitionType" />
+			<argument index="0" name="track_idx" type="int" />
+			<argument index="1" name="key_idx" type="int" />
+			<description>
+			</description>
+		</method>
+		<method name="bezier_track_get_key_transition_mode" qualifiers="const">
+			<return type="int" enum="Animation.KeyTransitionMode" />
+			<argument index="0" name="track_idx" type="int" />
+			<argument index="1" name="key_idx" type="int" />
+			<description>
 			</description>
 		</method>
 		<method name="bezier_track_get_key_value" qualifiers="const">
@@ -169,6 +190,30 @@
 				Returns the interpolated value at the given [code]time[/code] (in seconds). The [code]track_idx[/code] must be the index of a Bezier Track.
 			</description>
 		</method>
+		<method name="bezier_track_is_key_handle_normalized" qualifiers="const">
+			<return type="bool" />
+			<argument index="0" name="track_idx" type="int" />
+			<argument index="1" name="key_idx" type="int" />
+			<description>
+			</description>
+		</method>
+		<method name="bezier_track_set_key_easing_function">
+			<return type="void" />
+			<argument index="0" name="track_idx" type="int" />
+			<argument index="1" name="key_idx" type="int" />
+			<argument index="2" name="transition" type="int" enum="Tween.TransitionType" />
+			<argument index="3" name="easing" type="int" enum="Tween.EaseType" />
+			<description>
+			</description>
+		</method>
+		<method name="bezier_track_set_key_handle_normalized">
+			<return type="void" />
+			<argument index="0" name="track_idx" type="int" />
+			<argument index="1" name="key_idx" type="int" />
+			<argument index="2" name="handle_normalized" type="bool" />
+			<description>
+			</description>
+		</method>
 		<method name="bezier_track_set_key_in_handle">
 			<return type="void" />
 			<argument index="0" name="track_idx" type="int" />
@@ -185,6 +230,14 @@
 			<argument index="2" name="out_handle" type="Vector2" />
 			<description>
 				Sets the out handle of the key identified by [code]key_idx[/code] to value [code]out_handle[/code]. The [code]track_idx[/code] must be the index of a Bezier Track.
+			</description>
+		</method>
+		<method name="bezier_track_set_key_transition_mode">
+			<return type="void" />
+			<argument index="0" name="track_idx" type="int" />
+			<argument index="1" name="key_idx" type="int" />
+			<argument index="2" name="transition_mode" type="int" enum="Animation.KeyTransitionMode" />
+			<description>
 			</description>
 		</method>
 		<method name="bezier_track_set_key_value">
@@ -613,6 +666,10 @@
 		</constant>
 		<constant name="TYPE_ANIMATION" value="5" enum="TrackType">
 			Animation tracks play animations in other [AnimationPlayer] nodes.
+		</constant>
+		<constant name="BEZIER" value="0" enum="KeyTransitionMode">
+		</constant>
+		<constant name="TRANSITION_EASING" value="1" enum="KeyTransitionMode">
 		</constant>
 		<constant name="INTERPOLATION_NEAREST" value="0" enum="InterpolationType">
 			No interpolation (nearest value).

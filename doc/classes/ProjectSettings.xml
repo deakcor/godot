@@ -1369,9 +1369,15 @@
 			Sets which physics engine to use for 3D physics.
 			"DEFAULT" is currently the [url=https://bulletphysics.org]Bullet[/url] physics engine. The "GodotPhysics" engine is still supported as an alternative.
 		</member>
+		<member name="physics/3d/sleep_threshold_angular" type="float" setter="" getter="" default="0.139626">
+		</member>
+		<member name="physics/3d/sleep_threshold_linear" type="float" setter="" getter="" default="0.1">
+		</member>
 		<member name="physics/3d/smooth_trimesh_collision" type="bool" setter="" getter="" default="false">
 			If [code]true[/code], smooths out collision with trimesh shapes ([ConcavePolygonShape]) by telling the Bullet physics engine to generate internal edge information for every trimesh shape created.
 			[b]Note:[/b] Only effective if [member physics/3d/physics_engine] is set to [code]DEFAULT[/code] or [code]Bullet[/code], [i]not[/i] [code]GodotPhysics[/code].
+		</member>
+		<member name="physics/3d/time_before_sleep" type="float" setter="" getter="" default="0.5">
 		</member>
 		<member name="physics/common/enable_object_picking" type="bool" setter="" getter="" default="true">
 			Enables [member Viewport.physics_object_picking] on the root viewport.

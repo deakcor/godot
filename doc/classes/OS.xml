@@ -255,6 +255,11 @@
 				[b]Note:[/b] This method is implemented on Android.
 			</description>
 		</method>
+		<method name="get_image_clipboard" qualifiers="const">
+			<return type="Image" />
+			<description>
+			</description>
+		</method>
 		<method name="get_ime_selection" qualifiers="const">
 			<return type="Vector2" />
 			<description>
@@ -659,6 +664,16 @@
 				[b]Note:[/b] Tag names are case-sensitive.
 			</description>
 		</method>
+		<method name="has_image_clipboard" qualifiers="const">
+			<return type="bool" />
+			<description>
+			</description>
+		</method>
+		<method name="has_text_clipboard" qualifiers="const">
+			<return type="bool" />
+			<description>
+			</description>
+		</method>
 		<method name="has_touchscreen_ui_hint" qualifiers="const">
 			<return type="bool" />
 			<description>
@@ -1055,7 +1070,7 @@
 		<member name="screen_orientation" type="int" setter="set_screen_orientation" getter="get_screen_orientation" enum="_OS.ScreenOrientation" default="0">
 			The current screen orientation.
 		</member>
-		<member name="tablet_driver" type="String" setter="set_current_tablet_driver" getter="get_current_tablet_driver" default="&quot;winink&quot;">
+		<member name="tablet_driver" type="String" setter="set_current_tablet_driver" getter="get_current_tablet_driver" default="&quot;&quot;">
 			The current tablet driver in use.
 		</member>
 		<member name="vsync_enabled" type="bool" setter="set_use_vsync" getter="is_vsync_enabled" default="true">

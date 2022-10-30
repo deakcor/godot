@@ -312,6 +312,11 @@
 				Returns the position and size of the control relative to the top-left corner of the screen. See [member rect_position] and [member rect_size].
 			</description>
 		</method>
+		<method name="get_global_rotation" qualifiers="const">
+			<return type="float" />
+			<description>
+			</description>
+		</method>
 		<method name="get_global_skew" qualifiers="const">
 			<return type="float" />
 			<description>
@@ -694,6 +699,12 @@
 				If [code]keep_margins[/code] is [code]true[/code], control's anchors will be updated instead of margins.
 			</description>
 		</method>
+		<method name="set_global_rotation">
+			<return type="void" />
+			<argument index="0" name="radians" type="float" />
+			<description>
+			</description>
+		</method>
 		<method name="set_global_skew">
 			<return type="void" />
 			<argument index="0" name="radians" type="float" />
@@ -852,6 +863,8 @@
 		</member>
 		<member name="rect_global_position" type="Vector2" setter="_set_global_position" getter="get_global_position">
 			The node's global position, relative to the world (usually to the top-left corner of the window).
+		</member>
+		<member name="rect_global_rotation" type="float" setter="set_global_rotation_degrees" getter="get_global_rotation_degrees" default="0.0">
 		</member>
 		<member name="rect_global_scale" type="Vector2" setter="set_global_scale" getter="get_global_scale">
 		</member>
@@ -1041,6 +1054,8 @@
 		</constant>
 		<constant name="CURSOR_HELP" value="16" enum="CursorShape">
 			Show the system's help mouse cursor when the user hovers the node, a question mark.
+		</constant>
+		<constant name="CURSOR_ROTATE" value="17" enum="CursorShape">
 		</constant>
 		<constant name="PRESET_TOP_LEFT" value="0" enum="LayoutPreset">
 			Snap all 4 anchors to the top-left of the parent control's bounds. Use with [method set_anchors_preset].

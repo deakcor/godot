@@ -413,8 +413,8 @@
 			<argument index="0" name="idx" type="int" />
 			<argument index="1" name="shortcut" type="ShortCut" />
 			<argument index="2" name="global" type="bool" default="false" />
+			<argument index="3" name="allow_repeat" type="bool" default="false" />
 			<description>
-				Sets a [ShortCut] for the specified item [code]idx[/code].
 			</description>
 		</method>
 		<method name="set_item_shortcut_disabled">

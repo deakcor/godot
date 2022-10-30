@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="POGeometry" inherits="Reference" version="3.5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../class.xsd">
+	<brief_description>
+	</brief_description>
+	<description>
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="bounding_rect">
+			<return type="Rect2" />
+			<argument index="0" name="points" type="PoolVector2Array" />
+			<description>
+			</description>
+		</method>
+		<method name="create_circle_arc">
+			<return type="PoolVector2Array" />
+			<argument index="0" name="center" type="Vector2" />
+			<argument index="1" name="radius" type="float" />
+			<argument index="2" name="start_angle" type="float" />
+			<argument index="3" name="end_angle" type="float" />
+			<argument index="4" name="point_count" type="int" />
+			<description>
+			</description>
+		</method>
+		<method name="create_rectangle">
+			<return type="PoolVector2Array" />
+			<argument index="0" name="rect" type="Rect2" />
+			<argument index="1" name="corner_radius" type="int" default="0" />
+			<argument index="2" name="corner_detail" type="int" default="8" />
+			<description>
+			</description>
+		</method>
+		<method name="generate_polygon_from_image">
+			<return type="Array" />
+			<argument index="0" name="image" type="Image" />
+			<argument index="1" name="modify" type="int" default="0" />
+			<argument index="2" name="simplify" type="float" default="1.0" />
+			<description>
+			</description>
+		</method>
+		<method name="point_in_polygon">
+			<return type="int" />
+			<argument index="0" name="point" type="Vector2" />
+			<argument index="1" name="polygon" type="PoolVector2Array" />
+			<description>
+			</description>
+		</method>
+	</methods>
+	<constants>
+	</constants>
+</class>

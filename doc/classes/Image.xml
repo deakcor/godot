@@ -27,8 +27,8 @@
 			<argument index="1" name="mask" type="Image" />
 			<argument index="2" name="src_rect" type="Rect2" />
 			<argument index="3" name="dst" type="Vector2" />
+			<argument index="4" name="inverted" type="bool" default="false" />
 			<description>
-				Alpha-blends [code]src_rect[/code] from [code]src[/code] image to this image using [code]mask[/code] image at coordinates [code]dst[/code], clipped accordingly to both image bounds. Alpha channels are required for both [code]src[/code] and [code]mask[/code]. [code]dst[/code] pixels and [code]src[/code] pixels will blend if the corresponding mask pixel's alpha value is not 0. This image and [code]src[/code] image [b]must[/b] have the same format. [code]src[/code] image and [code]mask[/code] image [b]must[/b] have the same size (width and height) but they can have different formats. [code]src_rect[/code] with not positive size is treated as empty.
 			</description>
 		</method>
 		<method name="blit_rect">
@@ -46,8 +46,8 @@
 			<argument index="1" name="mask" type="Image" />
 			<argument index="2" name="src_rect" type="Rect2" />
 			<argument index="3" name="dst" type="Vector2" />
+			<argument index="4" name="inverted" type="bool" default="false" />
 			<description>
-				Blits [code]src_rect[/code] area from [code]src[/code] image to this image at the coordinates given by [code]dst[/code], clipped accordingly to both image bounds. [code]src[/code] pixel is copied onto [code]dst[/code] if the corresponding [code]mask[/code] pixel's alpha value is not 0. This image and [code]src[/code] image [b]must[/b] have the same format. [code]src[/code] image and [code]mask[/code] image [b]must[/b] have the same size (width and height) but they can have different formats. [code]src_rect[/code] with not positive size is treated as empty.
 			</description>
 		</method>
 		<method name="bumpmap_to_normalmap">

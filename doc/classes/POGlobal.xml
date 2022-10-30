@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="POGlobal" inherits="Reference" version="3.5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../class.xsd">
+	<brief_description>
+	</brief_description>
+	<description>
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="defer_call_unique" qualifiers="vararg">
+			<return type="void" />
+			<argument index="0" name="object" type="Object" />
+			<argument index="1" name="method" type="String" />
+			<description>
+			</description>
+		</method>
+		<method name="flush_calls">
+			<return type="void" />
+			<description>
+			</description>
+		</method>
+	</methods>
+	<constants>
+	</constants>
+</class>
