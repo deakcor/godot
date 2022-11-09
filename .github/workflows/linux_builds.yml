@@ -46,6 +46,14 @@ jobs:
             sconsflags: module_mono_enabled=yes mono_static=yes mono_glue=no debug_symbols=no
             build-mono: false
             artifact: true
+          
+          - name: Template (target=release, tools=no)
+            cache-name: linux-template
+            target: release
+            tools: false
+            sconsflags: debug_symbols=no
+            build-mono: false
+            artifact: true
 
     steps:
       - uses: actions/checkout@v3
