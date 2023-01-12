@@ -110,7 +110,7 @@ struct _NO_DISCARD_CLASS_ Transform2D {
 	Transform2D operator*(const Transform2D &p_transform) const;
 
 	Transform2D interpolate_with(const Transform2D &p_transform, real_t p_c) const;
-
+	_FORCE_INLINE_ real_t lerp_angle(real_t p_a, real_t p_b, real_t p_weight) const;
 	_FORCE_INLINE_ Vector2 basis_xform(const Vector2 &p_vec) const;
 	_FORCE_INLINE_ Vector2 basis_xform_inv(const Vector2 &p_vec) const;
 	_FORCE_INLINE_ Vector2 xform(const Vector2 &p_vec) const;
@@ -187,7 +187,6 @@ void Transform2D::set_rotation_and_scale(real_t p_rot, const Size2 &p_scale) {
 }
 
 void Transform2D::set_rotation_scale_and_skew(real_t p_rot, const Size2 &p_scale, float p_skew) {
-
 	elements[0][0] = Math::cos(p_rot) * p_scale.x;
 	elements[1][1] = Math::cos(p_rot + p_skew) * p_scale.y;
 	elements[1][0] = -Math::sin(p_rot + p_skew) * p_scale.y;
@@ -235,6 +234,16 @@ PoolVector<Vector2> Transform2D::xform_inv(const PoolVector<Vector2> &p_array) c
 		w[i] = xform_inv(r[i]);
 	}
 	return array;
+}
+
+real_t Transform2D::lerp_angle(real_t p_a, real_t p_b, real_t p_weight) const {
+	real_t delta = p_b - p_a;
+	if (delta > Math_PI) {
+		delta -= Math_PI * 2;
+	} else if (delta < -Math_PI) {
+		delta += Math_PI * 2;
+	}
+	return p_a + delta * p_weight;
 }
 
 #endif // TRANSFORM_2D_H
