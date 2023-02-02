@@ -348,6 +348,8 @@ public:
 	FUNC2(particles_set_amount, RID, int)
 	FUNC2(particles_set_lifetime, RID, float)
 	FUNC2(particles_set_one_shot, RID, bool)
+	FUNC2(particles_set_static_mode, RID, bool)
+	FUNC1(particles_static_update, RID)
 	FUNC2(particles_set_pre_process_time, RID, float)
 	FUNC2(particles_set_explosiveness_ratio, RID, float)
 	FUNC2(particles_set_randomness_ratio, RID, float)
@@ -366,8 +368,10 @@ public:
 	FUNC2(particles_set_draw_passes, RID, int)
 	FUNC3(particles_set_draw_pass_mesh, RID, int, RID)
 	FUNC2(particles_set_emission_transform, RID, const Transform &)
-
+	FUNC1R(Transform, particles_get_emission_transform, RID)
 	FUNC1R(AABB, particles_get_current_aabb, RID)
+
+	FUNC1(update_particles, float)
 
 	/* CAMERA API */
 

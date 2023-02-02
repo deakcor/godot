@@ -1178,6 +1178,8 @@ public:
 	/* PARTICLES */
 
 	struct Particles : public GeometryOwner {
+		bool static_mode;
+		bool static_update;
 		bool inactive;
 		float inactive_time;
 		bool emitting;
@@ -1224,6 +1226,8 @@ public:
 		Transform emission_transform;
 
 		Particles() :
+				static_mode(false),
+				static_update(false),
 				inactive(true),
 				inactive_time(0.0),
 				emitting(false),
@@ -1265,7 +1269,7 @@ public:
 
 	SelfList<Particles>::List particle_update_list;
 
-	void update_particles();
+	void update_particles(float delta);
 
 	mutable RID_Owner<Particles> particles_owner;
 
@@ -1276,6 +1280,9 @@ public:
 	virtual void particles_set_amount(RID p_particles, int p_amount);
 	virtual void particles_set_lifetime(RID p_particles, float p_lifetime);
 	virtual void particles_set_one_shot(RID p_particles, bool p_one_shot);
+	virtual void particles_request_process(RID p_particles);
+	virtual void particles_set_static_mode(RID p_particles, bool p_static_mode);
+	virtual void particles_static_update(RID p_particles);
 	virtual void particles_set_pre_process_time(RID p_particles, float p_time);
 	virtual void particles_set_explosiveness_ratio(RID p_particles, float p_ratio);
 	virtual void particles_set_randomness_ratio(RID p_particles, float p_ratio);
@@ -1292,13 +1299,14 @@ public:
 	virtual void particles_set_draw_passes(RID p_particles, int p_passes);
 	virtual void particles_set_draw_pass_mesh(RID p_particles, int p_pass, RID p_mesh);
 
-	virtual void particles_request_process(RID p_particles);
 	virtual AABB particles_get_current_aabb(RID p_particles);
 	virtual AABB particles_get_aabb(RID p_particles) const;
 
 	virtual void _particles_update_histories(Particles *particles);
 
 	virtual void particles_set_emission_transform(RID p_particles, const Transform &p_transform);
+	virtual Transform particles_get_emission_transform(RID p_particles);
+
 	void _particles_process(Particles *p_particles, float p_delta);
 
 	virtual int particles_get_draw_passes(RID p_particles) const;

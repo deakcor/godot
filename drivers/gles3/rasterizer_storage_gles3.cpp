@@ -6230,6 +6230,31 @@ void RasterizerStorageGLES3::particles_set_one_shot(RID p_particles, bool p_one_
 	ERR_FAIL_COND(!particles);
 	particles->one_shot = p_one_shot;
 }
+void RasterizerStorageGLES3::particles_set_static_mode(RID p_particles, bool p_static_mode) {
+	Particles *particles = particles_owner.getornull(p_particles);
+	ERR_FAIL_COND(!particles);
+	particles->static_mode = p_static_mode;
+}
+
+void RasterizerStorageGLES3::particles_request_process(RID p_particles) {
+	Particles *particles = particles_owner.getornull(p_particles);
+	ERR_FAIL_COND(!particles);
+
+	if (!particles->particle_element.in_list()) {
+		particle_update_list.add(&particles->particle_element);
+	}
+}
+
+void RasterizerStorageGLES3::particles_static_update(RID p_particles) {
+	Particles *particles = particles_owner.getornull(p_particles);
+	ERR_FAIL_COND(!particles);
+	if (!particles->static_mode) {
+		return;
+	}
+	particles->static_update = true;
+
+	particles_request_process(p_particles);
+}
 
 void RasterizerStorageGLES3::particles_set_pre_process_time(RID p_particles, float p_time) {
 	Particles *particles = particles_owner.getornull(p_particles);
@@ -6355,15 +6380,6 @@ void RasterizerStorageGLES3::particles_restart(RID p_particles) {
 	particles->restart_request = true;
 }
 
-void RasterizerStorageGLES3::particles_request_process(RID p_particles) {
-	Particles *particles = particles_owner.getornull(p_particles);
-	ERR_FAIL_COND(!particles);
-
-	if (!particles->particle_element.in_list()) {
-		particle_update_list.add(&particles->particle_element);
-	}
-}
-
 AABB RasterizerStorageGLES3::particles_get_current_aabb(RID p_particles) {
 	const Particles *particles = particles_owner.getornull(p_particles);
 	ERR_FAIL_COND_V(!particles, AABB());
@@ -6434,6 +6450,13 @@ void RasterizerStorageGLES3::particles_set_emission_transform(RID p_particles, c
 	ERR_FAIL_COND(!particles);
 
 	particles->emission_transform = p_transform;
+}
+
+Transform RasterizerStorageGLES3::particles_get_emission_transform(RID p_particles) {
+	Particles *particles = particles_owner.getornull(p_particles);
+	ERR_FAIL_COND_V(!particles, Transform());
+
+	return particles->emission_transform;
 }
 
 int RasterizerStorageGLES3::particles_get_draw_passes(RID p_particles) const {
@@ -6521,8 +6544,12 @@ void RasterizerStorageGLES3::_particles_process(Particles *p_particles, float p_
 	//*/
 }
 
-void RasterizerStorageGLES3::update_particles() {
+void RasterizerStorageGLES3::update_particles(float delta = 0.0) {
 	glEnable(GL_RASTERIZER_DISCARD);
+
+	if (delta == 0.0) {
+		delta = frame.delta;
+	}
 
 	while (particle_update_list.first()) {
 		//use transform feedback to process particles
@@ -6537,6 +6564,14 @@ void RasterizerStorageGLES3::update_particles() {
 			particles->particle_valid_histories[0] = false;
 			particles->particle_valid_histories[1] = false;
 			particles->restart_request = false;
+		}
+
+		if (particles->static_mode) {
+			if (!particles->static_update) {
+				particle_update_list.remove(particle_update_list.first());
+				continue;
+			}
+			particles->static_update = false;
 		}
 
 		if (particles->inactive && !particles->emitting) {
@@ -6557,7 +6592,7 @@ void RasterizerStorageGLES3::update_particles() {
 			particles->inactive = false;
 			particles->inactive_time = 0;
 		} else {
-			particles->inactive_time += particles->speed_scale * frame.delta;
+			particles->inactive_time += particles->speed_scale * delta;
 			if (particles->inactive_time > particles->lifetime * 1.2) {
 				particles->inactive = true;
 				particle_update_list.remove(particle_update_list.first());
@@ -6656,7 +6691,6 @@ void RasterizerStorageGLES3::update_particles() {
 				frame_time = 1.0 / particles->fixed_fps;
 				decr = frame_time;
 			}
-			float delta = frame.delta;
 			if (delta > 0.1) { //avoid recursive stalls if fps goes below 10
 				delta = 0.1;
 			} else if (delta <= 0.0) { //unlikely but..
@@ -6675,7 +6709,7 @@ void RasterizerStorageGLES3::update_particles() {
 			if (zero_time_scale) {
 				_particles_process(particles, 0.0);
 			} else {
-				_particles_process(particles, frame.delta);
+				_particles_process(particles, delta);
 			}
 		}
 

@@ -2037,6 +2037,8 @@ void VisualServer::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("particles_set_amount", "particles", "amount"), &VisualServer::particles_set_amount);
 	ClassDB::bind_method(D_METHOD("particles_set_lifetime", "particles", "lifetime"), &VisualServer::particles_set_lifetime);
 	ClassDB::bind_method(D_METHOD("particles_set_one_shot", "particles", "one_shot"), &VisualServer::particles_set_one_shot);
+	ClassDB::bind_method(D_METHOD("particles_set_static_mode", "particles", "static_mode"), &VisualServer::particles_set_static_mode);
+	ClassDB::bind_method(D_METHOD("particles_static_update", "particles"), &VisualServer::particles_static_update);
 	ClassDB::bind_method(D_METHOD("particles_set_pre_process_time", "particles", "time"), &VisualServer::particles_set_pre_process_time);
 	ClassDB::bind_method(D_METHOD("particles_set_explosiveness_ratio", "particles", "ratio"), &VisualServer::particles_set_explosiveness_ratio);
 	ClassDB::bind_method(D_METHOD("particles_set_randomness_ratio", "particles", "ratio"), &VisualServer::particles_set_randomness_ratio);
@@ -2053,7 +2055,9 @@ void VisualServer::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("particles_set_draw_passes", "particles", "count"), &VisualServer::particles_set_draw_passes);
 	ClassDB::bind_method(D_METHOD("particles_set_draw_pass_mesh", "particles", "pass", "mesh"), &VisualServer::particles_set_draw_pass_mesh);
 	ClassDB::bind_method(D_METHOD("particles_get_current_aabb", "particles"), &VisualServer::particles_get_current_aabb);
+	ClassDB::bind_method(D_METHOD("update_particles", "custom_delta"), &VisualServer::update_particles, DEFVAL(0.0));
 	ClassDB::bind_method(D_METHOD("particles_set_emission_transform", "particles", "transform"), &VisualServer::particles_set_emission_transform);
+	ClassDB::bind_method(D_METHOD("particles_get_emission_transform", "particles"), &VisualServer::particles_get_emission_transform);
 
 	ClassDB::bind_method(D_METHOD("camera_create"), &VisualServer::camera_create);
 	ClassDB::bind_method(D_METHOD("camera_set_perspective", "camera", "fovy_degrees", "z_near", "z_far"), &VisualServer::camera_set_perspective);

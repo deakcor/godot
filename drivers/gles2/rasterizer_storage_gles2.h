@@ -1129,7 +1129,7 @@ public:
 	virtual const PoolVector<LightmapCaptureOctree> *lightmap_capture_get_octree_ptr(RID p_capture) const;
 
 	/* PARTICLES */
-	void update_particles();
+	void update_particles(float delta);
 
 	virtual RID particles_create();
 
@@ -1139,6 +1139,8 @@ public:
 	virtual void particles_set_amount(RID p_particles, int p_amount);
 	virtual void particles_set_lifetime(RID p_particles, float p_lifetime);
 	virtual void particles_set_one_shot(RID p_particles, bool p_one_shot);
+	virtual void particles_set_static_mode(RID p_particles, bool p_static_mode);
+	virtual void particles_static_update(RID p_particles);
 	virtual void particles_set_pre_process_time(RID p_particles, float p_time);
 	virtual void particles_set_explosiveness_ratio(RID p_particles, float p_ratio);
 	virtual void particles_set_randomness_ratio(RID p_particles, float p_ratio);
@@ -1160,6 +1162,7 @@ public:
 	virtual AABB particles_get_aabb(RID p_particles) const;
 
 	virtual void particles_set_emission_transform(RID p_particles, const Transform &p_transform);
+	virtual Transform particles_get_emission_transform(RID p_particles);
 
 	virtual int particles_get_draw_passes(RID p_particles) const;
 	virtual RID particles_get_draw_pass_mesh(RID p_particles, int p_pass) const;

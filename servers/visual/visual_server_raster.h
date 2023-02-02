@@ -427,6 +427,8 @@ public:
 	BIND2(particles_set_amount, RID, int)
 	BIND2(particles_set_lifetime, RID, float)
 	BIND2(particles_set_one_shot, RID, bool)
+	BIND2(particles_set_static_mode, RID, bool)
+	BIND1(particles_static_update, RID)
 	BIND2(particles_set_pre_process_time, RID, float)
 	BIND2(particles_set_explosiveness_ratio, RID, float)
 	BIND2(particles_set_randomness_ratio, RID, float)
@@ -446,7 +448,11 @@ public:
 	BIND3(particles_set_draw_pass_mesh, RID, int, RID)
 
 	BIND1R(AABB, particles_get_current_aabb, RID)
+
+	BIND1N(update_particles, float)
+
 	BIND2(particles_set_emission_transform, RID, const Transform &)
+	BIND1R(Transform, particles_get_emission_transform, RID)
 
 #undef BINDBASE
 //from now on, calls forwarded to this singleton
