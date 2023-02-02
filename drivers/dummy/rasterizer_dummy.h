@@ -676,6 +676,8 @@ public:
 	void particles_set_amount(RID p_particles, int p_amount) {}
 	void particles_set_lifetime(RID p_particles, float p_lifetime) {}
 	void particles_set_one_shot(RID p_particles, bool p_one_shot) {}
+	void particles_set_static_mode(RID p_particles, bool p_static_mode) {}
+	void particles_static_update(RID p_particles) {}
 	void particles_set_pre_process_time(RID p_particles, float p_time) {}
 	void particles_set_explosiveness_ratio(RID p_particles, float p_ratio) {}
 	void particles_set_randomness_ratio(RID p_particles, float p_ratio) {}
@@ -697,6 +699,7 @@ public:
 	AABB particles_get_aabb(RID p_particles) const { return AABB(); }
 
 	void particles_set_emission_transform(RID p_particles, const Transform &p_transform) {}
+	Transform particles_get_emission_transform(RID p_particles) {}
 
 	bool particles_get_emitting(RID p_particles) { return false; }
 	int particles_get_draw_passes(RID p_particles) const { return 0; }

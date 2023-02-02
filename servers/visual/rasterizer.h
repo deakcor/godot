@@ -608,6 +608,8 @@ public:
 	virtual void particles_set_amount(RID p_particles, int p_amount) = 0;
 	virtual void particles_set_lifetime(RID p_particles, float p_lifetime) = 0;
 	virtual void particles_set_one_shot(RID p_particles, bool p_one_shot) = 0;
+	virtual void particles_set_static_mode(RID p_particles, bool p_static_mode) = 0;
+	virtual void particles_static_update(RID p_particles) = 0;
 	virtual void particles_set_pre_process_time(RID p_particles, float p_time) = 0;
 	virtual void particles_set_explosiveness_ratio(RID p_particles, float p_ratio) = 0;
 	virtual void particles_set_randomness_ratio(RID p_particles, float p_ratio) = 0;
@@ -630,8 +632,10 @@ public:
 	virtual AABB particles_get_current_aabb(RID p_particles) = 0;
 	virtual AABB particles_get_aabb(RID p_particles) const = 0;
 
-	virtual void particles_set_emission_transform(RID p_particles, const Transform &p_transform) = 0;
+	virtual void update_particles(float delta) = 0;
 
+	virtual void particles_set_emission_transform(RID p_particles, const Transform &p_transform) = 0;
+	virtual Transform particles_get_emission_transform(RID p_particles) = 0;
 	virtual int particles_get_draw_passes(RID p_particles) const = 0;
 	virtual RID particles_get_draw_pass_mesh(RID p_particles, int p_pass) const = 0;
 

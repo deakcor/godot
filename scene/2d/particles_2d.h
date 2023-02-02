@@ -51,6 +51,8 @@ private:
 	bool one_shot;
 	int amount;
 	float lifetime;
+	bool static_mode;
+	bool use_custom_transform;
 	float pre_process_time;
 	float explosiveness_ratio;
 	float randomness_ratio;
@@ -79,10 +81,14 @@ protected:
 	void _notification(int p_what);
 
 public:
+	RID get_particles_rid();
 	void set_emitting(bool p_emitting);
 	void set_amount(int p_amount);
 	void set_lifetime(float p_lifetime);
 	void set_one_shot(bool p_enable);
+	void set_static_mode(bool p_static_mode);
+	void static_update();
+	void set_use_custom_transform(bool p_use_custom_transform);
 	void set_pre_process_time(float p_time);
 	void set_explosiveness_ratio(float p_ratio);
 	void set_randomness_ratio(float p_ratio);
@@ -99,6 +105,8 @@ public:
 	int get_amount() const;
 	float get_lifetime() const;
 	bool get_one_shot() const;
+	bool get_static_mode() const;
+	bool get_use_custom_transform() const;
 	float get_pre_process_time() const;
 	float get_explosiveness_ratio() const;
 	float get_randomness_ratio() const;

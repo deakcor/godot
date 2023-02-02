@@ -35,6 +35,10 @@
 
 #include "servers/visual_server.h"
 
+RID Particles::get_particles_rid() {
+	return particles;
+}
+
 AABB Particles::get_aabb() const {
 	return AABB();
 }
@@ -79,10 +83,18 @@ void Particles::set_one_shot(bool p_one_shot) {
 	}
 }
 
+void Particles::set_static_mode(bool p_static_mode) {
+	static_mode = p_static_mode;
+	VS::get_singleton()->particles_set_static_mode(particles, static_mode);
+}
+void Particles::static_update() {
+	VS::get_singleton()->particles_static_update(particles);
+}
 void Particles::set_pre_process_time(float p_time) {
 	pre_process_time = p_time;
 	VS::get_singleton()->particles_set_pre_process_time(particles, pre_process_time);
 }
+
 void Particles::set_explosiveness_ratio(float p_ratio) {
 	explosiveness_ratio = p_ratio;
 	VS::get_singleton()->particles_set_explosiveness_ratio(particles, explosiveness_ratio);
@@ -129,7 +141,9 @@ float Particles::get_lifetime() const {
 bool Particles::get_one_shot() const {
 	return one_shot;
 }
-
+bool Particles::get_static_mode() const {
+	return static_mode;
+}
 float Particles::get_pre_process_time() const {
 	return pre_process_time;
 }
@@ -328,6 +342,8 @@ void Particles::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_amount", "amount"), &Particles::set_amount);
 	ClassDB::bind_method(D_METHOD("set_lifetime", "secs"), &Particles::set_lifetime);
 	ClassDB::bind_method(D_METHOD("set_one_shot", "enable"), &Particles::set_one_shot);
+	ClassDB::bind_method(D_METHOD("set_static_mode", "enable"), &Particles::set_static_mode);
+	ClassDB::bind_method(D_METHOD("static_update"), &Particles::static_update);
 	ClassDB::bind_method(D_METHOD("set_pre_process_time", "secs"), &Particles::set_pre_process_time);
 	ClassDB::bind_method(D_METHOD("set_explosiveness_ratio", "ratio"), &Particles::set_explosiveness_ratio);
 	ClassDB::bind_method(D_METHOD("set_randomness_ratio", "ratio"), &Particles::set_randomness_ratio);
@@ -338,10 +354,12 @@ void Particles::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_process_material", "material"), &Particles::set_process_material);
 	ClassDB::bind_method(D_METHOD("set_speed_scale", "scale"), &Particles::set_speed_scale);
 
+	ClassDB::bind_method(D_METHOD("get_particles_rid"), &Particles::get_particles_rid);
 	ClassDB::bind_method(D_METHOD("is_emitting"), &Particles::is_emitting);
 	ClassDB::bind_method(D_METHOD("get_amount"), &Particles::get_amount);
 	ClassDB::bind_method(D_METHOD("get_lifetime"), &Particles::get_lifetime);
 	ClassDB::bind_method(D_METHOD("get_one_shot"), &Particles::get_one_shot);
+	ClassDB::bind_method(D_METHOD("get_static_mode"), &Particles::get_static_mode);
 	ClassDB::bind_method(D_METHOD("get_pre_process_time"), &Particles::get_pre_process_time);
 	ClassDB::bind_method(D_METHOD("get_explosiveness_ratio"), &Particles::get_explosiveness_ratio);
 	ClassDB::bind_method(D_METHOD("get_randomness_ratio"), &Particles::get_randomness_ratio);
@@ -370,6 +388,7 @@ void Particles::_bind_methods() {
 	ADD_GROUP("Time", "");
 	ADD_PROPERTY(PropertyInfo(Variant::REAL, "lifetime", PROPERTY_HINT_EXP_RANGE, "0.01,600.0,0.01,or_greater"), "set_lifetime", "get_lifetime");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "one_shot"), "set_one_shot", "get_one_shot");
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "static_mode"), "set_static_mode", "get_static_mode");
 	ADD_PROPERTY(PropertyInfo(Variant::REAL, "preprocess", PROPERTY_HINT_EXP_RANGE, "0.00,600.0,0.01"), "set_pre_process_time", "get_pre_process_time");
 	ADD_PROPERTY(PropertyInfo(Variant::REAL, "speed_scale", PROPERTY_HINT_RANGE, "0,64,0.01"), "set_speed_scale", "get_speed_scale");
 	ADD_PROPERTY(PropertyInfo(Variant::REAL, "explosiveness", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_explosiveness_ratio", "get_explosiveness_ratio");

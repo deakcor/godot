@@ -4802,6 +4802,12 @@ void RasterizerStorageGLES2::particles_set_lifetime(RID p_particles, float p_lif
 void RasterizerStorageGLES2::particles_set_one_shot(RID p_particles, bool p_one_shot) {
 }
 
+void RasterizerStorageGLES2::particles_set_static_mode(RID p_particles, bool p_static_mode) {
+}
+
+void RasterizerStorageGLES2::particles_static_update(RID p_particles) {
+}
+
 void RasterizerStorageGLES2::particles_set_pre_process_time(RID p_particles, float p_time) {
 }
 
@@ -4855,6 +4861,10 @@ AABB RasterizerStorageGLES2::particles_get_aabb(RID p_particles) const {
 void RasterizerStorageGLES2::particles_set_emission_transform(RID p_particles, const Transform &p_transform) {
 }
 
+Transform RasterizerStorageGLES2::particles_get_emission_transform(RID p_particles) {
+	return Transform();
+}
+
 int RasterizerStorageGLES2::particles_get_draw_passes(RID p_particles) const {
 	return 0;
 }
@@ -4863,7 +4873,7 @@ RID RasterizerStorageGLES2::particles_get_draw_pass_mesh(RID p_particles, int p_
 	return RID();
 }
 
-void RasterizerStorageGLES2::update_particles() {
+void RasterizerStorageGLES2::update_particles(float delta = 0.0) {
 }
 
 bool RasterizerStorageGLES2::particles_is_inactive(RID p_particles) const {

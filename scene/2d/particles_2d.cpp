@@ -38,6 +38,10 @@
 #include "core/engine.h"
 #endif
 
+RID Particles2D::get_particles_rid() {
+	return particles;
+}
+
 void Particles2D::set_emitting(bool p_emitting) {
 	VS::get_singleton()->particles_set_emitting(particles, p_emitting);
 
@@ -74,6 +78,16 @@ void Particles2D::set_one_shot(bool p_enable) {
 		set_process_internal(false);
 	}
 }
+void Particles2D::set_static_mode(bool p_static_mode) {
+	static_mode = p_static_mode;
+	VS::get_singleton()->particles_set_static_mode(particles, static_mode);
+}
+void Particles2D::static_update() {
+	VS::get_singleton()->particles_static_update(particles);
+}
+void Particles2D::set_use_custom_transform(bool p_use_custom_transform) {
+	use_custom_transform = p_use_custom_transform;
+}
 void Particles2D::set_pre_process_time(float p_time) {
 	pre_process_time = p_time;
 	VS::get_singleton()->particles_set_pre_process_time(particles, pre_process_time);
@@ -109,6 +123,9 @@ void Particles2D::set_use_local_coordinates(bool p_enable) {
 }
 
 void Particles2D::_update_particle_emission_transform() {
+	if (use_custom_transform) {
+		return;
+	}
 	Transform2D xf2d = get_global_transform();
 	Transform xf;
 	xf.basis.set_axis(0, Vector3(xf2d.get_axis(0).x, xf2d.get_axis(0).y, 0));
@@ -159,6 +176,12 @@ float Particles2D::get_lifetime() const {
 
 bool Particles2D::get_one_shot() const {
 	return one_shot;
+}
+bool Particles2D::get_static_mode() const {
+	return static_mode;
+}
+bool Particles2D::get_use_custom_transform() const {
+	return use_custom_transform;
 }
 float Particles2D::get_pre_process_time() const {
 	return pre_process_time;
@@ -334,6 +357,9 @@ void Particles2D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_amount", "amount"), &Particles2D::set_amount);
 	ClassDB::bind_method(D_METHOD("set_lifetime", "secs"), &Particles2D::set_lifetime);
 	ClassDB::bind_method(D_METHOD("set_one_shot", "secs"), &Particles2D::set_one_shot);
+	ClassDB::bind_method(D_METHOD("set_static_mode", "enable"), &Particles2D::set_static_mode);
+	ClassDB::bind_method(D_METHOD("static_update"), &Particles2D::static_update);
+	ClassDB::bind_method(D_METHOD("set_use_custom_transform", "enable"), &Particles2D::set_use_custom_transform);
 	ClassDB::bind_method(D_METHOD("set_pre_process_time", "secs"), &Particles2D::set_pre_process_time);
 	ClassDB::bind_method(D_METHOD("set_explosiveness_ratio", "ratio"), &Particles2D::set_explosiveness_ratio);
 	ClassDB::bind_method(D_METHOD("set_randomness_ratio", "ratio"), &Particles2D::set_randomness_ratio);
@@ -344,10 +370,13 @@ void Particles2D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_process_material", "material"), &Particles2D::set_process_material);
 	ClassDB::bind_method(D_METHOD("set_speed_scale", "scale"), &Particles2D::set_speed_scale);
 
+	ClassDB::bind_method(D_METHOD("get_particles_rid"), &Particles2D::get_particles_rid);
 	ClassDB::bind_method(D_METHOD("is_emitting"), &Particles2D::is_emitting);
 	ClassDB::bind_method(D_METHOD("get_amount"), &Particles2D::get_amount);
 	ClassDB::bind_method(D_METHOD("get_lifetime"), &Particles2D::get_lifetime);
 	ClassDB::bind_method(D_METHOD("get_one_shot"), &Particles2D::get_one_shot);
+	ClassDB::bind_method(D_METHOD("get_static_mode"), &Particles2D::get_static_mode);
+	ClassDB::bind_method(D_METHOD("get_use_custom_transform"), &Particles2D::get_use_custom_transform);
 	ClassDB::bind_method(D_METHOD("get_pre_process_time"), &Particles2D::get_pre_process_time);
 	ClassDB::bind_method(D_METHOD("get_explosiveness_ratio"), &Particles2D::get_explosiveness_ratio);
 	ClassDB::bind_method(D_METHOD("get_randomness_ratio"), &Particles2D::get_randomness_ratio);
@@ -376,6 +405,7 @@ void Particles2D::_bind_methods() {
 	ADD_GROUP("Time", "");
 	ADD_PROPERTY(PropertyInfo(Variant::REAL, "lifetime", PROPERTY_HINT_RANGE, "0.01,600.0,0.01,or_greater"), "set_lifetime", "get_lifetime");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "one_shot"), "set_one_shot", "get_one_shot");
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "static_mode"), "set_static_mode", "get_static_mode");
 	ADD_PROPERTY(PropertyInfo(Variant::REAL, "preprocess", PROPERTY_HINT_RANGE, "0.00,600.0,0.01"), "set_pre_process_time", "get_pre_process_time");
 	ADD_PROPERTY(PropertyInfo(Variant::REAL, "speed_scale", PROPERTY_HINT_RANGE, "0,64,0.01"), "set_speed_scale", "get_speed_scale");
 	ADD_PROPERTY(PropertyInfo(Variant::REAL, "explosiveness", PROPERTY_HINT_RANGE, "0,1,0.01"), "set_explosiveness_ratio", "get_explosiveness_ratio");
@@ -406,6 +436,7 @@ Particles2D::Particles2D() {
 	set_lifetime(1);
 	set_fixed_fps(0);
 	set_fractional_delta(true);
+	set_static_mode(false);
 	set_pre_process_time(0);
 	set_explosiveness_ratio(0);
 	set_randomness_ratio(0);

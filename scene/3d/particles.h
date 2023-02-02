@@ -56,6 +56,7 @@ private:
 	bool one_shot;
 	int amount;
 	float lifetime;
+	bool static_mode;
 	float pre_process_time;
 	float explosiveness_ratio;
 	float randomness_ratio;
@@ -77,6 +78,8 @@ protected:
 	virtual void _validate_property(PropertyInfo &property) const;
 
 public:
+	RID get_particles_rid();
+
 	AABB get_aabb() const;
 	PoolVector<Face3> get_faces(uint32_t p_usage_flags) const;
 
@@ -84,6 +87,8 @@ public:
 	void set_amount(int p_amount);
 	void set_lifetime(float p_lifetime);
 	void set_one_shot(bool p_one_shot);
+	void set_static_mode(bool p_static_mode);
+	void static_update();
 	void set_pre_process_time(float p_time);
 	void set_explosiveness_ratio(float p_ratio);
 	void set_randomness_ratio(float p_ratio);
@@ -96,6 +101,7 @@ public:
 	int get_amount() const;
 	float get_lifetime() const;
 	bool get_one_shot() const;
+	bool get_static_mode() const;
 	float get_pre_process_time() const;
 	float get_explosiveness_ratio() const;
 	float get_randomness_ratio() const;
