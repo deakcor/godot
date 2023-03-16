@@ -2589,7 +2589,7 @@ void Tree::_gui_input(Ref<InputEvent> p_event) {
 					cache.click_item = get_item_at_position(cache.click_pos);
 					if (cache.click_item != nullptr) {
 						int idx = cache.click_item->get_button_by_id(cache.click_column, cache.click_id);
-						if (cache.click_item->cells[cache.click_column].buttons[idx].toggle_mode == true) {
+						if (cache.click_item->cells[cache.click_column].buttons[idx].toggle_mode) {
 							cache.click_item->set_button_toggled(cache.click_column, idx, !cache.click_item->cells[cache.click_column].buttons[idx].toggled);
 						} else {
 							cache.click_item->set_button_toggled(cache.click_column, idx, false);
