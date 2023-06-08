@@ -31,7 +31,7 @@
 #ifndef EDITOR_SCENE_IMPORTER_GLTF_H
 #define EDITOR_SCENE_IMPORTER_GLTF_H
 
-#ifdef TOOLS_ENABLED
+//#ifdef TOOLS_ENABLED
 
 #include "editor/import/resource_importer_scene.h"
 
@@ -52,6 +52,6 @@ public:
 			uint32_t p_flags, int p_bake_fps);
 };
 
-#endif // TOOLS_ENABLED
+//#endif // TOOLS_ENABLED
 
 #endif // EDITOR_SCENE_IMPORTER_GLTF_H

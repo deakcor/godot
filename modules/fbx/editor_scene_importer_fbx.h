@@ -31,7 +31,7 @@
 #ifndef EDITOR_SCENE_IMPORTER_FBX_H
 #define EDITOR_SCENE_IMPORTER_FBX_H
 
-#ifdef TOOLS_ENABLED
+//#ifdef TOOLS_ENABLED
 
 #include "data/import_state.h"
 #include "tools/import_utils.h"
@@ -132,6 +132,6 @@ public:
 	void create_mesh_data_skin(ImportState &state, const Ref<FBXNode> &fbx_node, uint64_t mesh_id);
 };
 
-#endif // TOOLS_ENABLED
+//#endif // TOOLS_ENABLED
 
 #endif // EDITOR_SCENE_IMPORTER_FBX_H

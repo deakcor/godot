@@ -70,10 +70,10 @@ uint32_t EditorSceneImporterFBX::get_import_flags() const {
 Node *EditorSceneImporterFBX::import_scene(const String &p_path, uint32_t p_flags, int p_bake_fps, uint32_t p_compress_flags,
 		List<String> *r_missing_deps, Error *r_err) {
 	// done for performance when re-importing lots of files when testing importer in verbose only!
-	if (OS::get_singleton()->is_stdout_verbose()) {
+	/*if (OS::get_singleton()->is_stdout_verbose()) {
 		EditorLog *log = EditorNode::get_log();
 		log->clear();
-	}
+	}*/
 	Error err;
 	FileAccessRef f = FileAccess::open(p_path, FileAccess::READ, &err);
 

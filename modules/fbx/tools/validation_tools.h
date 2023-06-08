@@ -31,7 +31,7 @@
 #ifndef VALIDATION_TOOLS_H
 #define VALIDATION_TOOLS_H
 
-#ifdef TOOLS_ENABLED
+//#ifdef TOOLS_ENABLED
 
 #include "core/local_vector.h"
 #include "core/map.h"
@@ -90,6 +90,6 @@ public:
 	}
 };
 
-#endif // TOOLS_ENABLED
+//#endif // TOOLS_ENABLED
 
 #endif // VALIDATION_TOOLS_H

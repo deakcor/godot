@@ -32,8 +32,12 @@
 
 #include "core/io/config_file.h"
 #include "core/io/image_loader.h"
+#ifdef TOOLS_ENABLED
 #include "editor/editor_file_system.h"
 #include "editor/editor_node.h"
+#else
+#include "core/project_settings.h"
+#endif
 #include "scene/resources/texture.h"
 
 void ResourceImporterTexture::_texture_reimport_srgb(const Ref<StreamTexture> &p_tex) {
@@ -76,9 +80,11 @@ void ResourceImporterTexture::_texture_reimport_normal(const Ref<StreamTexture> 
 }
 
 void ResourceImporterTexture::update_imports() {
+#ifdef TOOLS_ENABLED
 	if (EditorFileSystem::get_singleton()->is_scanning() || EditorFileSystem::get_singleton()->is_importing()) {
 		return; // do nothing for now
 	}
+#endif
 	mutex.lock();
 
 	if (make_flags.empty()) {
@@ -127,9 +133,11 @@ void ResourceImporterTexture::update_imports() {
 
 	mutex.unlock();
 
+#ifdef TOOLS_ENABLED
 	if (to_reimport.size()) {
 		EditorFileSystem::get_singleton()->reimport_files(to_reimport);
 	}
+#endif
 }
 
 String ResourceImporterTexture::get_importer_name() const {
@@ -567,7 +575,11 @@ Error ResourceImporterTexture::import(const String &p_source_file, const String 
 		}
 
 		if (!ok_on_pc) {
+#ifdef TOOLS_ENABLED
 			EditorNode::add_io_error(TTR("Warning, no suitable PC VRAM compression enabled in Project Settings. This texture will not display correctly on PC."));
+#else
+			ERR_PRINT("Warning, no suitable PC VRAM compression enabled in Project Settings. This texture will not display correctly on PC.");
+#endif
 		}
 	} else {
 		//import normally

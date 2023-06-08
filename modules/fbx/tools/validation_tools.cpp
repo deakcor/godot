@@ -30,7 +30,7 @@
 
 #include "validation_tools.h"
 
-#ifdef TOOLS_ENABLED
+//#ifdef TOOLS_ENABLED
 
 #include "core/print_string.h"
 #include "core/ustring.h"
@@ -45,4 +45,4 @@ void ValidationTracker::Entries::add_validation_error(String asset_path, String 
 	validation_entries[asset_path].push_back(message);
 }
 
-#endif // TOOLS_ENABLED
+//#endif // TOOLS_ENABLED

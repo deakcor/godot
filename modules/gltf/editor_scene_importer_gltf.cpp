@@ -28,7 +28,7 @@
 /* SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.                */
 /*************************************************************************/
 
-#ifdef TOOLS_ENABLED
+//#ifdef TOOLS_ENABLED
 
 #include "editor_scene_importer_gltf.h"
 #include "scene/resources/animation.h"
@@ -60,4 +60,4 @@ Ref<Animation> EditorSceneImporterGLTF::import_animation(const String &p_path,
 	return Ref<Animation>();
 }
 
-#endif // TOOLS_ENABLED
+//#endif // TOOLS_ENABLED
