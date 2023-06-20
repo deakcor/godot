@@ -44,6 +44,8 @@
 #include "scene/resources/packed_scene.h"
 #include "scene/resources/surface_tool.h"
 
+#include "custom_modules/pixelover_module/po_importer/po_importer.h"
+
 struct ColladaImport {
 	Collada collada;
 	Spatial *scene;
@@ -346,13 +348,14 @@ Error ColladaImport::_create_material(const String &p_target) {
 
 	// DIFFUSE
 
+	POImporter *po_importer = new POImporter;
 	if (effect.diffuse.texture != "") {
 		String texfile = effect.get_texture_path(effect.diffuse.texture, collada);
 		if (texfile != "") {
 			if (texfile.begins_with("/")) {
 				texfile = texfile.replace_first("/", "res://");
 			}
-			Ref<Texture> texture = ResourceLoader::load(texfile, "Texture");
+			Ref<Texture> texture = po_importer->import_and_load(texfile, "Texture");
 			if (texture.is_valid()) {
 				material->set_texture(SpatialMaterial::TEXTURE_ALBEDO, texture);
 				material->set_albedo(Color(1, 1, 1, 1));
@@ -374,7 +377,7 @@ Error ColladaImport::_create_material(const String &p_target) {
 				texfile = texfile.replace_first("/", "res://");
 			}
 
-			Ref<Texture> texture = ResourceLoader::load(texfile, "Texture");
+			Ref<Texture> texture = po_importer->import_and_load(texfile, "Texture");
 			if (texture.is_valid()) {
 				material->set_texture(SpatialMaterial::TEXTURE_METALLIC, texture);
 				material->set_specular(1.0);
@@ -399,7 +402,7 @@ Error ColladaImport::_create_material(const String &p_target) {
 				texfile = texfile.replace_first("/", "res://");
 			}
 
-			Ref<Texture> texture = ResourceLoader::load(texfile, "Texture");
+			Ref<Texture> texture = po_importer->import_and_load(texfile, "Texture");
 			if (texture.is_valid()) {
 				material->set_feature(SpatialMaterial::FEATURE_EMISSION, true);
 				material->set_texture(SpatialMaterial::TEXTURE_EMISSION, texture);
@@ -426,7 +429,7 @@ Error ColladaImport::_create_material(const String &p_target) {
 				texfile = texfile.replace_first("/", "res://");
 			}
 
-			Ref<Texture> texture = ResourceLoader::load(texfile, "Texture");
+			Ref<Texture> texture = po_importer->import_and_load(texfile, "Texture");
 			if (texture.is_valid()) {
 				material->set_feature(SpatialMaterial::FEATURE_NORMAL_MAPPING, true);
 				material->set_texture(SpatialMaterial::TEXTURE_NORMAL, texture);

@@ -29,6 +29,7 @@
 /*************************************************************************/
 
 #include "fbx_material.h"
+#include "custom_modules/pixelover_module/po_importer/po_importer.h"
 #include "scene/resources/material.h"
 #include "scene/resources/texture.h"
 #include "tools/validation_tools.h"
@@ -483,8 +484,9 @@ Ref<SpatialMaterial> FBXMaterial::import_material(ImportState &state) {
 		} else {
 			String path = find_texture_path_by_filename(mapping.name, p_fbx_current_directory);
 			if (!path.empty()) {
-				Error err;
-				Ref<Texture> image_texture = ResourceLoader::load(path, "Texture", false, &err);
+				Error err = OK;
+				POImporter *po_importer = new POImporter;
+				Ref<Texture> image_texture = po_importer->import_and_load(path, "Texture", false);
 
 				ERR_CONTINUE_MSG(err != OK, "unable to import image file not loaded yet: " + path);
 				ERR_CONTINUE(image_texture == nullptr || image_texture.is_null());
