@@ -221,11 +221,19 @@ public:
 class PlaneMesh : public PrimitiveMesh {
 	GDCLASS(PlaneMesh, PrimitiveMesh);
 
+public:
+	enum Orientation {
+		FACE_X,
+		FACE_Y,
+		FACE_Z,
+	};
+
 private:
 	Size2 size;
 	int subdivide_w;
 	int subdivide_d;
 	Vector3 center_offset;
+	Orientation orientation = FACE_Y;
 
 protected:
 	static void _bind_methods();
@@ -244,8 +252,13 @@ public:
 	void set_center_offset(const Vector3 p_offset);
 	Vector3 get_center_offset() const;
 
+	void set_orientation(const Orientation p_orientation);
+	Orientation get_orientation() const;
+
 	PlaneMesh();
 };
+
+VARIANT_ENUM_CAST(PlaneMesh::Orientation)
 
 /**
 	A prism shapen, handy for ramps, triangles, etc.

@@ -975,6 +975,13 @@ void PlaneMesh::_create_mesh_array(Array &p_arr) const {
 
 	Size2 start_pos = size * -0.5;
 
+	Vector3 normal = Vector3(0.0, 1.0, 0.0);
+	if (orientation == FACE_X) {
+		normal = Vector3(1.0, 0.0, 0.0);
+	} else if (orientation == FACE_Z) {
+		normal = Vector3(0.0, 0.0, 1.0);
+	}
+
 	PoolVector<Vector3> points;
 	PoolVector<Vector3> normals;
 	PoolVector<float> tangents;
@@ -1000,9 +1007,19 @@ void PlaneMesh::_create_mesh_array(Array &p_arr) const {
 			u /= (subdivide_w + 1.0);
 			v /= (subdivide_d + 1.0);
 
-			points.push_back(Vector3(-x, 0.0, -z) + center_offset);
-			normals.push_back(Vector3(0.0, 1.0, 0.0));
-			ADD_TANGENT(1.0, 0.0, 0.0, 1.0);
+			if (orientation == FACE_X) {
+				points.push_back(Vector3(0.0, z, x) + center_offset);
+			} else if (orientation == FACE_Y) {
+				points.push_back(Vector3(-x, 0.0, -z) + center_offset);
+			} else if (orientation == FACE_Z) {
+				points.push_back(Vector3(-x, z, 0.0) + center_offset);
+			}
+			normals.push_back(normal);
+			if (orientation == FACE_X) {
+				ADD_TANGENT(0.0, 0.0, -1.0, 1.0);
+			} else {
+				ADD_TANGENT(1.0, 0.0, 0.0, 1.0);
+			}
 			uvs.push_back(Vector2(1.0 - u, 1.0 - v)); /* 1.0 - uv to match orientation with Quad */
 			point++;
 
@@ -1041,10 +1058,18 @@ void PlaneMesh::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_center_offset", "offset"), &PlaneMesh::set_center_offset);
 	ClassDB::bind_method(D_METHOD("get_center_offset"), &PlaneMesh::get_center_offset);
 
+	ClassDB::bind_method(D_METHOD("set_orientation", "orientation"), &PlaneMesh::set_orientation);
+	ClassDB::bind_method(D_METHOD("get_orientation"), &PlaneMesh::get_orientation);
+
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "size"), "set_size", "get_size");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "subdivide_width", PROPERTY_HINT_RANGE, "0,100,1,or_greater"), "set_subdivide_width", "get_subdivide_width");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "subdivide_depth", PROPERTY_HINT_RANGE, "0,100,1,or_greater"), "set_subdivide_depth", "get_subdivide_depth");
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR3, "center_offset"), "set_center_offset", "get_center_offset");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "orientation", PROPERTY_HINT_ENUM, "Face X,Face Y,Face Z"), "set_orientation", "get_orientation");
+
+	BIND_ENUM_CONSTANT(FACE_X)
+	BIND_ENUM_CONSTANT(FACE_Y)
+	BIND_ENUM_CONSTANT(FACE_Z)
 }
 
 void PlaneMesh::set_size(const Size2 &p_size) {
@@ -1081,6 +1106,15 @@ void PlaneMesh::set_center_offset(const Vector3 p_offset) {
 
 Vector3 PlaneMesh::get_center_offset() const {
 	return center_offset;
+}
+
+void PlaneMesh::set_orientation(const Orientation p_orientation) {
+	orientation = p_orientation;
+	_request_update();
+}
+
+PlaneMesh::Orientation PlaneMesh::get_orientation() const {
+	return orientation;
 }
 
 PlaneMesh::PlaneMesh() {
