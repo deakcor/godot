@@ -164,6 +164,7 @@ class OS_X11 : public OS_Unix {
 
 	String _get_clipboard_impl(Atom p_source, Window x11_window, Atom target) const;
 	Ref<Image> _get_image_clipboard(Atom p_source, Window x11_window) const;
+	Atom _clipboard_get_image_target(Atom p_source, Window x11_window) const;
 	String _get_clipboard(Atom p_source, Window x11_window) const;
 	void _clipboard_transfer_ownership(Atom p_source, Window x11_window) const;
 
