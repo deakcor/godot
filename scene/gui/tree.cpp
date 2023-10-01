@@ -128,6 +128,7 @@ void TreeItem::set_cell_mode(int p_column, TreeCellMode p_mode) {
 	c.icon = Ref<Texture>();
 	c.text = "";
 	c.icon_max_w = 0;
+	c.show_range = false;
 	_changed_notify(p_column);
 }
 
@@ -2061,7 +2062,6 @@ void Tree::text_editor_enter(String p_text) {
 			} else if (c.val > c.max) {
 				c.val = c.max;
 			}
-
 			//popup_edited_item->edited_signal.call( popup_edited_item_col );
 		} break;
 		default: {
@@ -2790,7 +2790,7 @@ bool Tree::edit_selected() {
 		text_editor->set_text(c.mode == TreeItem::CELL_MODE_STRING ? c.text : String::num(c.val, Math::range_step_decimals(c.step)));
 		text_editor->select_all();
 
-		if (c.mode == TreeItem::CELL_MODE_RANGE) {
+		if (c.mode == TreeItem::CELL_MODE_RANGE && c.show_range) {
 			value_editor->set_position(textedpos + Point2i(0, text_editor->get_size().height));
 			value_editor->set_size(Size2(rect.size.width, 1));
 			value_editor->show_modal();

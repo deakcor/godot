@@ -71,6 +71,7 @@ private:
 		double min, max, step, val;
 		int icon_max_w;
 		bool expr;
+		bool show_range;
 		bool checked;
 		bool editable;
 		bool selected;
@@ -126,6 +127,7 @@ private:
 			custom_color = false;
 			custom_bg_color = false;
 			expr = false;
+			show_range = false;
 			icon_max_w = 0;
 			text_align = ALIGN_LEFT;
 			expand_right = false;
