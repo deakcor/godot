@@ -43,7 +43,7 @@ jobs:
             cache-name: linux-template-mono
             target: release
             tools: false
-            sconsflags: module_mono_enabled=yes mono_static=yes mono_glue=no debug_symbols=no
+            sconsflags: module_mono_enabled=yes mono_static=yes mono_glue=no debug_symbols=yes
             build-mono: false
             artifact: true
           
@@ -51,12 +51,12 @@ jobs:
             cache-name: linux-template
             target: release
             tools: false
-            sconsflags: debug_symbols=no
+            sconsflags: debug_symbols=yes
             build-mono: false
             artifact: true
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: 'true'
           token: ${{ secrets.PIXELOVER_MODULE }}
