@@ -31,7 +31,7 @@
 #ifndef EDITOR_SCENE_IMPORTER_GLTF_H
 #define EDITOR_SCENE_IMPORTER_GLTF_H
 
-#ifdef TOOLS_ENABLED
+//#ifdef TOOLS_ENABLED
 
 #include "editor/import/3d/resource_importer_scene.h"
 
@@ -54,6 +54,6 @@ public:
 			const String &p_option, const HashMap<StringName, Variant> &p_options) override;
 };
 
-#endif // TOOLS_ENABLED
+//#endif // TOOLS_ENABLED
 
 #endif // EDITOR_SCENE_IMPORTER_GLTF_H

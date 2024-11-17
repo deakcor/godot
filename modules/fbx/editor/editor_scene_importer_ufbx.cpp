@@ -30,7 +30,7 @@
 
 #include "editor_scene_importer_ufbx.h"
 
-#ifdef TOOLS_ENABLED
+//#ifdef TOOLS_ENABLED
 
 #include "../fbx_document.h"
 #include "editor_scene_importer_fbx2gltf.h"
@@ -109,4 +109,4 @@ void EditorSceneFormatImporterUFBX::handle_compatibility_options(HashMap<StringN
 	}
 }
 
-#endif // TOOLS_ENABLED
+//#endif // TOOLS_ENABLED

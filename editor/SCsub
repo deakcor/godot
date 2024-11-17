@@ -146,3 +146,8 @@ void register_exporter_types() {{
 
     lib = env.add_library("editor", env.editor_sources)
     env.Prepend(LIBS=[lib])
+else:
+    SConscript("collada/SCsub")
+    SConscript("import/SCsub")
+    lib = env.add_library("editor", env.editor_sources)
+    env.Prepend(LIBS=[lib])

@@ -31,7 +31,7 @@
 #ifndef EDITOR_SCENE_IMPORTER_UFBX_H
 #define EDITOR_SCENE_IMPORTER_UFBX_H
 
-#ifdef TOOLS_ENABLED
+//#ifdef TOOLS_ENABLED
 
 #include "editor/import/3d/resource_importer_scene.h"
 
@@ -57,6 +57,6 @@ public:
 			const HashMap<StringName, Variant> &p_options) override;
 	virtual void handle_compatibility_options(HashMap<StringName, Variant> &p_import_params) const override;
 };
-#endif // TOOLS_ENABLED
+//#endif // TOOLS_ENABLED
 
 #endif // EDITOR_SCENE_IMPORTER_UFBX_H

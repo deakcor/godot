@@ -191,6 +191,7 @@ private:
 		GrowDirection v_grow = GROW_DIRECTION_END;
 
 		real_t rotation = 0.0;
+		real_t skew = 0.0;
 		Vector2 scale = Vector2(1, 1);
 		Vector2 pivot_offset;
 
@@ -480,6 +481,14 @@ public:
 	void set_rotation_degrees(real_t p_degrees);
 	real_t get_rotation() const;
 	real_t get_rotation_degrees() const;
+
+	//custom
+	void set_skew(float p_radians);
+	void set_skew_degrees(float p_degrees);
+	real_t get_skew() const;
+	real_t get_skew_degrees() const;
+	//
+
 	void set_pivot_offset(const Vector2 &p_pivot);
 	Vector2 get_pivot_offset() const;
 

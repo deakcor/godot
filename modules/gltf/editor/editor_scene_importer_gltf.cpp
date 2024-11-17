@@ -30,7 +30,7 @@
 
 #include "editor_scene_importer_gltf.h"
 
-#ifdef TOOLS_ENABLED
+//#ifdef TOOLS_ENABLED
 
 #include "../gltf_defines.h"
 #include "../gltf_document.h"
@@ -105,4 +105,4 @@ Variant EditorSceneFormatImporterGLTF::get_option_visibility(const String &p_pat
 	return true;
 }
 
-#endif // TOOLS_ENABLED
+//#endif // TOOLS_ENABLED

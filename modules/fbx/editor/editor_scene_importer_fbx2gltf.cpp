@@ -30,7 +30,7 @@
 
 #include "editor_scene_importer_fbx2gltf.h"
 
-#ifdef TOOLS_ENABLED
+//#ifdef TOOLS_ENABLED
 
 #include "editor_scene_importer_ufbx.h"
 #include "modules/gltf/gltf_document.h"
@@ -147,4 +147,4 @@ void EditorSceneFormatImporterFBX2GLTF::handle_compatibility_options(HashMap<Str
 	}
 }
 
-#endif // TOOLS_ENABLED
+//#endif // TOOLS_ENABLED
