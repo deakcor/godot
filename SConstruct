@@ -1209,8 +1209,7 @@ Export("env")
 SConscript("core/SCsub")
 SConscript("servers/SCsub")
 SConscript("scene/SCsub")
-if env.editor_build:
-    SConscript("editor/SCsub")
+SConscript("editor/SCsub")
 SConscript("drivers/SCsub")
 
 SConscript("platform/SCsub")

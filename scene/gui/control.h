@@ -210,6 +210,7 @@ private:
 		GrowDirection v_grow = GROW_DIRECTION_END;
 
 		real_t rotation = 0.0;
+		real_t skew = 0.0;
 		Vector2 scale = Vector2(1, 1);
 		Vector2 pivot_offset;
 		Vector2 pivot_offset_ratio;
@@ -538,6 +539,14 @@ public:
 	real_t get_rotation_degrees() const;
 	void set_pivot_offset_ratio(const Vector2 &p_ratio);
 	Vector2 get_pivot_offset_ratio() const;
+
+	//custom
+	void set_skew(float p_radians);
+	void set_skew_degrees(float p_degrees);
+	real_t get_skew() const;
+	real_t get_skew_degrees() const;
+	//
+
 	void set_pivot_offset(const Vector2 &p_pivot);
 	Vector2 get_pivot_offset() const;
 	Vector2 get_combined_pivot_offset() const;
@@ -696,9 +705,9 @@ public:
 	int get_theme_constant(const StringName &p_name, const StringName &p_theme_type = StringName()) const;
 	Variant get_theme_item(Theme::DataType p_data_type, const StringName &p_name, const StringName &p_theme_type = StringName()) const;
 	Variant get_used_theme_item(const String &p_full_name, const StringName &p_theme_type = StringName()) const;
-#ifdef TOOLS_ENABLED
+//#ifdef TOOLS_ENABLED
 	Ref<Texture2D> get_editor_theme_icon(const StringName &p_name) const;
-#endif //TOOLS_ENABLED
+//#endif //TOOLS_ENABLED
 
 	bool has_theme_icon_override(const StringName &p_name) const;
 	bool has_theme_stylebox_override(const StringName &p_name) const;

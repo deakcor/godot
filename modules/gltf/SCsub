@@ -15,3 +15,6 @@ SConscript("extensions/SCsub")
 
 if env.editor_build:
     env_gltf.add_source_files(env.modules_sources, "editor/*.cpp")
+else:
+    env_gltf.add_source_files(env.modules_sources, "editor/editor_scene_importer_gltf.cpp")
+

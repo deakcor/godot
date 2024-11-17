@@ -100,3 +100,7 @@ if env.editor_build:
 
     lib = env.add_library("editor", env.editor_sources)
     env.Prepend(LIBS=[lib])
+else:
+    SConscript("import/SCsub")
+    lib = env.add_library("editor", env.editor_sources)
+    env.Prepend(LIBS=[lib])
