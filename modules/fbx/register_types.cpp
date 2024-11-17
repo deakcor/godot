@@ -51,6 +51,8 @@ static void _editor_init() {
 		ResourceImporterScene::add_scene_importer(importer);
 	}
 }
+#else
+#include "editor/editor_scene_importer_ufbx.h"
 #endif // TOOLS_ENABLED
 
 void initialize_fbx_module(ModuleInitializationLevel p_level) {
@@ -74,6 +76,10 @@ void initialize_fbx_module(ModuleInitializationLevel p_level) {
 
 		ClassDB::set_current_api(prev_api);
 		EditorNode::add_init_callback(_editor_init);
+	}
+#else
+	if (p_level == MODULE_INITIALIZATION_LEVEL_EDITOR) {
+		GDREGISTER_CLASS(EditorSceneFormatImporterUFBX);
 	}
 #endif // TOOLS_ENABLED
 }

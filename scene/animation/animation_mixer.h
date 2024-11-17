@@ -45,8 +45,8 @@ class AnimationMixer : public Node {
 	friend AnimatedValuesBackup;
 #ifdef TOOLS_ENABLED
 	bool editing = false;
-	bool dummy = false;
 #endif // TOOLS_ENABLED
+	bool dummy = false;
 
 	bool reset_on_save = true;
 	bool is_GDVIRTUAL_CALL_post_process_key_value = true;
@@ -477,9 +477,9 @@ public:
 	void restore(const Ref<AnimatedValuesBackup> &p_backup);
 	void reset();
 
-#ifdef TOOLS_ENABLED
-	Ref<AnimatedValuesBackup> apply_reset(bool p_user_initiated = false);
 
+	Ref<AnimatedValuesBackup> apply_reset(bool p_user_initiated = false);
+#ifdef TOOLS_ENABLED
 	void set_editing(bool p_editing);
 	bool is_editing() const;
 

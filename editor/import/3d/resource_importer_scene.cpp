@@ -34,10 +34,14 @@
 #include "core/io/dir_access.h"
 #include "core/io/resource_saver.h"
 #include "core/object/script_language.h"
-#include "editor/editor_interface.h"
+#ifdef TOOLS_ENABLED
 #include "editor/editor_node.h"
+#include "editor/editor_interface.h"
 #include "editor/editor_settings.h"
 #include "editor/import/3d/scene_import_settings.h"
+#else
+#include "editor/plugins/skeleton_3d_editor_plugin.h"
+#endif
 #include "scene/3d/importer_mesh_instance_3d.h"
 #include "scene/3d/mesh_instance_3d.h"
 #include "scene/3d/navigation_region_3d.h"
@@ -2825,7 +2829,9 @@ void ResourceImporterScene::_generate_editor_preview_for_scene(const String &p_p
 	}
 	ERR_FAIL_COND_MSG(p_path.is_empty(), "Path is empty, cannot generate preview.");
 	ERR_FAIL_NULL_MSG(p_scene, "Scene is null, cannot generate preview.");
+#ifdef TOOLS_ENABLED
 	EditorInterface::get_singleton()->make_scene_preview(p_path, p_scene, 1024);
+#endif
 }
 
 Node *ResourceImporterScene::pre_import(const String &p_source_file, const HashMap<StringName, Variant> &p_options) {
@@ -2833,8 +2839,10 @@ Node *ResourceImporterScene::pre_import(const String &p_source_file, const HashM
 	String ext = p_source_file.get_extension().to_lower();
 
 	// TRANSLATORS: This is an editor progress label.
-	EditorProgress progress("pre-import", TTR("Pre-Import Scene"), 0);
+#ifdef TOOLS_ENABLED
+	EditorProgress progress("import", TTR("Import Scene"), 104);
 	progress.step(TTR("Importing Scene..."), 0);
+#endif
 
 	for (Ref<EditorSceneFormatImporter> importer_elem : scene_importers) {
 		List<String> extensions;
@@ -2890,10 +2898,10 @@ Error ResourceImporterScene::import(ResourceUID::ID p_source_id, const String &p
 
 	Ref<EditorSceneFormatImporter> importer;
 	String ext = src_path.get_extension().to_lower();
-
+#ifdef TOOLS_ENABLED
 	EditorProgress progress("import", TTR("Import Scene"), 104);
 	progress.step(TTR("Importing Scene..."), 0);
-
+#endif
 	for (Ref<EditorSceneFormatImporter> importer_elem : scene_importers) {
 		List<String> extensions;
 		importer_elem->get_extensions(&extensions);
@@ -3095,9 +3103,9 @@ Error ResourceImporterScene::import(ResourceUID::ID p_source_id, const String &p
 		}
 	}
 	err = OK;
-
+#ifdef TOOLS_ENABLED
 	progress.step(TTR("Running Custom Script..."), 2);
-
+#endif
 	String post_import_script_path = p_options["import_script/path"];
 
 	Ref<EditorScenePostImport> post_import_script;
@@ -3108,12 +3116,20 @@ Error ResourceImporterScene::import(ResourceUID::ID p_source_id, const String &p
 		}
 		Ref<Script> scr = ResourceLoader::load(post_import_script_path);
 		if (scr.is_null()) {
+#ifdef TOOLS_ENABLED
 			EditorNode::add_io_error(TTR("Couldn't load post-import script:") + " " + post_import_script_path);
+#else
+			ERR_PRINT("Couldn't load post-import script: " + post_import_script_path);
+#endif
 		} else {
 			post_import_script.instantiate();
 			post_import_script->set_script(scr);
 			if (!post_import_script->get_script_instance()) {
+#ifdef TOOLS_ENABLED
 				EditorNode::add_io_error(TTR("Invalid/broken script for post-import (check console):") + " " + post_import_script_path);
+#else
+				ERR_PRINT("Invalid/broken script for post-import (check console): " + post_import_script_path);
+#endif
 				post_import_script.unref();
 				return ERR_CANT_CREATE;
 			}
@@ -3137,9 +3153,15 @@ Error ResourceImporterScene::import(ResourceUID::ID p_source_id, const String &p
 		post_import_script->init(p_source_file);
 		scene = post_import_script->post_import(scene);
 		if (!scene) {
+#ifdef TOOLS_ENABLED
 			EditorNode::add_io_error(
 					TTR("Error running post-import script:") + " " + post_import_script_path + "\n" +
 					TTR("Did you return a Node-derived object in the `_post_import()` method?"));
+#else
+			ERR_PRINT(
+					"Error running post-import script: " + post_import_script_path + "\n" +
+					"Did you return a Node-derived object in the `post_import()` method?");
+#endif
 			return err;
 		}
 	}
@@ -3147,13 +3169,14 @@ Error ResourceImporterScene::import(ResourceUID::ID p_source_id, const String &p
 	for (int i = 0; i < post_importer_plugins.size(); i++) {
 		post_importer_plugins.write[i]->post_process(scene, p_options);
 	}
-
+	int flags = 0;
+#ifdef TOOLS_ENABLED
 	progress.step(TTR("Saving..."), 104);
 
-	int flags = 0;
 	if (EditorSettings::get_singleton() && EDITOR_GET("filesystem/on_save/compress_binary_resources")) {
 		flags |= ResourceSaver::FLAG_COMPRESS;
 	}
+#endif
 
 	if (_scene_import_type == "AnimationLibrary") {
 		Ref<AnimationLibrary> library;
@@ -3206,7 +3229,9 @@ bool ResourceImporterScene::has_advanced_options() const {
 }
 
 void ResourceImporterScene::show_advanced_options(const String &p_path) {
+#ifdef TOOLS_ENABLED
 	SceneImportSettingsDialog::get_singleton()->open_settings(p_path, _scene_import_type);
+#endif
 }
 
 ResourceImporterScene::ResourceImporterScene(const String &p_scene_import_type, bool p_singleton) {

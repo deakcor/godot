@@ -80,6 +80,7 @@ private:
 		double val = 0.0;
 		int icon_max_w = 0;
 		bool expr = false;
+		bool show_range = false; //custom
 		bool checked = false;
 		bool indeterminate = false;
 		bool editable = false;
@@ -107,6 +108,11 @@ private:
 		struct Button {
 			int id = 0;
 			bool disabled = false;
+			//custom
+			bool visible = true;
+			bool toggle_mode = false;
+			bool toggled = false;
+			//
 			Ref<Texture2D> texture;
 			Color color = Color(1, 1, 1, 1);
 			String tooltip;
@@ -291,6 +297,14 @@ public:
 	void set_button_color(int p_column, int p_index, const Color &p_color);
 	void set_button_disabled(int p_column, int p_index, bool p_disabled);
 	bool is_button_disabled(int p_column, int p_index) const;
+	//custom
+	void set_button_visible(int p_column, int p_idx, bool p_visible);
+	bool is_button_visible(int p_column, int p_idx) const;
+	void set_button_toggled(int p_column, int p_idx, bool p_toggled);
+	void set_button_toggle_mode(int p_column, int p_idx, bool p_toggle_mode);
+	bool is_button_toggled(int p_column, int p_idx) const;
+	bool is_button_toggle_mode(int p_column, int p_idx) const;
+	//
 
 	/* range works for mode number or mode combo */
 

@@ -34,7 +34,9 @@
 #include "core/io/config_file.h"
 #include "core/io/image_loader.h"
 #include "core/version.h"
+#ifdef TOOLS_ENABLED
 #include "editor/editor_file_system.h"
+#endif
 #include "editor/gui/editor_toaster.h"
 #include "editor/import/resource_importer_texture_settings.h"
 #include "editor/themes/editor_scale.h"
@@ -90,10 +92,11 @@ inline void ResourceImporterTexture::_print_callback_message(const String &p_mes
 }
 
 void ResourceImporterTexture::update_imports() {
+#ifdef TOOLS_ENABLED
 	if (EditorFileSystem::get_singleton()->is_scanning() || EditorFileSystem::get_singleton()->is_importing()) {
 		return; // Don't update when EditorFileSystem is doing something else.
 	}
-
+#endif
 	MutexLock lock(mutex);
 	Vector<String> to_reimport;
 
@@ -161,10 +164,11 @@ void ResourceImporterTexture::update_imports() {
 	}
 
 	make_flags.clear();
-
+#ifdef TOOLS_ENABLED
 	if (!to_reimport.is_empty()) {
 		EditorFileSystem::get_singleton()->reimport_files(to_reimport);
 	}
+#endif
 }
 
 String ResourceImporterTexture::get_importer_name() const {
@@ -743,10 +747,11 @@ Error ResourceImporterTexture::import(ResourceUID::ID p_source_id, const String 
 		if (use_editor_scale) {
 			editor_meta["editor_scale"] = EDSCALE;
 		}
-
+#ifdef TOOLS_ENABLED
 		if (convert_editor_colors) {
 			editor_meta["editor_dark_theme"] = EditorThemeManager::is_dark_theme();
 		}
+#endif
 
 		_save_editor_meta(editor_meta, p_save_path + ".editor.meta");
 	}
@@ -804,10 +809,11 @@ bool ResourceImporterTexture::are_import_settings_valid(const String &p_path, co
 		if (editor_meta.has("editor_scale") && (float)editor_meta["editor_scale"] != EDSCALE) {
 			return false;
 		}
-
+#ifdef TOOLS_ENABLED
 		if (editor_meta.has("editor_dark_theme") && (bool)editor_meta["editor_dark_theme"] != EditorThemeManager::is_dark_theme()) {
 			return false;
 		}
+#endif
 	}
 
 	if (!p_meta.has("vram_texture")) {

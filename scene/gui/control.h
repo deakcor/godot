@@ -195,6 +195,7 @@ private:
 		GrowDirection v_grow = GROW_DIRECTION_END;
 
 		real_t rotation = 0.0;
+		real_t skew = 0.0;
 		Vector2 scale = Vector2(1, 1);
 		Vector2 pivot_offset;
 
@@ -485,6 +486,14 @@ public:
 	void set_rotation_degrees(real_t p_degrees);
 	real_t get_rotation() const;
 	real_t get_rotation_degrees() const;
+
+	//custom
+	void set_skew(float p_radians);
+	void set_skew_degrees(float p_degrees);
+	real_t get_skew() const;
+	real_t get_skew_degrees() const;
+	//
+
 	void set_pivot_offset(const Vector2 &p_pivot);
 	Vector2 get_pivot_offset() const;
 
@@ -607,9 +616,9 @@ public:
 	Color get_theme_color(const StringName &p_name, const StringName &p_theme_type = StringName()) const;
 	int get_theme_constant(const StringName &p_name, const StringName &p_theme_type = StringName()) const;
 	Variant get_theme_item(Theme::DataType p_data_type, const StringName &p_name, const StringName &p_theme_type = StringName()) const;
-#ifdef TOOLS_ENABLED
+//#ifdef TOOLS_ENABLED
 	Ref<Texture2D> get_editor_theme_icon(const StringName &p_name) const;
-#endif //TOOLS_ENABLED
+//#endif //TOOLS_ENABLED
 
 	bool has_theme_icon_override(const StringName &p_name) const;
 	bool has_theme_stylebox_override(const StringName &p_name) const;

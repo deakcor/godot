@@ -42,6 +42,8 @@ env_fbx.add_source_files(module_obj, "structures/*.cpp")
 
 if env.editor_build:
     env_fbx.add_source_files(module_obj, "editor/*.cpp")
+else:
+    env_fbx.add_source_files(module_obj, "editor/editor_scene_importer_ufbx.cpp")
 
 env.modules_sources += module_obj
 
