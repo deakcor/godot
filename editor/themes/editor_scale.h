@@ -38,7 +38,10 @@ public:
 	static void set_scale(float p_scale);
 	static float get_scale();
 };
-
+#ifdef TOOLS_ENABLED
 #define EDSCALE (EditorScale::get_scale())
+#else
+#define EDSCALE (1.0)
+#endif
 
 #endif // EDITOR_SCALE_H
