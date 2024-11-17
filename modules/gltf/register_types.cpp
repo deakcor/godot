@@ -96,6 +96,8 @@ static void _editor_init() {
 	memnew(EditorImportBlendRunner);
 	EditorNode::get_singleton()->add_child(EditorImportBlendRunner::get_singleton());
 }
+#else
+#include "editor/editor_scene_importer_gltf.h"
 #endif // TOOLS_ENABLED
 
 #define GLTF_REGISTER_DOCUMENT_EXTENSION(m_doc_ext_class) \
@@ -153,6 +155,10 @@ void initialize_gltf_module(ModuleInitializationLevel p_level) {
 		GLOBAL_DEF_RST("filesystem/import/blender/enabled.web", false);
 
 		EditorNode::add_init_callback(_editor_init);
+	}
+#else
+	if (p_level == MODULE_INITIALIZATION_LEVEL_EDITOR) {
+		GDREGISTER_CLASS(EditorSceneFormatImporterGLTF);
 	}
 #endif // TOOLS_ENABLED
 }

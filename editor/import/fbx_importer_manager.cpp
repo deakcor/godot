@@ -33,7 +33,9 @@
 #include "core/config/project_settings.h"
 #include "editor/editor_node.h"
 #include "editor/editor_string_names.h"
+#ifdef TOOLS_ENABLED
 #include "editor/settings/editor_settings.h"
+#endif
 #include "editor/themes/editor_scale.h"
 #include "scene/gui/link_button.h"
 
@@ -50,6 +52,7 @@ void FBXImporterManager::_notification(int p_what) {
 }
 
 void FBXImporterManager::show_dialog(bool p_exclusive) {
+#ifdef TOOLS_ENABLED
 	String fbx2gltf_path = EDITOR_GET("filesystem/import/fbx/fbx2gltf_path");
 	fbx_path->set_text(fbx2gltf_path);
 	_validate_path(fbx2gltf_path);
@@ -68,6 +71,7 @@ void FBXImporterManager::show_dialog(bool p_exclusive) {
 	}
 
 	popup_centered();
+#endif
 }
 
 void FBXImporterManager::_validate_path(const String &p_path) {
@@ -109,8 +113,10 @@ void FBXImporterManager::_select_file(const String &p_path) {
 
 void FBXImporterManager::_path_confirmed() {
 	String path = fbx_path->get_text();
+#ifdef TOOLS_ENABLED
 	EditorSettings::get_singleton()->set("filesystem/import/fbx/fbx2gltf_path", path);
 	EditorSettings::get_singleton()->save();
+#endif
 }
 
 void FBXImporterManager::_cancel_setup() {

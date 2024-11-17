@@ -2555,12 +2555,16 @@ Variant Window::get_theme_item(Theme::DataType p_data_type, const StringName &p_
 	return Variant();
 }
 
-#ifdef TOOLS_ENABLED
 Ref<Texture2D> Window::get_editor_theme_icon(const StringName &p_name) const {
+#ifdef TOOLS_ENABLED
 	return get_theme_icon(p_name, SNAME("EditorIcons"));
+#else
+	return Ref<Texture2D>();
+#endif // TOOLS_ENABLED
 }
 
 Ref<Texture2D> Window::get_editor_theme_native_menu_icon(const StringName &p_name, bool p_global_menu, bool p_dark_mode) const {
+#ifdef TOOLS_ENABLED
 	if (!p_global_menu) {
 		return get_theme_icon(p_name, SNAME("EditorIcons"));
 	}
@@ -2570,8 +2574,10 @@ Ref<Texture2D> Window::get_editor_theme_native_menu_icon(const StringName &p_nam
 		return get_theme_icon(String(p_name) + "Light", SNAME("EditorIcons"));
 	}
 	return get_theme_icon(p_name, SNAME("EditorIcons"));
+#else
+	return Ref<Texture2D>();
+#endif // TOOLS_ENABLED
 }
-#endif
 
 bool Window::has_theme_icon(const StringName &p_name, const StringName &p_theme_type) const {
 	ERR_READ_THREAD_GUARD_V(false);

@@ -52,6 +52,8 @@ static void _editor_init() {
 		ResourceImporterScene::add_scene_importer(importer);
 	}
 }
+#else
+#include "editor/editor_scene_importer_ufbx.h"
 #endif // TOOLS_ENABLED
 
 #define FBX_REGISTER_DOCUMENT_EXTENSION(m_doc_ext_class) \
@@ -79,6 +81,10 @@ void initialize_fbx_module(ModuleInitializationLevel p_level) {
 		GLOBAL_DEF_RST("filesystem/import/fbx2gltf/enabled.web", false);
 
 		EditorNode::add_init_callback(_editor_init);
+	}
+#else
+	if (p_level == MODULE_INITIALIZATION_LEVEL_EDITOR) {
+		GDREGISTER_CLASS(EditorSceneFormatImporterUFBX);
 	}
 #endif // TOOLS_ENABLED
 }
