@@ -34,10 +34,12 @@
 #include "core/io/config_file.h"
 #include "core/io/image_loader.h"
 #include "core/version.h"
-#include "editor/file_system/editor_file_system.h"
+#ifdef TOOLS_ENABLED
+#include  "editor/file_system/editor_file_system.h"
+#include "editor/settings/editor_settings.h"
+#endif
 #include "editor/gui/editor_toaster.h"
 #include "editor/import/resource_importer_texture_settings.h"
-#include "editor/settings/editor_settings.h"
 #include "editor/themes/editor_scale.h"
 #include "editor/themes/editor_theme_manager.h"
 #include "scene/resources/compressed_texture.h"
@@ -84,10 +86,11 @@ void ResourceImporterTexture::_texture_reimport_normal(const Ref<CompressedTextu
 }
 
 void ResourceImporterTexture::update_imports() {
+#ifdef TOOLS_ENABLED
 	if (EditorFileSystem::get_singleton()->is_scanning() || EditorFileSystem::get_singleton()->is_importing()) {
 		return; // Don't update when EditorFileSystem is doing something else.
 	}
-
+#endif
 	MutexLock lock(mutex);
 	Vector<String> to_reimport;
 
@@ -155,10 +158,11 @@ void ResourceImporterTexture::update_imports() {
 	}
 
 	make_flags.clear();
-
+#ifdef TOOLS_ENABLED
 	if (!to_reimport.is_empty()) {
 		EditorFileSystem::get_singleton()->reimport_files(to_reimport);
 	}
+#endif
 }
 
 String ResourceImporterTexture::get_importer_name() const {
@@ -810,15 +814,16 @@ Error ResourceImporterTexture::import(ResourceUID::ID p_source_id, const String 
 		if (err != OK) {
 			WARN_PRINT(vformat("Failed to import an image resource for editor use from '%s'.", p_source_file));
 		} else {
+#ifdef TOOLS_ENABLED
 			if (convert_editor_colors) {
 				float image_saturation = EDITOR_GET("interface/theme/icon_saturation");
 				editor_image->adjust_bcs(1.0, 1.0, image_saturation);
 			}
+#endif
 
 			images_imported.push_back(editor_image);
 		}
 	}
-
 	for (Ref<Image> &target_image : images_imported) {
 		// Apply the size limit.
 		if (size_limit > 0 && (target_image->get_width() > size_limit || target_image->get_height() > size_limit)) {
@@ -979,10 +984,11 @@ Error ResourceImporterTexture::import(ResourceUID::ID p_source_id, const String 
 		if (use_editor_scale) {
 			editor_meta["editor_scale"] = EDSCALE;
 		}
-
+#ifdef TOOLS_ENABLED
 		if (convert_editor_colors) {
 			editor_meta["editor_dark_theme"] = EditorThemeManager::is_dark_theme();
 		}
+#endif
 
 		_save_editor_meta(editor_meta, p_save_path + ".editor.meta");
 	}
@@ -1040,10 +1046,11 @@ bool ResourceImporterTexture::are_import_settings_valid(const String &p_path, co
 		if (editor_meta.has("editor_scale") && (float)editor_meta["editor_scale"] != EDSCALE) {
 			return false;
 		}
-
+#ifdef TOOLS_ENABLED
 		if (editor_meta.has("editor_dark_theme") && (bool)editor_meta["editor_dark_theme"] != EditorThemeManager::is_dark_theme()) {
 			return false;
 		}
+#endif
 	}
 
 	if (!p_meta.has("vram_texture")) {
