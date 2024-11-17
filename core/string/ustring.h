@@ -706,7 +706,7 @@ _FORCE_INLINE_ bool is_str_less(const L *l_ptr, const R *r_ptr) {
 
 // Tool translate (TTR and variants) for the editor UI,
 // and doc translate for the class reference (DTR).
-#ifdef TOOLS_ENABLED
+//#ifdef TOOLS_ENABLED
 // Gets parsed.
 String TTR(const String &p_text, const String &p_context = "");
 String TTRN(const String &p_text, const String &p_text_plural, int p_n, const String &p_context = "");
@@ -717,10 +717,10 @@ String DTRN(const String &p_text, const String &p_text_plural, int p_n, const St
 // Use to avoid parsing (for use later with C strings).
 #define TTRGET(m_value) TTR(m_value)
 
-#else
-#define TTRC(m_value) (m_value)
-#define TTRGET(m_value) (m_value)
-#endif
+// #else
+// #define TTRC(m_value) (m_value)
+// #define TTRGET(m_value) (m_value)
+// #endif
 
 // Use this to mark property names for editor translation.
 // Often for dynamic properties defined in _get_property_list().

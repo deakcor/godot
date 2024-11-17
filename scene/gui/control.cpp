@@ -78,12 +78,13 @@ Dictionary Control::_edit_get_state() const {
 
 void Control::_edit_set_state(const Dictionary &p_state) {
 	ERR_FAIL_COND(p_state.is_empty() ||
-			!p_state.has("rotation") || !p_state.has("scale") ||
+			!p_state.has("rotation") || !p_state.has("scale") || !p_state.has("skew") ||//custom
 			!p_state.has("pivot") || !p_state.has("anchors") || !p_state.has("offsets") ||
 			!p_state.has("layout_mode") || !p_state.has("anchors_layout_preset"));
 	Dictionary state = p_state;
 
 	set_rotation(state["rotation"]);
+	set_skew(state["skew"]);//custom
 	set_scale(state["scale"]);
 	set_pivot_offset(state["pivot"]);
 
@@ -680,7 +681,7 @@ Size2 Control::get_parent_area_size() const {
 
 Transform2D Control::_get_internal_transform() const {
 	// T(pivot_offset) * R(rotation) * S(scale) * T(-pivot_offset)
-	Transform2D xform(data.rotation, data.scale, 0.0f, data.pivot_offset);
+	Transform2D xform(data.rotation, data.scale, data.skew, data.pivot_offset);
 	xform.translate_local(-data.pivot_offset);
 	return xform;
 }
@@ -1559,7 +1560,30 @@ void Control::set_rotation_degrees(real_t p_degrees) {
 	ERR_MAIN_THREAD_GUARD;
 	set_rotation(Math::deg_to_rad(p_degrees));
 }
+//custom
+real_t Control::get_skew() const {
+	return data.skew;
+}
 
+real_t Control::get_skew_degrees() const {
+	return Math::rad_to_deg(get_skew());
+}
+
+void Control::set_skew(float p_radians) {
+	ERR_MAIN_THREAD_GUARD;
+	if (data.skew == p_radians) {
+		return;
+	}
+	data.skew = p_radians;
+	queue_redraw();
+	_notify_transform();
+}
+
+void Control::set_skew_degrees(float p_degrees) {
+	ERR_MAIN_THREAD_GUARD;
+	set_skew(Math::deg_to_rad(p_degrees));
+}
+//
 real_t Control::get_rotation() const {
 	ERR_READ_THREAD_GUARD_V(0);
 	return data.rotation;
@@ -2743,11 +2767,14 @@ Variant Control::get_theme_item(Theme::DataType p_data_type, const StringName &p
 	return Variant();
 }
 
-#ifdef TOOLS_ENABLED
+
 Ref<Texture2D> Control::get_editor_theme_icon(const StringName &p_name) const {
+#ifdef TOOLS_ENABLED
 	return get_theme_icon(p_name, SNAME("EditorIcons"));
-}
+#else
+	return Ref<Texture2D>();
 #endif // TOOLS_ENABLED
+}
 
 bool Control::has_theme_icon(const StringName &p_name, const StringName &p_theme_type) const {
 	ERR_READ_THREAD_GUARD_V(false);
@@ -3619,6 +3646,14 @@ void Control::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "rotation_degrees", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NONE), "set_rotation_degrees", "get_rotation_degrees");
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "scale"), "set_scale", "get_scale");
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "pivot_offset", PROPERTY_HINT_NONE, "suffix:px"), "set_pivot_offset", "get_pivot_offset");
+	//custom
+	ClassDB::bind_method(D_METHOD("get_skew"), &Control::get_skew);
+	ClassDB::bind_method(D_METHOD("get_skew_degrees"), &Control::get_skew_degrees);
+	ClassDB::bind_method(D_METHOD("set_skew", "radians"), &Control::set_skew);
+	ClassDB::bind_method(D_METHOD("set_skew_degrees", "degrees"), &Control::set_skew_degrees);
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "skew", PROPERTY_HINT_RANGE, "-89.9,89.9,0.1,radians_as_degrees"), "set_skew", "get_skew");
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "skew_degrees", PROPERTY_HINT_NONE, "", PROPERTY_USAGE_NONE), "set_skew_degrees", "get_skew_degrees");
+	//
 
 	ADD_SUBGROUP("Container Sizing", "size_flags_");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "size_flags_horizontal", PROPERTY_HINT_FLAGS, "Fill:1,Expand:2,Shrink Center:4,Shrink End:8"), "set_h_size_flags", "get_h_size_flags");

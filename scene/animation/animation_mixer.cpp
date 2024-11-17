@@ -2282,6 +2282,20 @@ Ref<AnimatedValuesBackup> AnimationMixer::apply_reset(bool p_user_initiated) {
 
 	return backup_current;
 }
+#else
+Ref<AnimatedValuesBackup> AnimationMixer::apply_reset(bool p_user_initiated) {
+	if (!p_user_initiated && dummy) {
+		return Ref<AnimatedValuesBackup>();
+	}
+	ERR_FAIL_COND_V(!can_apply_reset(), Ref<AnimatedValuesBackup>());
+
+	Ref<Animation> reset_anim = animation_set[SceneStringName(RESET)].animation;
+	ERR_FAIL_COND_V(reset_anim.is_null(), Ref<AnimatedValuesBackup>());
+
+	Ref<AnimatedValuesBackup> backup_current = make_backup();
+	reset();
+	return backup_current;
+}
 #endif // TOOLS_ENABLED
 
 /* -------------------------------------------- */

@@ -4944,14 +4944,23 @@ void EditorNode::progress_end_task(const String &p_task) {
 }
 
 void EditorNode::progress_add_task_bg(const String &p_task, const String &p_label, int p_steps) {
+	if (singleton == nullptr) {
+		return;
+	}
 	singleton->progress_hb->add_task(p_task, p_label, p_steps);
 }
 
 void EditorNode::progress_task_step_bg(const String &p_task, int p_step) {
+	if (singleton == nullptr) {
+		return;
+	}
 	singleton->progress_hb->task_step(p_task, p_step);
 }
 
 void EditorNode::progress_end_task_bg(const String &p_task) {
+	if (singleton == nullptr) {
+		return;
+	}
 	singleton->progress_hb->end_task(p_task);
 }
 

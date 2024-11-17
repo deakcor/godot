@@ -134,7 +134,9 @@ void PostImportPluginSkeletonRenamer::_internal_process(InternalImportCategory p
 		while (nodes.size()) {
 			BoneAttachment3D *attachment = Object::cast_to<BoneAttachment3D>(nodes.pop_back());
 			if (attachment) {
+#ifdef TOOLS_ENABLED
 				attachment->notify_skeleton_bones_renamed(p_base_scene, skeleton, rename_map_dict);
+#endif // TOOLS_ENABLED
 			}
 		}
 	}
