@@ -39,7 +39,9 @@
 #include "editor/file_system/editor_file_system.h"
 #include "editor/gui/editor_file_dialog.h"
 #include "editor/inspector/editor_inspector.h"
+#ifdef TOOLS_ENABLED
 #include "editor/settings/editor_settings.h"
+#endif
 #include "editor/themes/editor_scale.h"
 #include "editor/translations/editor_locale_dialog.h"
 #include "scene/gui/split_container.h"
@@ -613,11 +615,12 @@ void DynamicFontImportSettingsDialog::_notification(int p_what) {
 		} break;
 
 		case NOTIFICATION_THEME_CHANGED: {
+#ifdef TOOLS_ENABLED
 			const String theme_style = EDITOR_GET("interface/theme/style");
 			const String type_variation = theme_style == "Classic" ? "TabContainerOdd" : "TabContainerInner";
 			main_pages->set_theme_type_variation(type_variation);
 			preload_pages->set_theme_type_variation(type_variation);
-
+#endif
 			add_var->set_button_icon(get_editor_theme_icon(SNAME("Add")));
 			label_warn->add_theme_color_override(SceneStringName(font_color), get_theme_color(SNAME("warning_color"), EditorStringName(Editor)));
 			glyph_tree->add_theme_color_override(SNAME("font_disabled_color"), glyph_tree->get_theme_color(SceneStringName(font_color)));

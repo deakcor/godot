@@ -5643,7 +5643,7 @@ Vector<uint8_t> String::to_multibyte_char_buffer(const String &p_encoding) const
 	return OS::get_singleton()->string_to_multibyte(p_encoding, *this);
 }
 
-#ifdef TOOLS_ENABLED
+//#ifdef TOOLS_ENABLED
 /**
  * "Tools TRanslate". Performs string replacement for internationalization
  * within the editor. A translation context can optionally be specified to
@@ -5656,9 +5656,11 @@ Vector<uint8_t> String::to_multibyte_char_buffer(const String &p_encoding) const
  * For translations that can be supplied by exported projects, use `RTR()` instead.
  */
 String TTR(const String &p_text, const String &p_context) {
+#ifdef TOOLS_ENABLED
 	if (TranslationServer::get_singleton()) {
 		return TranslationServer::get_singleton()->get_editor_domain()->translate(p_text, p_context);
 	}
+#endif
 
 	return p_text;
 }
@@ -5676,9 +5678,11 @@ String TTR(const String &p_text, const String &p_context) {
  * For translations that can be supplied by exported projects, use `RTRN()` instead.
  */
 String TTRN(const String &p_text, const String &p_text_plural, int p_n, const String &p_context) {
+#ifdef TOOLS_ENABLED
 	if (TranslationServer::get_singleton()) {
 		return TranslationServer::get_singleton()->get_editor_domain()->translate_plural(p_text, p_text_plural, p_n, p_context);
 	}
+#endif
 
 	// Return message based on English plural rule if translation is not possible.
 	if (p_n == 1) {
@@ -5696,11 +5700,11 @@ String TTRN(const String &p_text, const String &p_text_plural, int p_n, const St
 String DTR(const String &p_text, const String &p_context) {
 	// Comes straight from the XML, so remove indentation and any trailing whitespace.
 	const String text = p_text.dedent().strip_edges();
-
+#ifdef TOOLS_ENABLED
 	if (TranslationServer::get_singleton()) {
 		return String(TranslationServer::get_singleton()->get_doc_domain()->translate(text, p_context)).replace("$DOCS_URL", GODOT_VERSION_DOCS_URL);
 	}
-
+#endif
 	return text.replace("$DOCS_URL", GODOT_VERSION_DOCS_URL);
 }
 
@@ -5713,18 +5717,18 @@ String DTR(const String &p_text, const String &p_context) {
 String DTRN(const String &p_text, const String &p_text_plural, int p_n, const String &p_context) {
 	const String text = p_text.dedent().strip_edges();
 	const String text_plural = p_text_plural.dedent().strip_edges();
-
+#ifdef TOOLS_ENABLED
 	if (TranslationServer::get_singleton()) {
 		return String(TranslationServer::get_singleton()->get_doc_domain()->translate_plural(text, text_plural, p_n, p_context)).replace("$DOCS_URL", GODOT_VERSION_DOCS_URL);
 	}
-
+#endif
 	// Return message based on English plural rule if translation is not possible.
 	if (p_n == 1) {
 		return text.replace("$DOCS_URL", GODOT_VERSION_DOCS_URL);
 	}
 	return text_plural.replace("$DOCS_URL", GODOT_VERSION_DOCS_URL);
 }
-#endif
+//#endif
 
 /**
  * "Run-time TRanslate". Performs string replacement for internationalization
