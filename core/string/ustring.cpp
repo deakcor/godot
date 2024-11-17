@@ -5930,7 +5930,7 @@ Vector<uint8_t> String::to_multibyte_char_buffer(const String &p_encoding) const
 	return OS::get_singleton()->string_to_multibyte(p_encoding, *this);
 }
 
-#ifdef TOOLS_ENABLED
+//#ifdef TOOLS_ENABLED
 /**
  * "Tools TRanslate". Performs string replacement for internationalization
  * within the editor. A translation context can optionally be specified to
@@ -6011,7 +6011,7 @@ String DTRN(const String &p_text, const String &p_text_plural, int p_n, const St
 	}
 	return text_plural.replace("$DOCS_URL", GODOT_VERSION_DOCS_URL);
 }
-#endif
+//#endif
 
 /**
  * "Run-time TRanslate". Performs string replacement for internationalization

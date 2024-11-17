@@ -198,6 +198,7 @@ void TreeItem::set_cell_mode(int p_column, TreeCellMode p_mode) {
 	c.text = "";
 	c.dirty = true;
 	c.icon_max_w = 0;
+	c.show_range = false; //custom
 	c.cached_minimum_size_dirty = true;
 
 	_changed_notify(p_column);
@@ -1475,6 +1476,53 @@ bool TreeItem::is_button_disabled(int p_column, int p_index) const {
 	return cells[p_column].buttons[p_index].disabled;
 }
 
+//start custom
+
+void TreeItem::set_button_visible(int p_column, int p_idx, bool p_visible) {
+	ERR_FAIL_INDEX(p_column, cells.size());
+	ERR_FAIL_INDEX(p_idx, cells[p_column].buttons.size());
+
+	cells.write[p_column].buttons.write[p_idx].visible = p_visible;
+	_changed_notify(p_column);
+}
+bool TreeItem::is_button_visible(int p_column, int p_idx) const {
+	ERR_FAIL_INDEX_V(p_column, cells.size(), false);
+	ERR_FAIL_INDEX_V(p_idx, cells[p_column].buttons.size(), false);
+
+	return cells[p_column].buttons[p_idx].visible;
+}
+
+void TreeItem::set_button_toggled(int p_column, int p_idx, bool p_toggled) {
+	ERR_FAIL_INDEX(p_column, cells.size());
+	ERR_FAIL_INDEX(p_idx, cells[p_column].buttons.size());
+
+	cells.write[p_column].buttons.write[p_idx].toggled = p_toggled;
+	_changed_notify(p_column);
+}
+
+void TreeItem::set_button_toggle_mode(int p_column, int p_idx, bool p_toggle_mode) {
+	ERR_FAIL_INDEX(p_column, cells.size());
+	ERR_FAIL_INDEX(p_idx, cells[p_column].buttons.size());
+
+	cells.write[p_column].buttons.write[p_idx].toggle_mode = p_toggle_mode;
+	_changed_notify(p_column);
+}
+
+bool TreeItem::is_button_toggled(int p_column, int p_idx) const {
+	ERR_FAIL_INDEX_V(p_column, cells.size(), false);
+	ERR_FAIL_INDEX_V(p_idx, cells[p_column].buttons.size(), false);
+
+	return cells[p_column].buttons[p_idx].toggled;
+}
+
+bool TreeItem::is_button_toggle_mode(int p_column, int p_idx) const {
+	ERR_FAIL_INDEX_V(p_column, cells.size(), false);
+	ERR_FAIL_INDEX_V(p_idx, cells[p_column].buttons.size(), false);
+
+	return cells[p_column].buttons[p_idx].toggle_mode;
+}
+//end custom
+
 void TreeItem::set_editable(int p_column, bool p_editable) {
 	ERR_FAIL_INDEX(p_column, cells.size());
 
@@ -1885,6 +1933,14 @@ void TreeItem::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_button_disabled", "column", "button_index", "disabled"), &TreeItem::set_button_disabled);
 	ClassDB::bind_method(D_METHOD("set_button_color", "column", "button_index", "color"), &TreeItem::set_button_color);
 	ClassDB::bind_method(D_METHOD("is_button_disabled", "column", "button_index"), &TreeItem::is_button_disabled);
+	//start custom
+	ClassDB::bind_method(D_METHOD("set_button_visible", "column", "button_idx", "visible"), &TreeItem::set_button_visible);
+	ClassDB::bind_method(D_METHOD("is_button_visible", "column", "button_idx"), &TreeItem::is_button_visible);
+	ClassDB::bind_method(D_METHOD("set_button_toggled", "column", "button_idx", "toggled"), &TreeItem::set_button_toggled);
+	ClassDB::bind_method(D_METHOD("set_button_toggle_mode", "column", "button_idx", "toggle_mode"), &TreeItem::set_button_toggle_mode);
+	ClassDB::bind_method(D_METHOD("is_button_toggled", "column", "button_idx"), &TreeItem::is_button_toggled);
+	ClassDB::bind_method(D_METHOD("is_button_toggle_mode", "column", "button_idx"), &TreeItem::is_button_toggle_mode);
+	//end custom
 
 	ClassDB::bind_method(D_METHOD("set_tooltip_text", "column", "tooltip"), &TreeItem::set_tooltip_text);
 	ClassDB::bind_method(D_METHOD("get_tooltip_text", "column"), &TreeItem::get_tooltip_text);
@@ -2625,6 +2681,11 @@ int Tree::draw_item(const Point2i &p_pos, const Point2 &p_draw_ofs, const Size2 
 
 			// Draw the buttons inside the cell.
 			for (int j = p_item->cells[i].buttons.size() - 1; j >= 0; j--) {
+				//start custom
+				if (!p_item->cells[i].buttons[j].visible) {
+					continue;
+				}
+				//end custom
 				Ref<Texture2D> button_texture = p_item->cells[i].buttons[j].texture;
 				Size2 button_size = button_texture->get_size() + theme_cache.button_pressed->get_minimum_size();
 
@@ -4067,6 +4128,16 @@ void Tree::gui_input(const Ref<InputEvent> &p_event) {
 				int current_column, current_index, current_section;
 				_find_button_at_pos(mb->get_position(), current_item, current_column, current_index, current_section);
 				if (current_item == cache.click_item && current_column == cache.click_column && current_index == cache.click_index) {
+					//start custom
+					if (cache.click_item != nullptr) {
+						int idx = cache.click_item->get_button_by_id(cache.click_column, cache.click_id);
+						if (cache.click_item->cells[cache.click_column].buttons[idx].toggle_mode) {
+							cache.click_item->set_button_toggled(cache.click_column, idx, !cache.click_item->cells[cache.click_column].buttons[idx].toggled);
+						} else {
+							cache.click_item->set_button_toggled(cache.click_column, idx, false);
+						}
+					}
+					//end custom
 					emit_signal("button_clicked", cache.click_item, cache.click_column, cache.click_id, mb->get_button_index());
 				}
 			}
@@ -4395,6 +4466,22 @@ bool Tree::edit_selected(bool p_force_edit) {
 		line_editor->show();
 
 		text_editor->hide();
+		 //start custom
+		if (c.mode == TreeItem::CELL_MODE_RANGE && c.show_range) {
+			popup_rect.size.y += value_editor_height;
+
+			value_editor->show();
+			updating_value_editor = true;
+			value_editor->set_min(c.min);
+			value_editor->set_max(c.max);
+			value_editor->set_step(c.step);
+			value_editor->set_value(c.val);
+			value_editor->set_exp_ratio(c.expr);
+			updating_value_editor = false;
+		} else if (value_editor) {
+			value_editor->hide();
+		}
+		//end custom
 
 		popup_editor->set_position(popup_rect.position);
 		popup_editor->set_size(popup_rect.size * popup_scale);
