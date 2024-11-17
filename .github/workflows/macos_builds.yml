@@ -6,9 +6,11 @@ on:
 # Global Settings
 env:
   SCONS_FLAGS: >-
-    dev_mode=yes
+    production=yes
+    debug_symbols=yes
+    tests=yes
     module_text_server_fb_enabled=yes
-
+    custom_modules="./custom_modules"
 jobs:
   build-macos:
     # From https://docs.github.com/en/actions/how-tos/write-workflows/choose-where-workflows-run/choose-the-runner-for-a-job#choosing-github-hosted-runners
@@ -34,6 +36,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
         with:
+          token: ${{ secrets.PIXELOVER_MODULE }}
           submodules: recursive
 
       - name: Restore Godot build cache
@@ -84,6 +87,7 @@ jobs:
           scons-flags: ${{ env.SCONS_FLAGS }} ${{ matrix.scons-flags }} arch=x86_64 vulkan=${{ steps.vulkan-sdk.outputs.VULKAN_ENABLED }} accesskit=${{ steps.accesskit-sdk.outputs.ACCESSKIT_ENABLED }} angle=${{ steps.angle-sdk.outputs.ANGLE_ENABLED }}
           platform: macos
           target: ${{ matrix.target }}
+          encryption-key: ${{ secrets.ENCRYPTION_KEY }}
 
       - name: Compilation (arm64)
         uses: ./.github/actions/godot-build
@@ -91,6 +95,7 @@ jobs:
           scons-flags: ${{ env.SCONS_FLAGS }} ${{ matrix.scons-flags }} arch=arm64 vulkan=${{ steps.vulkan-sdk.outputs.VULKAN_ENABLED }} accesskit=${{ steps.accesskit-sdk.outputs.ACCESSKIT_ENABLED }} angle=${{ steps.angle-sdk.outputs.ANGLE_ENABLED }}
           platform: macos
           target: ${{ matrix.target }}
+          encryption-key: ${{ secrets.ENCRYPTION_KEY }}
 
       - name: Save Godot build cache
         uses: ./.github/actions/godot-cache-save

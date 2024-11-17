@@ -1,0 +1,3 @@
+[submodule "custom_modules/pixelover_module"]
+	path = custom_modules/pixelover_module
+	url = https://github.com/deakcor/pixelover_module

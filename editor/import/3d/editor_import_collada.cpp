@@ -30,6 +30,8 @@
 
 #include "editor_import_collada.h"
 
+#include "custom_modules/pixelover_module/po_importer/po_importer.h"
+
 #include "core/config/project_settings.h"
 #include "core/io/resource_loader.h"
 #include "core/templates/rb_set.h"
@@ -358,14 +360,14 @@ Error ColladaImport::_create_material(const String &p_target) {
 	material->set_name(name);
 
 	// DIFFUSE
-
+	POImporter *po_importer = new POImporter;
 	if (!effect.diffuse.texture.is_empty()) {
 		String texfile = effect.get_texture_path(effect.diffuse.texture, collada);
 		if (!texfile.is_empty()) {
 			if (texfile.begins_with("/")) {
 				texfile = texfile.replace_first("/", "res://");
 			}
-			Ref<Texture2D> texture = ResourceLoader::load(texfile, "Texture2D");
+			Ref<Texture2D> texture = po_importer->import_and_load(texfile, "Texture2D");
 			if (texture.is_valid()) {
 				material->set_texture(StandardMaterial3D::TEXTURE_ALBEDO, texture);
 				material->set_albedo(Color(1, 1, 1, 1));
@@ -387,7 +389,7 @@ Error ColladaImport::_create_material(const String &p_target) {
 				texfile = texfile.replace_first("/", "res://");
 			}
 
-			Ref<Texture2D> texture = ResourceLoader::load(texfile, "Texture2D");
+			Ref<Texture2D> texture = po_importer->import_and_load(texfile, "Texture2D");
 			if (texture.is_valid()) {
 				material->set_texture(StandardMaterial3D::TEXTURE_METALLIC, texture);
 				material->set_specular(1.0);
@@ -412,7 +414,7 @@ Error ColladaImport::_create_material(const String &p_target) {
 				texfile = texfile.replace_first("/", "res://");
 			}
 
-			Ref<Texture2D> texture = ResourceLoader::load(texfile, "Texture2D");
+			Ref<Texture2D> texture = po_importer->import_and_load(texfile, "Texture2D");
 			if (texture.is_valid()) {
 				material->set_feature(StandardMaterial3D::FEATURE_EMISSION, true);
 				material->set_texture(StandardMaterial3D::TEXTURE_EMISSION, texture);
@@ -439,7 +441,7 @@ Error ColladaImport::_create_material(const String &p_target) {
 				texfile = texfile.replace_first("/", "res://");
 			}
 
-			Ref<Texture2D> texture = ResourceLoader::load(texfile, "Texture2D");
+			Ref<Texture2D> texture = po_importer->import_and_load(texfile, "Texture2D");
 			if (texture.is_valid()) {
 				material->set_feature(StandardMaterial3D::FEATURE_NORMAL_MAPPING, true);
 				material->set_texture(StandardMaterial3D::TEXTURE_NORMAL, texture);
