@@ -37,7 +37,9 @@
 #include "editor/gui/editor_file_dialog.h"
 #include "editor/inspector/editor_inspector.h"
 #include "editor/scene/3d/skeleton_3d_editor_plugin.h"
+#ifdef TOOLS_ENABLED
 #include "editor/settings/editor_settings.h"
+#endif
 #include "editor/themes/editor_scale.h"
 #include "scene/3d/importer_mesh_instance_3d.h"
 #include "scene/3d/multimesh_instance_3d.h"
@@ -1769,7 +1771,9 @@ SceneImportSettingsDialog::SceneImportSettingsDialog() {
 	animation_play_button->set_flat(true);
 	animation_play_button->set_accessibility_name(TTRC("Selected Animation Play/Pause"));
 	animation_play_button->set_focus_mode(Control::FOCUS_ACCESSIBILITY);
+#ifdef TOOLS_ENABLED
 	animation_play_button->set_shortcut(ED_SHORTCUT("scene_import_settings/play_selected_animation", TTRC("Selected Animation Play/Pause"), Key::SPACE));
+#endif
 	animation_play_button->connect(SceneStringName(pressed), callable_mp(this, &SceneImportSettingsDialog::_play_animation));
 
 	animation_stop_button = memnew(Button);

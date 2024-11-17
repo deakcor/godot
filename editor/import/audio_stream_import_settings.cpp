@@ -32,7 +32,9 @@
 
 #include "editor/audio/audio_stream_preview.h"
 #include "editor/editor_string_names.h"
+#ifdef TOOLS_ENABLED
 #include "editor/file_system/editor_file_system.h"
+#endif
 #include "editor/themes/editor_scale.h"
 #include "scene/gui/check_box.h"
 
@@ -235,17 +237,20 @@ void AudioStreamImportSettingsDialog::_reset_master() {
 	AudioServer::get_singleton()->set_bus_mute(0, false);
 	AudioServer::get_singleton()->set_bus_volume_db(0, 0);
 
+#ifdef TOOLS_ENABLED
 	// Prevent the modifications from being saved.
 	AudioServer::get_singleton()->set_edited(false);
+#endif
 }
 
 void AudioStreamImportSettingsDialog::_load_master_state() {
 	AudioServer::get_singleton()->set_bus_bypass_effects(0, master_state.bypass);
 	AudioServer::get_singleton()->set_bus_mute(0, master_state.mute);
 	AudioServer::get_singleton()->set_bus_volume_db(0, master_state.volume);
-
+#ifdef TOOLS_ENABLED
 	// Prevent the modifications from being saved.
 	AudioServer::get_singleton()->set_edited(false);
+#endif
 }
 
 void AudioStreamImportSettingsDialog::_audio_changed() {
@@ -555,8 +560,9 @@ void AudioStreamImportSettingsDialog::_reimport() {
 	params["bpm"] = bpm_enabled->is_pressed() ? double(bpm_edit->get_value()) : double(0);
 	params["beat_count"] = (bpm_enabled->is_pressed() && beats_enabled->is_pressed()) ? int(beats_edit->get_value()) : int(0);
 	params["bar_beats"] = (bpm_enabled->is_pressed()) ? int(bar_beats_edit->get_value()) : int(4);
-
+#ifdef TOOLS_ENABLED
 	EditorFileSystem::get_singleton()->reimport_file_with_custom_parameters(path, importer, params);
+#endif
 }
 
 AudioStreamImportSettingsDialog::AudioStreamImportSettingsDialog() {

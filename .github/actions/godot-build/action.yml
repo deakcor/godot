@@ -10,6 +10,8 @@ inputs:
   platform:
     description: Target platform.
     type: string
+  encryption-key:
+    type: string
   scons-flags:
     description: Additional SCons flags.
     type: string
@@ -23,13 +25,12 @@ runs:
   steps:
     - name: SCons Build
       shell: sh
+      env:
+        SCONSFLAGS: ${{ inputs.sconsflags }}
+        ENCRYPTION_KEY: ${{ inputs.encryption-key }}
       run: |
+        export SCRIPT_AES256_ENCRYPTION_KEY=${{ env.ENCRYPTION_KEY }}
         echo "Building with flags:" platform=${{ inputs.platform }} target=${{ inputs.target }} ${{ inputs.scons-flags }} "cache_path=${{ inputs.scons-cache }}" redirect_build_objects=no
-
-        if [ "${{ inputs.target }}" != "editor" ]; then
-          # Ensure we don't include editor code in export template builds.
-          rm -rf editor
-        fi
 
         if [ "${{ github.event.number }}" != "" ]; then
           # Set build identifier with pull request number if available. This is displayed throughout the editor.
